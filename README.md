@@ -1,5 +1,7 @@
 # Claude Code Plugins
 
+[日本語](README.ja.md)
+
 A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugins for development workflow.
 
 ## Plugins
@@ -26,6 +28,25 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 /task-tracker:close 1 Fixed by updating the handler
 ```
 
+### skill-authoring
+
+Guides creation and review of Claude Code [Agent Skills](https://code.claude.com/docs/en/skills) with standardized workflows and quality checklists.
+
+**Features:**
+- Intent-based routing: "create a skill" or "review skill" triggers the appropriate workflow
+- 8-step creation workflow with execution pattern selection and token optimization guidance
+- 6-step review workflow with checklist evaluation (27 items across 6 categories)
+- Shared guidelines covering standard rules and recommended practices
+- Custom SubAgent definition reference
+
+**Usage:**
+
+```
+Create a new skill for checking Slack notifications
+Review the task-tracker skill
+What are the skill authoring guidelines?
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -38,6 +59,7 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 
 ```
 /plugin install task-tracker@khaym-claude-plugins
+/plugin install skill-authoring@khaym-claude-plugins
 ```
 
 ### Update

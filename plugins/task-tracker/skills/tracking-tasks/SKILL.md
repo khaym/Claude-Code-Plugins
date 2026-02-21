@@ -62,6 +62,16 @@ Use standard categories to classify tasks:
 - Filter by category: `task.sh list --category bug`
 - Update a task: `task.sh update 3 -s "Updated subject" -c improvement`
 
+## Error Handling
+
+All commands exit with non-zero status and print an error message on failure. Common cases:
+
+- **Task not found**: `show`, `update`, `close`, `delete` fail if the ID does not exist
+- **Missing required arguments**: `add` requires `-s`; `show`/`update`/`close`/`delete` require an ID
+- **Already closed**: `close` fails if the task is already closed
+
+No special recovery is needed — read the error message and retry with corrected arguments.
+
 ## Data Storage
 
 Tasks are stored in `.tasks/` at the project root:
