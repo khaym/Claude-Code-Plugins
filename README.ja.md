@@ -31,19 +31,19 @@ TSVファイルとシェルスクリプトによる軽量タスク/チケット�
 ### マーケットプレイスの追加
 
 ```
-/plugin marketplace add khaym/claude-code-plugins
+/plugin marketplace add khaym/khaym-claude-plugins
 ```
 
 ### プラグインのインストール
 
 ```
-/plugin install task-tracker@claude-code-plugins
+/plugin install task-tracker@khaym-claude-plugins
 ```
 
 ### アップデート
 
 ```
-/plugin marketplace update claude-code-plugins
+/plugin marketplace update khaym-claude-plugins
 ```
 
 

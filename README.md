@@ -31,19 +31,19 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 ### Add the marketplace
 
 ```
-/plugin marketplace add khaym/claude-code-plugins
+/plugin marketplace add khaym/khaym-claude-plugins
 ```
 
 ### Install a plugin
 
 ```
-/plugin install task-tracker@claude-code-plugins
+/plugin install task-tracker@khaym-claude-plugins
 ```
 
 ### Update
 
 ```
-/plugin marketplace update claude-code-plugins
+/plugin marketplace update khaym-claude-plugins
 ```
 
 
