@@ -1,0 +1,19 @@
+{
+  "name": "claude-code-plugins",
+  "owner": {
+    "name": "khaym"
+  },
+  "metadata": {
+    "description": "A collection of Claude Code plugins for development workflow"
+  },
+  "plugins": [
+    {
+      "name": "task-tracker",
+      "source": "./plugins/task-tracker",
+      "description": "Lightweight task/ticket tracker using TSV files and shell scripts",
+      "version": "1.0.0",
+      "category": "productivity",
+      "tags": ["task", "tracker", "project-management"]
+    }
+  ]
+}
