@@ -40,7 +40,13 @@ Follow the selection flow in [guidelines.md](guidelines.md) to determine the opt
 3. **Built-in SubAgent**: One-off research or data retrieval
 4. **Custom SubAgent**: Repeatedly executed specialized tasks (e.g., slack-check, jira-check)
 
-If Custom SubAgent is selected, also refer to [custom-subagent.md](custom-subagent.md) to consider design options (tool restrictions, model selection, memory, etc.) at this step.
+If Custom SubAgent is selected:
+- Refer to [custom-subagent.md](custom-subagent.md) to consider design options (tool restrictions, model selection, memory, etc.)
+- **Determine whether to separate skills**: If the agent has only one procedure, embed it directly in agent.md (no skill needed). Only create separate skills when the agent uses multiple interchangeable procedures
+- If Custom SubAgent is chosen, read the remaining steps with these adjustments:
+  - Step 3: Create design.md inside the agent directory
+  - Step 4: Design the agent subdirectory structure
+  - Step 5: If no skill is needed, write the procedure directly in agent.md
 
 ## 3. Create design.md
 
@@ -92,7 +98,21 @@ Share the design with the user and get alignment before proceeding.
 
 Based on design.md's data flow and decisions, determine the directory structure.
 
-### Minimum structure (all skills)
+### A. Custom SubAgent (subdirectory pattern)
+
+```
+.claude/agents/{agent-name}/
+├── agent.md      # Agent definition + procedure (required)
+├── design.md     # Design document
+├── fetch.py      # Script (if needed)
+└── report.md     # Output file (if needed)
+```
+
+- Write the system prompt and procedure directly in agent.md
+- Place scripts and output files in the same directory as the agent
+- Only separate skills into `.claude/skills/` when the agent uses multiple interchangeable procedures
+
+### B. Skill (main session / context: fork)
 
 ```
 .claude/skills/{skill-name}/

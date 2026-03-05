@@ -21,11 +21,37 @@ How to define dedicated agents when Built-in SubAgents are insufficient.
 - Domain knowledge should be embedded in the system prompt
 - Cross-session learning is needed (`memory`)
 
-## Definition File Structure
+## Directory Structure
 
-Placement:
+Custom SubAgents use a **subdirectory pattern**. Keep scripts, output files, and other resources alongside the agent definition.
+
+```
+.claude/agents/<agent-name>/
+├── agent.md          # Agent definition + procedure (required)
+├── design.md         # Design document
+├── fetch.py          # Script (if needed)
+├── report.md         # Output file (if needed)
+└── cache.json        # Cache etc. (if needed)
+```
+
+Placement scopes:
 - `.claude/agents/` — Project scope (shareable with team)
 - `~/.claude/agents/` — User scope (available across all projects)
+
+**Warning: Do not place `.venv` inside the agent directory.** Markdown files inside Python packages (licenses, etc.) interfere with agent discovery and can prevent the agent from being recognized. If a venv is needed, place it at `.claude/venvs/<agent-name>/` instead.
+
+### Skill vs SubAgent Decision
+
+| Condition | Approach |
+|-----------|----------|
+| Agent has only one procedure | **Embed directly in agent.md** (no skill needed) |
+| Agent uses multiple interchangeable procedures | Separate into skills in `.claude/skills/` and reference via `skills` field |
+
+**Why not create a skill for single-procedure agents:** Embedding the procedure directly in agent.md is simpler (fewer files to manage) and ensures the procedure is included as part of the system prompt. A separate SKILL.md adds file management overhead and is only warranted when the agent needs multiple interchangeable procedures.
+
+**Multiple skills example**: A `developer` agent that has `coding-skill` and `testing-skill`, switching between them based on the task. In this case, separate them as skills without frontmatter (agent-exclusive) and place in `.claude/skills/`.
+
+## Agent Definition File
 
 ```markdown
 ---
@@ -36,7 +62,7 @@ model: haiku
 maxTurns: 10
 ---
 
-System prompt content goes here.
+System prompt and procedure go here.
 ```
 
 ## Frontmatter Fields
@@ -55,4 +81,4 @@ System prompt content goes here.
 | `memory` | No | Persistent memory scope (`user` / `project` / `local`) |
 | `hooks` | No | Lifecycle hooks (PreToolUse, PostToolUse, Stop) |
 
-Details: https://docs.claude.ai/en/docs/sub-agents
+Details: https://code.claude.com/docs/en/sub-agents
