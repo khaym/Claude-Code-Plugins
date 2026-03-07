@@ -37,6 +37,7 @@ Custom SubAgents use a **subdirectory pattern**. Keep scripts, output files, and
 Placement scopes:
 - `.claude/agents/` — Project scope (shareable with team)
 - `~/.claude/agents/` — User scope (available across all projects)
+- `<plugin-root>/agents/` — Plugin scope (distributed via marketplace). See [plugin-structure.md](plugin-structure.md)
 
 **Warning: Do not place `.venv` inside the agent directory.** Markdown files inside Python packages (licenses, etc.) interfere with agent discovery and can prevent the agent from being recognized. If a venv is needed, place it at `.claude/venvs/<agent-name>/` instead.
 

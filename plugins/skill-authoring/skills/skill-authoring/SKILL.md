@@ -28,6 +28,7 @@ Ask the user to clarify if intent is ambiguous.
 | [review-workflow.md](review-workflow.md) | 6-step review process | Skill review |
 | [checklist.md](checklist.md) | Quality checklist (G/S/F/C/D/A categories) | Final check in creation, evaluation in review |
 | [custom-subagent.md](custom-subagent.md) | Custom SubAgent definition reference | When creating or evaluating Custom SubAgents |
+| [plugin-structure.md](plugin-structure.md) | Plugin packaging and distribution | When packaging skills/agents as a plugin |
 
 ## Notes
 

@@ -108,6 +108,8 @@ Based on design.md's data flow and decisions, determine the directory structure.
 └── report.md     # Output file (if needed)
 ```
 
+For plugin distribution, use `<plugin-root>/agents/` instead of `.claude/agents/`. See [plugin-structure.md](plugin-structure.md).
+
 - Write the system prompt and procedure directly in agent.md
 - Place scripts and output files in the same directory as the agent
 - Only separate skills into `.claude/skills/` when the agent uses multiple interchangeable procedures

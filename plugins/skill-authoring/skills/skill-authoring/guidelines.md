@@ -49,11 +49,13 @@ There are several context separation methods. Choose the optimal pattern based o
 | **Main session** | Shared | Runs directly in the main conversation | Frequent interaction, iterative refinement, quick changes |
 | **Skill (context: fork)** | Forked from main | Skill's `context: fork` for branched execution | Independent work while referencing main context |
 | **Built-in SubAgent** | Fully isolated | Delegate to built-in agents via Task tool. No setup needed | One-off research or data retrieval |
-| **Custom SubAgent** | Fully isolated + custom | Agent definition file in `.claude/agents/` | Repeatedly executed specialized tasks |
+| **Custom SubAgent** | Fully isolated + custom | Agent definition file in `.claude/agents/` or `<plugin>/agents/` | Repeatedly executed specialized tasks |
 
 **Built-in SubAgent**: Claude Code's built-in agents (Explore, Plan, general-purpose, Bash, etc.). Instantly usable via the Task tool. However, delegation rules must be written in CLAUDE.md, consuming main session context.
 
-**Custom SubAgent**: A dedicated agent defined as a YAML-frontmatter Markdown file in `.claude/agents/`. The `description` field handles delegation criteria, so no CLAUDE.md entry is needed. See [custom-subagent.md](custom-subagent.md) for details.
+**Custom SubAgent**: A dedicated agent defined as a YAML-frontmatter Markdown file in `.claude/agents/` (or `<plugin>/agents/` for plugin distribution). The `description` field handles delegation criteria, so no CLAUDE.md entry is needed. See [custom-subagent.md](custom-subagent.md) for details.
+
+> **Plugin note**: `context: fork` may not work reliably in plugins. Use Custom SubAgents for context isolation in plugins. See [plugin-structure.md](plugin-structure.md).
 
 **Selection flow**:
 

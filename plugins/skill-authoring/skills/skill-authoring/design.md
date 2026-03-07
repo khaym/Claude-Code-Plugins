@@ -14,6 +14,7 @@ Standardize skill quality by providing structured workflows for both creation an
 | guidelines.md as shared reference | Eliminates duplication between creation and review; single point of update when rules change |
 | Standard rules vs. recommended practices separated | Distinguishes mandatory requirements from optional best practices; makes the skill portable across projects |
 | Checklist with category grouping | G/S/F/C (standard) and D/A (recommended) ensure coverage while making applicability clear |
+| plugin-structure.md added | Plugin packaging is a natural next step after skill/agent creation; guides standalone-to-plugin conversion and marketplace distribution |
 
 ## Data Flow
 
@@ -38,6 +39,7 @@ Output (new skill)              Review report + improvements
 - Standard rules in guidelines.md are a snapshot of official documentation; manual updates are needed if official rules change. Source references:
   - https://code.claude.com/docs/en/skills
   - https://code.claude.com/docs/en/sub-agents
+  - https://code.claude.com/docs/en/plugins
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 - Interactive-only — cannot be automated via SubAgent since user involvement is always required
