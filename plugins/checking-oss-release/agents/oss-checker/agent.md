@@ -1,12 +1,14 @@
 ---
-name: checking-oss-release
+name: oss-checker
 description: >
   Checks open source projects for security leaks, privacy issues, and license
   compliance before release. Can also set up git pre-commit hooks. Use when
   you hear "oss check", "release check", "license check", "security check",
   "pre-release audit", "open source readiness",
   or "setup pre-commit hook".
-context: fork
+tools: Read, Bash, Grep, Glob
+model: sonnet
+maxTurns: 30
 ---
 
 # OSS Release Check
@@ -25,9 +27,9 @@ Pre-release audit for open source projects.
 
 | Mode | When | Scope |
 |------|------|-------|
-| **Setup** | `$ARGUMENTS` contains "setup" | Install git pre-commit hook via .githooks + prepare script |
-| **Quick** | PreCommit hook or `$ARGUMENTS` contains "quick" | Staged files; secrets, git email, gitignore |
-| **Full** | Default or `$ARGUMENTS` contains "full" | All files; secrets, privacy, licenses |
+| **Setup** | User mentions "setup" | Install git pre-commit hook via .githooks + prepare script |
+| **Quick** | User mentions "quick" or pre-commit | Staged files; secrets, git email, gitignore |
+| **Full** | Default | All files; secrets, privacy, licenses |
 
 ---
 
@@ -69,7 +71,7 @@ Confirm the setup:
 Run the same checks as [pre-commit.sh](pre-commit.sh) (git email, secrets, .gitignore).
 See [design.md](design.md) for rationale.
 
-Execute: `bash "${CLAUDE_SKILL_DIR}/pre-commit.sh"` and report the results.
+Execute: `bash "${CLAUDE_AGENT_DIR}/pre-commit.sh"` and report the results.
 
 ---
 
@@ -100,27 +102,27 @@ Also check `git config user.email` (same as Quick Step 1).
 
 ### 3. License File Check
 
-1. Check that `LICENSE`, `LICENSE.md`, or `LICENSE.txt` exists → **FAIL** if missing
+1. Check that `LICENSE`, `LICENSE.md`, or `LICENSE.txt` exists — **FAIL** if missing
 2. Identify the license type (MIT, Apache-2.0, etc.)
 3. Record for dependency compatibility check
 
 ### 4. Dependency License Scan
 
-1. Read `package.json` → `dependencies` and `devDependencies`
-2. For each direct dependency, read `node_modules/{pkg}/package.json` → `license` field
+1. Read `package.json` — `dependencies` and `devDependencies`
+2. For each direct dependency, read `node_modules/{pkg}/package.json` — `license` field
 3. Compare against project license using [license-matrix.md](license-matrix.md):
-   - Permissive (MIT, ISC, BSD, Apache-2.0, etc.) → **PASS**
-   - Weak copyleft (LGPL, MPL) → **WARN** with explanation
-   - Strong copyleft (GPL, AGPL) → **FAIL**
-   - Missing/unknown → **WARN**
-4. If `node_modules/` is absent → **WARN** ("run npm install first"), skip scan
+   - Permissive (MIT, ISC, BSD, Apache-2.0, etc.) — **PASS**
+   - Weak copyleft (LGPL, MPL) — **WARN** with explanation
+   - Strong copyleft (GPL, AGPL) — **FAIL**
+   - Missing/unknown — **WARN**
+4. If `node_modules/` is absent — **WARN** ("run npm install first"), skip scan
 
 ### 5. Attribution Check
 
 If any dependency uses Apache-2.0:
 1. Check if `THIRD_PARTY_LICENSES` or `THIRD_PARTY_LICENSES.md` exists
-2. Missing → **WARN** with recommendation to create one
-3. Present → verify it mentions the required packages
+2. Missing — **WARN** with recommendation to create one
+3. Present — verify it mentions the required packages
 
 ### 6. Full Report
 

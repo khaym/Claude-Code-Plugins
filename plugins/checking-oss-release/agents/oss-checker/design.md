@@ -1,4 +1,4 @@
-# oss-release-check Design Doc
+# checking-oss-release Design Doc
 
 ## Purpose
 
@@ -9,7 +9,9 @@ Automate pre-release checks for open source projects to catch security/privacy l
 | Decision | Rationale |
 |----------|-----------|
 | Three modes: setup / quick / full | Setup installs git hooks; Quick runs on every commit; Full for pre-release audit |
-| context: fork | File scanning is context-heavy; isolate from main session |
+| Custom SubAgent (oss-checker) | File scanning is context-heavy; Custom SubAgent provides reliable context isolation with tool restrictions and model selection |
+| Tools: Read, Bash, Grep, Glob | Minimum tools needed for file scanning; no write access required |
+| Model: sonnet | File scanning and pattern matching; opus not needed |
 | Git email in quick mode | Personal email in commit history is a common oversight; must catch before every commit |
 | Gitignore in quick mode | Prevents committing .env / keys; lightweight check worth running every time |
 | Email scan in full mode only | Emails in source files are rare; not worth the cost on every commit |
