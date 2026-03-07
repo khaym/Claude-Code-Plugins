@@ -47,6 +47,46 @@ Review the task-tracker skill
 What are the skill authoring guidelines?
 ```
 
+### checking-oss-release
+
+Checks open source projects for security leaks, privacy issues, and license compliance before release. Can also set up git pre-commit hooks.
+
+**Features:**
+- Three modes: Setup (install pre-commit hook), Quick (staged files check), Full (all files audit)
+- Secret pattern detection (API keys, private keys, AWS credentials, GitHub tokens, etc.)
+- Git email privacy check (noreply enforcement)
+- .gitignore coverage validation
+- Dependency license compatibility scan with license matrix
+- THIRD_PARTY_LICENSES attribution check
+- Bundled pre-commit hook script
+
+**Usage:**
+
+```
+Run an OSS release check
+Setup pre-commit hooks for security
+Quick security check on staged files
+Full pre-release audit
+```
+
+### designing-test-cases
+
+Guides systematic test case design using established testing techniques. Works with any tech stack and is TDD-compatible (test-first, driven by specs and types rather than implementation).
+
+**Features:**
+- Two workflows: New test design and existing test review (gap analysis)
+- Seven test design techniques: Equivalence Partitioning, Boundary Value Analysis, Null/Undefined Handling, Type Mismatch, State Transition, Combination/Interaction, Error/Exception
+- Produces structured test case matrices (technique × input × expected result)
+- Detailed technique reference with rules, checklists, and examples
+
+**Usage:**
+
+```
+Design test cases for the login function
+Are these tests enough? Review test coverage
+What boundary values should I test?
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -60,6 +100,8 @@ What are the skill authoring guidelines?
 ```
 /plugin install task-tracker@khaym-claude-plugins
 /plugin install skill-authoring@khaym-claude-plugins
+/plugin install checking-oss-release@khaym-claude-plugins
+/plugin install designing-test-cases@khaym-claude-plugins
 ```
 
 ### Update

@@ -22,6 +22,22 @@
       "version": "1.0.0",
       "category": "productivity",
       "tags": ["skill", "authoring", "quality", "workflow"]
+    },
+    {
+      "name": "checking-oss-release",
+      "source": "./plugins/checking-oss-release",
+      "description": "Checks open source projects for security leaks, privacy issues, and license compliance before release",
+      "version": "1.0.0",
+      "category": "security",
+      "tags": ["oss", "security", "license", "pre-commit", "release"]
+    },
+    {
+      "name": "designing-test-cases",
+      "source": "./plugins/designing-test-cases",
+      "description": "Guides systematic test case design using established testing techniques",
+      "version": "1.0.0",
+      "category": "testing",
+      "tags": ["test", "tdd", "test-design", "coverage", "boundary-value"]
     }
   ]
 }
