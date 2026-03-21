@@ -30,14 +30,17 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 
 ### skill-authoring
 
-Guides creation and review of Claude Code [Agent Skills](https://code.claude.com/docs/en/skills) with standardized workflows and quality checklists.
+Context design framework for Claude Code [Agent Skills](https://code.claude.com/docs/en/skills). Claude's performance depends on the context it receives — this plugin provides principles and workflows for designing skills that give Claude the right information at the right time.
 
-**Features:**
-- Intent-based routing: "create a skill" or "review skill" triggers the appropriate workflow
-- 8-step creation workflow with execution pattern selection and token optimization guidance
-- 6-step review workflow with checklist evaluation (27 items across 6 categories)
-- Shared guidelines covering standard rules and recommended practices
-- Custom SubAgent definition reference
+**Core principles:**
+- **Context Design** — Control what enters, flows through, and exits each skill's context to maximize Claude's accuracy
+- **Execution Pattern Selection** — Choose the optimal isolation level (main session, context:fork, Built-in/Custom SubAgent) for each task
+- **Skill Composition** — When multiple agents share domain knowledge, use the `skills` field for Dependency Injection rather than duplicating content or creating fragile cross-references
+- **Quality Checklist** — 28-item evaluation across 6 categories (Context Design, Structure, Frontmatter, Content, design.md, Scripts)
+
+**Workflows:**
+- **Creation**: Requirements → Pattern Selection → Design → Structure → Implementation → Quality Check → Test
+- **Review**: Load → Compare Against Guidelines → Checklist Evaluation → Improvement Proposals → Report
 
 **Usage:**
 
@@ -92,7 +95,11 @@ What boundary values should I test?
 ### Add the marketplace
 
 ```
-/plugin marketplace add khaym/khaym-claude-plugins
+# HTTPS (recommended — works without SSH key setup)
+/plugin marketplace add https://github.com/khaym/Claude-Code-Plugins.git
+
+# GitHub shorthand (requires SSH key configured for github.com)
+/plugin marketplace add khaym/Claude-Code-Plugins
 ```
 
 ### Install a plugin
