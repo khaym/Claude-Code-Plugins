@@ -122,6 +122,28 @@ For plugin distribution, use `<plugin-root>/agents/` instead of `.claude/agents/
 └── design.md     # Design document (recommended)
 ```
 
+### C. Skill Composition (DI pattern)
+
+When multiple agents share domain knowledge, apply [Skill Composition](guidelines.md#skill-composition):
+
+```
+.claude/skills/
+├── shared-principles/   # Single Source of Truth
+│   └── SKILL.md
+├── project-adaptation/  # Self-contained delta (no cross-references)
+│   └── SKILL.md
+.claude/agents/
+├── planner/
+│   └── agent.md         # skills: shared-principles, project-adaptation
+├── reviewer/
+│   └── agent.md         # skills: shared-principles
+```
+
+- Identify which knowledge is shared and designate one skill as its owner
+- Write each skill as a self-contained module (no inter-skill references)
+- Wire agents to their required skills via the `skills` frontmatter field
+- Record the composition pattern in design.md (which agents preload which skills)
+
 ### Additional files as needed
 
 | Type | When to add | Example |

@@ -61,6 +61,7 @@ Remarks example: `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-i
 | C3 | No time-dependent expressions ("latest", "current", etc.) |
 | C4 | Procedures are written as clear, numbered steps |
 | C5 | Error handling procedures are included |
+| C6 | No references to another skill's internal structure (section numbers, headings) |
 
 ---
 

@@ -4,7 +4,7 @@ Shared reference for both the creation workflow and the review workflow.
 
 ## Table of Contents
 
-- [Skill Design Principles](#skill-design-principles) — Why skill-ify / Context design
+- [Skill Design Principles](#skill-design-principles) — Why skill-ify / Context design / Composition
 - [Agent Skills Standard Rules](#agent-skills-standard-rules) — Frontmatter / Naming / Structure / Content / Workflow
 - [Recommended Practices](#recommended-practices) — design.md / File naming conventions
 
@@ -65,6 +65,24 @@ There are several context separation methods. Choose the optimal pattern based o
    - No → **Built-in SubAgent** (delegate to general-purpose etc. via Task tool)
    - Yes → **Custom SubAgent** (define in `.claude/agents/`. [Details](custom-subagent.md))
 
+### Skill Composition
+
+When multiple context-isolated agents share domain knowledge (design principles, review criteria, coding standards), two naive approaches create maintenance burden:
+
+| Approach | Risk |
+|---|---|
+| **Duplication** | Content drift — copies diverge silently over time |
+| **Cross-reference** (Skill B cites "Skill A Section 3") | Structural coupling — reorganization breaks dependents |
+
+**Principle: Single Source of Truth + Dependency Injection**
+
+- Shared knowledge is owned by **one skill** (the source of truth)
+- Each agent declares which skills it needs via the `skills` frontmatter field
+- The agent runtime preloads all declared skills at startup
+- Skills remain **self-contained modules** with no inter-skill references
+
+Skills are independently modifiable because no skill depends on another skill's internal structure. Agents are the composition layer.
+
 ---
 
 ## Agent Skills Standard Rules
@@ -103,6 +121,7 @@ Rules required for Claude to recognize and execute Agent Skills.
 - **Consistent terminology**: Use the same word for the same concept throughout (e.g., don't mix "report" and "summary" for the same output)
 - **Avoid time-dependent language**: Don't use "latest", "current", etc. Use specific versions or dates instead
 - **Narrow choices**: When multiple approaches exist, present one default and mention alternatives only for specific conditions
+- **Self-contained**: Do not reference another skill's internal structure (section numbers, headings)
 
 ### Freedom Level Design
 
