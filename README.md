@@ -90,6 +90,37 @@ Are these tests enough? Review test coverage
 What boundary values should I test?
 ```
 
+### wsl-notify
+
+Windows desktop notifications for Claude Code via [wsl-relay](https://github.com/khaym/wslconnector). Get notified when Claude finishes a task or needs permission — no more staring at the terminal.
+
+**Features:**
+- Auto-registered hooks — works immediately after install, no manual configuration
+- **Stop** event → "Task completed" notification
+- **Notification (permission_prompt)** event → "Permission required" notification
+- Slash command: `/wsl-notify:test-notify` to verify connectivity
+- Customizable via environment variables (`WSL_RELAY_HOST`, `WSL_RELAY_PORT`, message overrides)
+
+**Prerequisites:**
+- [wsl-relay](https://github.com/khaym/wslconnector) running on your Windows host
+
+**Usage:**
+
+```
+/wsl-notify:test-notify
+```
+
+**Environment variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WSL_RELAY_HOST` | `host.docker.internal` | wsl-relay host address |
+| `WSL_RELAY_PORT` | `9400` | wsl-relay port |
+| `WSL_NOTIFY_STOP_TITLE` | `Claude Code` | Stop notification title |
+| `WSL_NOTIFY_STOP_BODY` | `Task completed` | Stop notification body |
+| `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | Permission notification title |
+| `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | Permission notification body |
+
 ## Installation
 
 ### Add the marketplace
@@ -109,6 +140,7 @@ What boundary values should I test?
 /plugin install skill-authoring@khaym-claude-plugins
 /plugin install checking-oss-release@khaym-claude-plugins
 /plugin install designing-test-cases@khaym-claude-plugins
+/plugin install wsl-notify@khaym-claude-plugins
 ```
 
 ### Update

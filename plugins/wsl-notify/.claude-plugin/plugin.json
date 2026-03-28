@@ -1,0 +1,5 @@
+{
+  "name": "wsl-notify",
+  "description": "Windows desktop notifications for Claude Code via wsl-relay — alerts on task completion and permission prompts",
+  "version": "1.0.0"
+}

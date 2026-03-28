@@ -90,6 +90,37 @@ pre-commitフックをセットアップして
 どの境界値をテストすべき？
 ```
 
+### wsl-notify
+
+[wsl-relay](https://github.com/khaym/wslconnector) 経由でClaude CodeのイベントをWindowsデスクトップ通知として受け取ります。タスク完了や権限リクエスト時に通知が届くため、ターミナルを見続ける必要がなくなります。
+
+**特徴:**
+- フック自動登録 — インストール後すぐに動作、手動設定不要
+- **Stop** イベント → 「Task completed」通知
+- **Notification (permission_prompt)** イベント → 「Permission required」通知
+- スラッシュコマンド: `/wsl-notify:test-notify` で接続確認
+- 環境変数でカスタマイズ可能（`WSL_RELAY_HOST`, `WSL_RELAY_PORT`, メッセージ変更）
+
+**前提条件:**
+- Windowsホストで [wsl-relay](https://github.com/khaym/wslconnector) が動作していること
+
+**使い方:**
+
+```
+/wsl-notify:test-notify
+```
+
+**環境変数:**
+
+| 変数名 | デフォルト値 | 説明 |
+|--------|-------------|------|
+| `WSL_RELAY_HOST` | `host.docker.internal` | wsl-relayのホストアドレス |
+| `WSL_RELAY_PORT` | `9400` | wsl-relayのポート |
+| `WSL_NOTIFY_STOP_TITLE` | `Claude Code` | Stop通知のタイトル |
+| `WSL_NOTIFY_STOP_BODY` | `Task completed` | Stop通知の本文 |
+| `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | 権限通知のタイトル |
+| `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | 権限通知の本文 |
+
 ## インストール
 
 ### マーケットプレイスの追加
@@ -109,6 +140,7 @@ pre-commitフックをセットアップして
 /plugin install skill-authoring@khaym-claude-plugins
 /plugin install checking-oss-release@khaym-claude-plugins
 /plugin install designing-test-cases@khaym-claude-plugins
+/plugin install wsl-notify@khaym-claude-plugins
 ```
 
 ### アップデート
