@@ -1,5 +1,5 @@
 ---
-description: Send a test notification to verify wsl-relay connectivity
+description: Sends a test notification to verify wsl-relay connectivity
 ---
 
 Send a test notification via wsl-relay to confirm the connection is working.
