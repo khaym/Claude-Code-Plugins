@@ -19,7 +19,7 @@
       "name": "skill-authoring",
       "source": "./plugins/skill-authoring",
       "description": "Guides creation and review of Claude Code Agent Skills with standardized workflows and quality checklists",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "category": "productivity",
       "tags": ["skill", "authoring", "quality", "workflow"]
     },

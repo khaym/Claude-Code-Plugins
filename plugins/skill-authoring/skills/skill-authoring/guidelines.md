@@ -122,6 +122,7 @@ Rules required for Claude to recognize and execute Agent Skills.
 - **Avoid time-dependent language**: Don't use "latest", "current", etc. Use specific versions or dates instead
 - **Narrow choices**: When multiple approaches exist, present one default and mention alternatives only for specific conditions
 - **Self-contained**: Do not reference another skill's internal structure (section numbers, headings)
+- **Coherence after updates**: When modifying an existing skill, review the whole document for duplication and emphasis imbalance. Rewrite affected sections rather than patching
 
 ### Freedom Level Design
 

@@ -42,6 +42,11 @@ Compare against [guidelines.md](guidelines.md) and verify:
 - File naming conventions
 - Credential file placement
 
+**Incremental update degradation** (when reviewing skills modified over time):
+- Emphasis imbalance — newly added sections disproportionately verbose?
+- Content duplication — same thing stated in two places?
+- Structural coherence — document reads as a unified whole?
+
 ## 3. Checklist Evaluation
 
 Evaluate all items in [checklist.md](checklist.md).

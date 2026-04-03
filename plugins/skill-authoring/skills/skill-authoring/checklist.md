@@ -62,6 +62,9 @@ Remarks example: `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-i
 | C4 | Procedures are written as clear, numbered steps |
 | C5 | Error handling procedures are included |
 | C6 | No references to another skill's internal structure (section numbers, headings) |
+| C7 | No emphasis imbalance — all sections are proportional in detail level (newly added sections are not disproportionately verbose compared to existing ones) |
+| C8 | No content duplication within the file or across referenced files (same principle/rule/table not stated in two places) |
+| C9 | Document reads as a unified whole — no visible layers of accretion (structure, terminology, and tone are consistent throughout) |
 
 ---
 
