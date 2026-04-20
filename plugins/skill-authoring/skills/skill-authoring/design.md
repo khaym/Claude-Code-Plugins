@@ -13,8 +13,10 @@ Standardize skill quality by providing structured workflows for both creation an
 | SKILL.md as Navigation Hub | Progressive disclosure: detect intent first, then route to the appropriate workflow |
 | guidelines.md as shared reference | Eliminates duplication between creation and review; single point of update when rules change |
 | Standard rules vs. recommended practices separated | Distinguishes mandatory requirements from optional best practices; makes the skill portable across projects |
-| Checklist with category grouping | G/S/F/C (standard) and D/A (recommended) ensure coverage while making applicability clear |
+| Checklist with category grouping | Standard rules and recommended practices grouped by letter code ensure coverage while making applicability clear |
 | plugin-structure.md added | Plugin packaging is a natural next step after skill/agent creation; guides standalone-to-plugin conversion and marketplace distribution |
+| Interface clarity as Workflow Design principle | Ambiguous boundary values (SubAgent params, script args, return values) are a frequent failure source; explicit format/type specification prevents miscommunication |
+| Memory Integrity as Recommended Practice | Skills must be self-contained — not rely on user auto-memory for correct execution; reconciliation workflow prevents silent coupling between skills and memory |
 
 ## Data Flow
 

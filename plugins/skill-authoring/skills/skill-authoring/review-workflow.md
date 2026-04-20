@@ -41,6 +41,7 @@ Compare against [guidelines.md](guidelines.md) and verify:
 - Token optimization patterns
 - File naming conventions
 - Credential file placement
+- Memory integrity (no duplication/contradiction with user auto-memory)
 
 **Incremental update degradation** (when reviewing skills modified over time):
 - Emphasis imbalance — newly added sections disproportionately verbose?

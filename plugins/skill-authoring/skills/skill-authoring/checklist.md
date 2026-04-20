@@ -65,6 +65,7 @@ Remarks example: `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-i
 | C7 | No emphasis imbalance — all sections are proportional in detail level (newly added sections are not disproportionately verbose compared to existing ones) |
 | C8 | No content duplication within the file or across referenced files (same principle/rule/table not stated in two places) |
 | C9 | Document reads as a unified whole — no visible layers of accretion (structure, terminology, and tone are consistent throughout) |
+| C10 | Interface definitions (arguments, parameters, return values) between skill/agent/script are unambiguous (format, type, constraints explicit) |
 
 ---
 
@@ -92,3 +93,11 @@ Remarks example: `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-i
 | A4 | Credential files are placed at `~/.<name>_*` (outside the skill directory) |
 | A5 | `chmod 600` for credential files is documented in setup instructions |
 | A6 | Data volume returned to the main session is appropriately controlled |
+
+### M: Memory Integrity
+
+| # | Check item |
+|---|-----------|
+| M1 | No memory entries duplicate content defined in the skill |
+| M2 | No memory entries contradict current skill content |
+| M3 | Skill execution does not depend on memory supplementation (self-contained) |

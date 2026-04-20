@@ -6,7 +6,7 @@ Shared reference for both the creation workflow and the review workflow.
 
 - [Skill Design Principles](#skill-design-principles) — Why skill-ify / Context design / Composition
 - [Agent Skills Standard Rules](#agent-skills-standard-rules) — Frontmatter / Naming / Structure / Content / Workflow
-- [Recommended Practices](#recommended-practices) — design.md / File naming conventions
+- [Recommended Practices](#recommended-practices) — design.md / File naming conventions / Memory Integrity
 
 ---
 
@@ -147,6 +147,7 @@ Calibrate how prescriptive each step should be based on the nature of the task:
 - Build in feedback loops (execute → verify → correct)
 - Include error handling procedures
 - **Goal integrity**: Even when a step fails, the skill must not act contrary to its purpose. Example: If data retrieval fails, don't generate a report with stale data that gives a false "all clear" — explicitly report the failure instead
+- **Interface clarity**: Define boundary values (SubAgent parameters, script arguments, return values) unambiguously. Specify format and type explicitly — e.g., `YYYY-MM-DD` rather than "today".
 
 ---
 
@@ -177,3 +178,13 @@ Recommended naming patterns for scripts and output files:
 | Result data | `{prefix}_result.json` | `slack_result.json` |
 | Report | `{prefix}_report.md` | `jira_report.md` |
 | Script | `{prefix}_{verb}.py` | `gmail_fetch.py` |
+
+### Memory Integrity
+
+Skills should be self-contained — not rely on user auto-memory for correct execution. When creating or updating a skill, reconcile related entries in `MEMORY.md`:
+
+| Memory state | Action |
+|--------------|--------|
+| Duplicates skill content | Delete (skill is source of truth) |
+| Contradicts current skill | Delete (stale) |
+| Supplements what skill should define | Incorporate into skill, then delete |
