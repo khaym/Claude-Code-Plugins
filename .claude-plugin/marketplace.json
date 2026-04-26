@@ -27,7 +27,7 @@
       "name": "checking-oss-release",
       "source": "./plugins/checking-oss-release",
       "description": "Checks open source projects for security leaks, privacy issues, and license compliance before release",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "security",
       "tags": ["oss", "security", "license", "pre-commit", "release"]
     },

@@ -35,32 +35,27 @@ Pre-release audit for open source projects.
 
 ## Setup Mode
 
-Set up a git pre-commit hook so Quick checks run automatically on every `git commit`.
+Install a git pre-commit hook so Quick checks run automatically on every `git commit`.
 The template script is bundled at [pre-commit.sh](pre-commit.sh).
 
-### 1. Copy pre-commit hook
+### 1. Install the hook
 
-1. Create `.githooks/` directory in the project root: `mkdir -p .githooks`
+1. Create `.githooks/` in the project root: `mkdir -p .githooks`
 2. Read [pre-commit.sh](pre-commit.sh) and write its contents to `.githooks/pre-commit`
 3. Make it executable: `chmod +x .githooks/pre-commit`
 
-### 2. Add `prepare` script to `package.json`
+### 2. Activate `core.hooksPath`
 
-Add the following to `package.json` scripts:
+Run once in this clone:
 
-```json
-"prepare": "git config core.hooksPath .githooks"
+```
+git config core.hooksPath .githooks
 ```
 
-This ensures `npm install` automatically configures git to use `.githooks/` as the hooks directory.
+`core.hooksPath` is a **per-clone** setting and cannot be checked into the repository. Document the command in the project README (under a setup or contributing section) so every contributor runs it once after cloning.
 
-### 3. Activate
+### 3. Verify
 
-Run `npm run prepare` to activate the hook immediately.
-
-### 4. Verify
-
-Confirm the setup:
 1. Run `git config core.hooksPath` — should output `.githooks`
 2. Run `.githooks/pre-commit` directly — should exit 0 if no issues
 
