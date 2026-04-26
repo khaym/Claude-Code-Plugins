@@ -150,6 +150,17 @@ pre-commitフックをセットアップして
 ```
 
 
+## 開発環境のセットアップ
+
+このマーケットプレイスにコントリビュートする場合、clone後に同梱の pre-commit フックを有効化してください:
+
+```
+git config core.hooksPath .githooks
+```
+
+これにより、すべての `git commit` でシークレット / Git email / .gitignore のチェックが実行されます（`checking-oss-release` プラグインが提供）。
+
+
 ## ライセンス
 
 MIT

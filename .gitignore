@@ -1,1 +1,6 @@
 .tasks
+CLAUDE.local.md
+.claude/
+.env*
+*.pem
+*.key

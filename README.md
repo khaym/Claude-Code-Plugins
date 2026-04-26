@@ -150,6 +150,17 @@ Windows desktop notifications for Claude Code via [wsl-relay](https://github.com
 ```
 
 
+## Development setup
+
+Contributing to this marketplace? After cloning, enable the bundled pre-commit hook:
+
+```
+git config core.hooksPath .githooks
+```
+
+This activates secret / git-email / .gitignore checks on every `git commit`, powered by the `checking-oss-release` plugin.
+
+
 ## License
 
 MIT
