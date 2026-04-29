@@ -1,0 +1,173 @@
+---
+name: hardening-pnpm-config
+description: Hardens pnpm 10.26+ configuration to reduce npm supply chain attack surface. Writes baseline settings (packageManager, minimumReleaseAge, blockExoticSubdeps, strictDepBuilds, allowBuilds) into project config files after diff confirmation. Use when you hear "harden pnpm config", "secure pnpm setup", "pnpm supply chain hardening", "pnpm safety config".
+---
+
+# Hardening pnpm Config
+
+Reduce npm supply chain attack surface by applying pnpm 10.26+ hardening
+settings to a project. This is the L0 prevention layer — settings stop
+known attack patterns before any detection layer runs.
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Workflow](#workflow)
+- [Target Settings](#target-settings)
+- [Recommended External Tools](#recommended-external-tools)
+- [Optional Pre-commit Hook](#optional-pre-commit-hook)
+- [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+
+- Node.js project with `package.json` at the project root
+- pnpm 10.26 or higher (see [Troubleshooting](#troubleshooting) if older)
+
+## Workflow
+
+### 1. Detect current state
+
+Run these in the project root and read the outputs:
+
+- `pnpm --version` — verify 10.26+
+- `jq -r '.packageManager // "unset"' package.json` — current pin
+- `[ -f .npmrc ] && cat .npmrc || echo "no .npmrc"`
+- `[ -f pnpm-workspace.yaml ] && cat pnpm-workspace.yaml || echo "no pnpm-workspace.yaml"`
+
+Build a mental model of which target settings are missing, present, or
+conflicting. Do not write yet.
+
+### 2. Plan changes
+
+Compare the current state against [Target Settings](#target-settings).
+For each key:
+
+- **Missing** — queue for addition
+- **Conflicting** — queue for confirmation (show current → proposed)
+- **Already correct** — skip
+
+For `allowBuilds`, enumerate packages from `node_modules` whose
+`package.json` declares any install script. pnpm's default isolated
+layout symlinks `node_modules/<pkg>` into `.pnpm/<pkg>@<ver>/...`, so
+`find` must follow symlinks (`-L`):
+
+```sh
+find -L node_modules -maxdepth 2 -name package.json -exec \
+  jq -r 'select(.scripts.preinstall or .scripts.install or .scripts.postinstall) | .name' {} + \
+  2>/dev/null | sort -u
+```
+
+`2>/dev/null` suppresses "Too many levels of symbolic links" noise from
+`.bin`; `sort -u` dedups when multiple versions of the same package exist.
+
+Present the list to the user and ask which packages to allowlist. Default
+to none — packages omitted from `allowBuilds` will have their install
+scripts blocked, which is the safe default.
+
+### 3. Confirm with the user
+
+Show one consolidated diff per target file (`package.json`,
+`pnpm-workspace.yaml`, and `.npmrc` if it needs changes). Wait for
+explicit approval per file before any write.
+
+### 4. Apply
+
+- Use `Edit` for in-place modifications to existing files
+- Use `Write` only when creating a missing file
+- After each write, re-read the file to verify the change landed correctly
+
+### 5. Verify the settings take effect
+
+Trigger a fresh install so the new policy is exercised:
+
+```sh
+rm -rf node_modules pnpm-lock.yaml && pnpm install
+```
+
+Confirm each of the following:
+
+| Expectation | What to look for |
+|-------------|------------------|
+| YAML parses cleanly | pnpm emits no warning lines about `pnpm-workspace.yaml` |
+| `allowBuilds` entries actually build | A `postinstall`/`install` log line appears for each allowlisted package |
+| Empty `allowBuilds` enforces the policy | If no packages are allowlisted but at least one dependency declares an install script, install exits with `ERR_PNPM_IGNORED_BUILDS` (exit code 1) — this is the intended behavior |
+
+If a step fails, stop and revisit Step 2's plan rather than relaxing the
+config.
+
+### 6. Share recommended external tools
+
+After config is in place, print the install instructions in
+[Recommended External Tools](#recommended-external-tools). Do not run
+the install commands automatically — they are global / per-developer
+decisions.
+
+## Target Settings
+
+| Key | Location | Value | Purpose |
+|-----|----------|-------|---------|
+| `packageManager` | `package.json` | `pnpm@<detected-version>` (e.g. `pnpm@10.26.0`) | Pin pnpm version |
+| `minimumReleaseAge` | `pnpm-workspace.yaml` | `4320` (minutes = 72h) | Reject freshly-published packages |
+| `blockExoticSubdeps` | `pnpm-workspace.yaml` | `true` | Reject git/tarball transitive deps |
+| `strictDepBuilds` | `pnpm-workspace.yaml` | `true` | Fail install when unreviewed install scripts found |
+| `allowBuilds` | `pnpm-workspace.yaml` | `{ ...user-confirmed }` | Allowlist for install scripts |
+
+Reference: <https://pnpm.io/supply-chain-security>
+
+### Example `pnpm-workspace.yaml` after apply
+
+```yaml
+minimumReleaseAge: 4320
+blockExoticSubdeps: true
+strictDepBuilds: true
+allowBuilds:
+  esbuild: true
+  "@swc/core": true
+```
+
+### Example `package.json` field
+
+```json
+{
+  "packageManager": "pnpm@10.26.0"
+}
+```
+
+## Recommended External Tools
+
+These complement the config-level prevention. The skill does not install
+them on behalf of the user.
+
+| Tool | Role | Install command | Reference |
+|------|------|-----------------|-----------|
+| Aikido Safe Chain | Block known-malicious installs at runtime via shell alias | `npm i -g @aikidosec/safe-chain && safe-chain setup` | <https://github.com/AikidoSec/safe-chain> |
+| OSV-Scanner | Scan `pnpm-lock.yaml` against the OSV.dev CVE database | `osv-scanner -L pnpm-lock.yaml` | <https://google.github.io/osv-scanner> |
+
+`safe-chain` is best installed per-developer (interactive prompts make it
+unsuitable for CI). `osv-scanner` fits both pre-commit and CI.
+
+## Optional Pre-commit Hook
+
+If the project uses `.githooks/`, append the following to
+`.githooks/pre-commit` (create the file with `chmod +x` if absent):
+
+```sh
+if command -v osv-scanner >/dev/null 2>&1; then
+  osv-scanner -L pnpm-lock.yaml || exit 1
+fi
+```
+
+Activate per clone with `git config core.hooksPath .githooks`. This is a
+per-clone setting and cannot be checked into the repository — document
+the activation step in the project README.
+
+## Troubleshooting
+
+| Situation | Action |
+|-----------|--------|
+| `pnpm` not installed | Stop. Recommend `corepack enable && corepack prepare pnpm@latest --activate` |
+| pnpm < 10.26 | Stop. Show upgrade path; explain that `blockExoticSubdeps` and `allowBuilds` require 10.26+ |
+| `package.json` not found | Stop. This skill targets Node.js projects only |
+| Existing `pnpm-workspace.yaml` is malformed YAML | Report the parse error and ask the user to fix manually before retrying |
+| User rejects all `allowBuilds` candidates | Apply with `allowBuilds: {}`. Install scripts will be blocked; document `pnpm approve-builds` for case-by-case approval |
+| `minimumReleaseAge` blocks a needed dependency | Add the package name to `minimumReleaseAgeExclude` rather than lowering the global value |
