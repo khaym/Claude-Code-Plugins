@@ -1,0 +1,25 @@
+{
+  "description": "Hardens Claude Code session against credential reads via Bash and against package.json scripts modification (hardening-dev-environment Phase 2 dynamic layer)",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/sensitive-bash-guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/package-json-scripts-guard.py"
+          }
+        ]
+      }
+    ]
+  }
+}

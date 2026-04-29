@@ -92,11 +92,13 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Hardens the developer environment against npm supply chain attacks. The MVP focuses on pnpm 10.26+ baseline configuration and migrating `npx` invocations to pinned `pnpm dlx` calls. Future phases extend to `.claude/` config integrity, secret exfiltration prevention, and prompt injection detection.
+Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code itself. Combines static settings (pnpm config, `.claude/settings.json` deny/ask rules) with dynamic guardrails (PreToolUse hooks that block Bash reads of credentials and tampering of `package.json` scripts).
 
 **Features:**
-- pnpm 10.26+ config generation: `packageManager` pin, `minimumReleaseAge` (72h), `blockExoticSubdeps`, `strictDepBuilds`, `allowBuilds` allowlist
+- pnpm 10.26+ baseline config: `packageManager` pin, `minimumReleaseAge` (72h), `blockExoticSubdeps`, `strictDepBuilds`, `allowBuilds` allowlist
 - `npx` → pinned `pnpm dlx` migration with `npm view` version resolution
+- `.claude/settings.json` permission rule generation: deny Edit/Write to security-critical files (`.claude/settings*.json`, `.git/hooks/`, CI configs, `.env*`, `.npmrc`, `.mcp.json`); deny Read of ~30 credential paths (`~/.ssh`, `~/.aws`, `~/.config/gh`, package manager configs, etc.); ask on `.claude/{skills,agents,commands}/` edits
+- Bundled PreToolUse hooks: block read-only Bash commands (`cat`, `find`, `grep`, etc.) targeting credential paths; block `package.json` `"scripts"` field modifications
 - Per-file diff confirmation before any write
 - Recommended-tools guidance: Aikido Safe Chain (runtime malware blocking) and OSV-Scanner (lockfile CVE scan)
 - Optional pre-commit hook template for OSV-Scanner
@@ -106,7 +108,9 @@ Hardens the developer environment against npm supply chain attacks. The MVP focu
 ```
 Harden the pnpm config of this project
 Replace npx with pnpm dlx
-Apply pnpm supply chain hardening
+Harden Claude Code permissions
+Lock down Claude Code
+Set up deny rules for Claude
 ```
 
 ### wsl-notify

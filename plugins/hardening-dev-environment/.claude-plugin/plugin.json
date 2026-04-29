@@ -1,5 +1,5 @@
 {
   "name": "hardening-dev-environment",
-  "description": "Hardens the developer environment against npm supply chain attacks via pnpm config generation and npx-to-pnpm-dlx migration. Future phases extend to .claude/ config integrity, secret exfil prevention, and prompt injection detection.",
-  "version": "1.1.1"
+  "description": "Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code. Generates pnpm 10.26+ config and migrates `npx` to `pnpm dlx`; generates `.claude/settings.json` deny/ask rules; bundles PreToolUse hooks that block sensitive Bash reads and `package.json` \"scripts\" tampering.",
+  "version": "1.2.0"
 }
