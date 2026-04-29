@@ -1,6 +1,7 @@
 .tasks
 CLAUDE.local.md
 .claude/
+.devcontainer/
 .env*
 *.pem
 *.key
