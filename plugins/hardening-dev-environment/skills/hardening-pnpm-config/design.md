@@ -18,7 +18,10 @@ not detection at runtime.
 | `minimumReleaseAge: 4320` (72 hours) | Industry observation that malicious packages are typically removed within 24–48 hours. 72 hours adds safety margin while still allowing reasonable update cadence |
 | Recommended OSS (safe-chain / OSV-Scanner) is guidance only, not auto-install | `safe-chain` is a global install with shell alias setup; OSV-Scanner is a CI/pre-commit decision. Both exceed the skill's blast radius |
 | Pre-commit hook template is opt-in | Not every project uses `.githooks/`; pushing it by default is intrusive |
-| Freedom level: Medium | Recommended values are fixed, but `allowBuilds` entries and merge decisions need flexibility |
+| `npx` → `pnpm dlx` migration is a self-contained Step 6, not interleaved with config writing | Config writing (Steps 1–5) and script rewriting target different files and need separate per-file approval; nesting them would muddle the diff confirmation flow |
+| Documentation files (`*.md`, `*.txt`, etc.) excluded from `npx` scan | README example commands are intent-laden — auto-replacing them can change the meaning of the doc. User decides on a case-by-case basis |
+| `@latest` rejected as a resolved version tag | A floating `@latest` reproduces the unpinned-execution risk that motivated migrating away from `npx` in the first place |
+| Freedom level: Medium | Recommended values are fixed, but `allowBuilds` entries, merge decisions, and `npx` replacement versions need flexibility |
 
 ## Data Flow
 
@@ -40,7 +43,11 @@ Step 5: Verify — rm -rf node_modules pnpm-lock.yaml && pnpm install,
                  check YAML parse, allowBuilds postinstall logs,
                  ERR_PNPM_IGNORED_BUILDS on empty allowlist
   ↓
-Step 6: Guide — print install commands for safe-chain and OSV-Scanner;
+Step 6: Migrate npx → pnpm dlx — git ls-files scan (excluding *.md),
+                 classify auto vs report-only, resolve versions via
+                 npm view, per-file diff confirmation, Edit
+  ↓
+Step 7: Guide — print install commands for safe-chain and OSV-Scanner;
                 offer optional pre-commit hook template
 ```
 

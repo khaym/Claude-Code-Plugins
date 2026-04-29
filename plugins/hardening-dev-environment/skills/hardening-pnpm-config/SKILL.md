@@ -1,6 +1,6 @@
 ---
 name: hardening-pnpm-config
-description: Hardens pnpm 10.26+ configuration to reduce npm supply chain attack surface. Writes baseline settings (packageManager, minimumReleaseAge, blockExoticSubdeps, strictDepBuilds, allowBuilds) into project config files after diff confirmation. Use when you hear "harden pnpm config", "secure pnpm setup", "pnpm supply chain hardening", "pnpm safety config".
+description: Hardens pnpm 10.26+ configuration and one-shot invocation patterns to reduce npm supply chain attack surface. Writes baseline settings (packageManager, minimumReleaseAge, blockExoticSubdeps, strictDepBuilds, allowBuilds) into project config files, then migrates `npx` invocations to pinned `pnpm dlx` calls. Use when you hear "harden pnpm config", "secure pnpm setup", "pnpm supply chain hardening", "pnpm safety config", "replace npx with pnpm dlx", "migrate npx to pnpm dlx".
 ---
 
 # Hardening pnpm Config
@@ -14,6 +14,7 @@ known attack patterns before any detection layer runs.
 - [Prerequisites](#prerequisites)
 - [Workflow](#workflow)
 - [Target Settings](#target-settings)
+- [npx Migration Rules](#npx-migration-rules)
 - [Recommended External Tools](#recommended-external-tools)
 - [Optional Pre-commit Hook](#optional-pre-commit-hook)
 - [Troubleshooting](#troubleshooting)
@@ -95,7 +96,54 @@ Confirm each of the following:
 If a step fails, stop and revisit Step 2's plan rather than relaxing the
 config.
 
-### 6. Share recommended external tools
+### 6. Migrate `npx` invocations to `pnpm dlx`
+
+`npx` invocations bypass every L0 setting written above. Replace them
+with `pnpm dlx <pkg>@<version>` so the same policy (registry
+verification, `minimumReleaseAge`, install-script blocking) applies to
+one-shot executions. This step is self-contained: detect → classify →
+resolve versions → confirm → apply.
+
+#### 6.1 Detect
+
+Scan tracked files for `npx` usage; gitignored paths are excluded
+automatically:
+
+```sh
+git ls-files | grep -vE '\.(md|markdown|txt|rst)$' | \
+  xargs grep -nE '\bnpx\b' 2>/dev/null
+```
+
+Documentation files are intentionally excluded — README rewrites are
+user-driven and out of scope for this skill.
+
+#### 6.2 Classify
+
+For each match, classify per [npx Migration Rules](#npx-migration-rules).
+Auto-migratable matches proceed to 6.3. Report-only matches are surfaced
+at the end of the step as `file:line: <original command>`; the user
+decides them manually.
+
+#### 6.3 Resolve versions
+
+For each auto-migratable package, fetch the latest stable version from
+the registry:
+
+```sh
+npm view <pkg> version
+```
+
+Propose the replacement as `pnpm dlx <pkg>@<resolved-version>`. The user
+may override the version. Reject `@latest` as a literal tag — a floating
+tag reproduces the unpinned-execution risk this step is meant to remove.
+
+#### 6.4 Confirm and apply
+
+Present a per-file diff (one consolidated diff per file with multiple
+hunks). After explicit approval per file, apply each change with `Edit`.
+Re-read each file after writing to verify.
+
+### 7. Share recommended external tools
 
 After config is in place, print the install instructions in
 [Recommended External Tools](#recommended-external-tools). Do not run
@@ -132,6 +180,17 @@ allowBuilds:
   "packageManager": "pnpm@10.26.0"
 }
 ```
+
+## npx Migration Rules
+
+| Pattern | Class | Replacement |
+|---------|-------|-------------|
+| `npx pkg` / `npx pkg arg…` | auto | `pnpm dlx pkg@<version>` |
+| `npx --yes pkg` / `npx -y pkg` | auto | `pnpm dlx pkg@<version>` |
+| `npx @scope/pkg` | auto | `pnpm dlx @scope/pkg@<version>` |
+| `npx -p other pkg` / `npx --package=…` | report-only | (executed binary differs from named package) |
+| `npx -c '…'` / `npx --call=…` | report-only | (shell-level construct, ambiguous to rewrite) |
+| `npx pkg --no-install` | report-only | (intentional bypass of install — surface for human review) |
 
 ## Recommended External Tools
 
@@ -171,3 +230,4 @@ the activation step in the project README.
 | Existing `pnpm-workspace.yaml` is malformed YAML | Report the parse error and ask the user to fix manually before retrying |
 | User rejects all `allowBuilds` candidates | Apply with `allowBuilds: {}`. Install scripts will be blocked; document `pnpm approve-builds` for case-by-case approval |
 | `minimumReleaseAge` blocks a needed dependency | Add the package name to `minimumReleaseAgeExclude` rather than lowering the global value |
+| `npm view <pkg> version` fails (offline / restricted registry) | Skip auto-resolution; ask the user to provide each version manually, or defer Step 6 until network is available |
