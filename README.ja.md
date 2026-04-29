@@ -90,6 +90,25 @@ pre-commitフックをセットアップして
 どの境界値をテストすべき？
 ```
 
+### hardening-dev-environment
+
+開発環境を npm サプライチェーン攻撃から保護します。MVP では pnpm 10.26+ のベースライン設定生成と、`npx` 呼び出しをピン留めされた `pnpm dlx` へ移行することに集中。今後のフェーズで `.claude/` 設定改変監査、secret 流出防御、prompt injection 検知に拡張予定。
+
+**特徴:**
+- pnpm 10.26+ 設定生成: `packageManager` ピン留め、`minimumReleaseAge`（72時間）、`blockExoticSubdeps`、`strictDepBuilds`、`allowBuilds` 許可リスト
+- `npx` → ピン留めされた `pnpm dlx` への移行（`npm view` でバージョン解決）
+- 書き込み前にファイル単位の diff 確認
+- 推奨ツールガイダンス: Aikido Safe Chain（実行時マルウェア遮断）と OSV-Scanner（lockfile CVE スキャン）
+- OSV-Scanner 用の任意 pre-commit hook テンプレート
+
+**使い方:**
+
+```
+このプロジェクトのpnpm設定をハードニングして
+npxをpnpm dlxに置き換えて
+pnpmサプライチェーン対策を適用して
+```
+
 ### wsl-notify
 
 [wsl-relay](https://github.com/khaym/wslconnector) 経由でClaude CodeのイベントをWindowsデスクトップ通知として受け取ります。タスク完了や権限リクエスト時に通知が届くため、ターミナルを見続ける必要がなくなります。
@@ -140,6 +159,7 @@ pre-commitフックをセットアップして
 /plugin install skill-authoring@khaym-claude-plugins
 /plugin install checking-oss-release@khaym-claude-plugins
 /plugin install designing-test-cases@khaym-claude-plugins
+/plugin install hardening-dev-environment@khaym-claude-plugins
 /plugin install wsl-notify@khaym-claude-plugins
 ```
 

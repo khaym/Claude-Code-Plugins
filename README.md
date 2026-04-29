@@ -90,6 +90,25 @@ Are these tests enough? Review test coverage
 What boundary values should I test?
 ```
 
+### hardening-dev-environment
+
+Hardens the developer environment against npm supply chain attacks. The MVP focuses on pnpm 10.26+ baseline configuration and migrating `npx` invocations to pinned `pnpm dlx` calls. Future phases extend to `.claude/` config integrity, secret exfiltration prevention, and prompt injection detection.
+
+**Features:**
+- pnpm 10.26+ config generation: `packageManager` pin, `minimumReleaseAge` (72h), `blockExoticSubdeps`, `strictDepBuilds`, `allowBuilds` allowlist
+- `npx` → pinned `pnpm dlx` migration with `npm view` version resolution
+- Per-file diff confirmation before any write
+- Recommended-tools guidance: Aikido Safe Chain (runtime malware blocking) and OSV-Scanner (lockfile CVE scan)
+- Optional pre-commit hook template for OSV-Scanner
+
+**Usage:**
+
+```
+Harden the pnpm config of this project
+Replace npx with pnpm dlx
+Apply pnpm supply chain hardening
+```
+
 ### wsl-notify
 
 Windows desktop notifications for Claude Code via [wsl-relay](https://github.com/khaym/wslconnector). Get notified when Claude finishes a task or needs permission — no more staring at the terminal.
@@ -140,6 +159,7 @@ Windows desktop notifications for Claude Code via [wsl-relay](https://github.com
 /plugin install skill-authoring@khaym-claude-plugins
 /plugin install checking-oss-release@khaym-claude-plugins
 /plugin install designing-test-cases@khaym-claude-plugins
+/plugin install hardening-dev-environment@khaym-claude-plugins
 /plugin install wsl-notify@khaym-claude-plugins
 ```
 
