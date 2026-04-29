@@ -1,5 +1,5 @@
 {
   "name": "hardening-dev-environment",
   "description": "Hardens the developer environment against npm supply chain attacks via pnpm config generation and npx-to-pnpm-dlx migration. Future phases extend to .claude/ config integrity, secret exfil prevention, and prompt injection detection.",
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

@@ -197,13 +197,44 @@ allowBuilds:
 These complement the config-level prevention. The skill does not install
 them on behalf of the user.
 
-| Tool | Role | Install command | Reference |
-|------|------|-----------------|-----------|
-| Aikido Safe Chain | Block known-malicious installs at runtime via shell alias | `npm i -g @aikidosec/safe-chain && safe-chain setup` | <https://github.com/AikidoSec/safe-chain> |
-| OSV-Scanner | Scan `pnpm-lock.yaml` against the OSV.dev CVE database | `osv-scanner -L pnpm-lock.yaml` | <https://google.github.io/osv-scanner> |
+### Aikido Safe Chain
 
-`safe-chain` is best installed per-developer (interactive prompts make it
-unsuitable for CI). `osv-scanner` fits both pre-commit and CI.
+Wraps `npm`/`pnpm`/`pip`/etc. via shell aliases to block known-malicious
+installs against the Aikido Intel feed. Best installed per-developer —
+interactive prompts make it unsuitable for CI.
+
+Use the official one-line installer (Unix/Linux/macOS):
+
+```sh
+curl -fsSL https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.sh | sh
+```
+
+For reproducibility, pin to a specific release (recommended) by
+replacing `latest` with `vX.Y.Z` from the
+[releases page](https://github.com/AikidoSec/safe-chain/releases):
+
+```sh
+curl -fsSL https://github.com/AikidoSec/safe-chain/releases/download/vX.Y.Z/install-safe-chain.sh | sh
+```
+
+Restart the terminal to load aliases, then verify:
+
+```sh
+pnpm safe-chain-verify
+```
+
+Reference: <https://github.com/AikidoSec/safe-chain>
+
+### OSV-Scanner
+
+Scans `pnpm-lock.yaml` against the OSV.dev CVE database. Suitable for
+both pre-commit and CI.
+
+```sh
+osv-scanner -L pnpm-lock.yaml
+```
+
+Reference: <https://google.github.io/osv-scanner>
 
 ## Optional Pre-commit Hook
 
