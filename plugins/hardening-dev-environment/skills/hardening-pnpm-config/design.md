@@ -2,10 +2,7 @@
 
 ## Purpose
 
-Reduce npm supply chain attack surface by writing pnpm 10.26+ hardening
-settings into project config files. Operates as the L0 prevention layer
-of the `hardening-dev-environment` plugin: prevention by configuration,
-not detection at runtime.
+Reduce npm supply chain attack surface by writing pnpm 10.26+ hardening settings into project config files. Operates as the configuration-time prevention layer of the `hardening-dev-environment` plugin: prevention by configuration, not detection at runtime. See `hardening-overview` for the full Layered Defense Map.
 
 ## Design Decisions
 
@@ -53,10 +50,9 @@ Step 7: Guide — print install commands for safe-chain and OSV-Scanner;
 
 ## Setting Rationale
 
-The five hardening keys are defined operationally (location, value, format)
-in `SKILL.md`. Their security rationale is recorded here:
+The five hardening keys are defined operationally (location, value, format) in `SKILL.md`. Their security rationale is recorded here:
 
-| Key | Why this is the L0 layer |
+| Key | Security rationale |
 |-----|--------------------------|
 | `packageManager` | Pinning pnpm itself prevents silent toolchain drift that could change install behavior across developers and CI |
 | `minimumReleaseAge` | Empirical observation: malicious packages are typically detected and removed within hours. A waiting period defeats the most common time-pressured attacks |
@@ -69,11 +65,7 @@ Reference: <https://pnpm.io/supply-chain-security>
 ## Constraints & Tradeoffs
 
 - Node.js / pnpm only. npm / yarn / bun are out of MVP scope
-- `minimumReleaseAge: 4320` may delay legitimate fast-release dependencies;
-  documented escape hatch via `minimumReleaseAgeExclude`
-- `allowBuilds` requires per-package judgment; the skill enumerates candidates
-  from `node_modules` but cannot decide for the user
-- Does not modify CI scripts or `.github/workflows`; OSV-Scanner CI integration
-  is documented only
-- Cannot detect compromise that has already happened. This is prevention,
-  not detection — the L1+ layers in future plugin phases handle detection
+- `minimumReleaseAge: 4320` may delay legitimate fast-release dependencies; documented escape hatch via `minimumReleaseAgeExclude`
+- `allowBuilds` requires per-package judgment; the skill enumerates candidates from `node_modules` but cannot decide for the user
+- Does not modify CI scripts or `.github/workflows`; OSV-Scanner CI integration is documented only
+- Cannot detect compromise that has already happened. This is prevention, not detection — the runtime and commit-time layers documented in `hardening-overview` handle detection-side concerns

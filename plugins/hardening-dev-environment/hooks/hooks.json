@@ -1,5 +1,5 @@
 {
-  "description": "Hardens Claude Code session: PreToolUse blocks for credential-read Bash and package.json scripts tampering (Phase 2); PostToolUse trust-boundary reminder for non-vendor WebFetch results (Phase 4)",
+  "description": "Hardens Claude Code session: PreToolUse blocks for credential-read Bash and package.json scripts tampering; PostToolUse trust-boundary reminder for non-vendor WebFetch results",
   "hooks": {
     "PreToolUse": [
       {

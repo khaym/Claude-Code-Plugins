@@ -92,28 +92,27 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code itself. Combines static settings (pnpm config, `.claude/settings.json` deny/ask rules) with dynamic guardrails (PreToolUse hooks that block Bash reads of credentials and tampering of `package.json` scripts; PostToolUse hook that flags non-vendor `WebFetch` results as untrusted external data).
+Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the auto-mode classifier gates scope, the trust-boundary reminder shapes how fetched content is interpreted.
 
-**Features:**
-- pnpm 10.26+ baseline config: `packageManager` pin, `minimumReleaseAge` (72h), `blockExoticSubdeps`, `strictDepBuilds`, `allowBuilds` allowlist
-- `npx` → pinned `pnpm dlx` migration with `npm view` version resolution
-- `.claude/settings.json` permission rule generation: deny Edit/Write to security-critical files (`.claude/settings*.json`, `.git/hooks/`, CI configs, `.env*`, `.npmrc`, `.mcp.json`); deny Read of ~30 credential paths (`~/.ssh`, `~/.aws`, `~/.config/gh`, package manager configs, etc.); ask on `.claude/{skills,agents,commands}/` edits
-- Bundled PreToolUse hooks: block read-only Bash commands (`cat`, `find`, `grep`, etc.) targeting credential paths; block `package.json` `"scripts"` field modifications
-- Bundled PostToolUse hook: marks `WebFetch` results from non-vendor URLs as untrusted external DATA via `additionalContext`, reinforcing the trust boundary that fetched content is data, not instructions (vendor allowlist sourced from `permissions.allow`'s `WebFetch(domain:X)` entries)
-- Per-file diff confirmation before any write
-- Recommended-tools guidance: Aikido Safe Chain (runtime malware blocking) and OSV-Scanner (lockfile CVE scan)
-- Optional pre-commit hook template for OSV-Scanner
+**Layered Defense Map:**
+
+| # | Layer | Owner | Threats addressed |
+|---|-------|-------|-------------------|
+| 1 | Auto-mode classifier + setup | `hardening-auto-mode` (Claude Code v2.1.83+, plan-gated) | Scope escalation, untrusted infrastructure, prompt-injection-driven actions |
+| 2 | Static `permissions.{deny, ask}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (file reads), plugin-authoring confirmation gate |
+| 3 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, indirect prompt injection from `WebFetch` results |
+| 4 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
+| 5 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
+| 6 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
+
+Layer 3 hooks auto-activate when this plugin is enabled. Layer 1 is a Claude Code runtime feature gated by plan tier. The other layers are applied via their owner skill.
+
+**Where to start:** ask Claude to *audit Claude Code hardening* — `hardening-overview` inspects the current state of each layer and recommends a setup order tailored to the project's plan tier and use case.
 
 **Usage:**
 
 ```
-Harden the pnpm config of this project
-Replace npx with pnpm dlx
-Harden Claude Code permissions
-Lock down Claude Code
-Set up deny rules for Claude
-Harden WebFetch handling
-Treat fetched content as untrusted data
+Audit Claude Code hardening
 ```
 
 ### wsl-notify

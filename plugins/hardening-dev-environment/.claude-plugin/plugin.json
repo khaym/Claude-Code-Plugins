@@ -1,5 +1,5 @@
 {
   "name": "hardening-dev-environment",
-  "description": "Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code. Generates pnpm 10.26+ config and migrates `npx` to `pnpm dlx`; generates `.claude/settings.json` deny/ask rules; bundles PreToolUse hooks that block sensitive Bash reads and `package.json` `scripts` tampering, and a PostToolUse hook that marks non-vendor `WebFetch` results as untrusted external data.",
-  "version": "1.3.0"
+  "description": "Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code. Generates pnpm 10.26+ config and migrates `npx` to `pnpm dlx`; generates mode-agnostic `.claude/settings.json` deny/ask rules and a Claude Code v2.1.83+ auto-mode overlay (defaultMode + classifier backstops on outbound Bash and remote-egress); bundles PreToolUse hooks that block sensitive Bash reads and `package.json` `scripts` tampering, and a PostToolUse hook that marks non-vendor `WebFetch` results as untrusted external data.",
+  "version": "1.4.0"
 }

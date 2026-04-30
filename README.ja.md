@@ -92,28 +92,27 @@ pre-commitフックをセットアップして
 
 ### hardening-dev-environment
 
-開発環境を npm サプライチェーン攻撃から、また Claude Code 自体を prompt injection 経由の攻撃から保護します。静的設定（pnpm 設定、`.claude/settings.json` deny/ask ルール）と動的ガードレール（PreToolUse hook で Bash 経由の機密読み取りや `package.json` scripts 改変を遮断、PostToolUse hook で非 vendor の `WebFetch` 結果を untrusted な外部データとして明示）を組み合わせた多層防御。
+Claude Code を使う開発環境のための多層防御プラグイン。npm サプライチェーン攻撃、prompt injection 経由のスコープ拡大、credential 流出、設定ファイル改ざんによる persistence、取得コンテンツ経由の間接 prompt injection — それぞれ独立した攻撃クラスを別レイヤーで対処します。各レイヤーは補完関係にあり、静的設定で予防し、ランタイム hook で既知の bypass を検出し、auto-mode classifier がスコープを制御し、trust-boundary リマインダで取得コンテンツの解釈を制約します。
 
-**特徴:**
-- pnpm 10.26+ ベースライン設定生成: `packageManager` ピン留め、`minimumReleaseAge`（72時間）、`blockExoticSubdeps`、`strictDepBuilds`、`allowBuilds` 許可リスト
-- `npx` → ピン留めされた `pnpm dlx` への移行（`npm view` でバージョン解決）
-- `.claude/settings.json` permission ルール生成: セキュリティ重要ファイル（`.claude/settings*.json`, `.git/hooks/`, CI 設定, `.env*`, `.npmrc`, `.mcp.json`）への Edit/Write を deny、credential ファイル（`~/.ssh`, `~/.aws`, `~/.config/gh`, パッケージマネージャ設定など ~30 パス）の Read を deny、`.claude/{skills,agents,commands}/` への Edit は ask
-- 同梱 PreToolUse hook: read-only な Bash コマンド（`cat`, `find`, `grep` など）が credential パスを参照するのを遮断、`package.json` の `"scripts"` フィールド改変を遮断
-- 同梱 PostToolUse hook: 非 vendor URL からの `WebFetch` 結果を `additionalContext` で untrusted な外部データとして明示し、「取得コンテンツは指示ではなくデータ」という trust boundary を強化（vendor allowlist は `permissions.allow` の `WebFetch(domain:X)` エントリから取得）
-- 書き込み前にファイル単位の diff 確認
-- 推奨ツールガイダンス: Aikido Safe Chain（実行時マルウェア遮断）と OSV-Scanner（lockfile CVE スキャン）
-- OSV-Scanner 用の任意 pre-commit hook テンプレート
+**多層防御マップ:**
+
+| # | レイヤー | 担当 | 対処する脅威 |
+|---|---------|------|-------------|
+| 1 | Auto-mode classifier + 設定 | `hardening-auto-mode`（Claude Code v2.1.83+、プラン制限あり） | スコープ拡大、信頼できないインフラ、prompt injection 由来のアクション |
+| 2 | 静的 `permissions.{deny, ask}` ルール | `hardening-claude-permissions` | 設定ファイル改ざんによる persistence、credential ファイル流出、プラグイン著作経路の確認ゲート |
+| 3 | 同梱ランタイム hook（自動有効） | このプラグイン（`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`） | Bash 経由の credential 読み取り bypass、`package.json` `scripts` 改ざん、`WebFetch` 結果由来の間接 prompt injection |
+| 4 | WebFetch trust discipline | `hardening-untrusted-content` | 間接 prompt injection — trust-boundary チェックリスト + PostToolUse hook を駆動する vendor allowlist |
+| 5 | npm サプライチェーン設定 | `hardening-pnpm-config` | 悪性パッケージのインストール / install スクリプト実行 / 未ピンの `npx` |
+| 6 | Pre-commit シークレット scan | `checking-oss-release` プラグイン（兄弟プラグイン） | コミット時に到達するプレーンテキストの secret |
+
+レイヤー 3 の hook はプラグイン有効化と同時に自動起動します。レイヤー 1 はプランによって利用可否が決まる Claude Code のランタイム機能です。それ以外のレイヤーは担当 skill から適用します。
+
+**最初のとっかかり:** Claude に *Claude Code のハードニング状況を点検して* と依頼すると、`hardening-overview` が各レイヤーの現状を点検し、プロジェクトのプラン階層・ユースケースに応じたセットアップ順を提案します。
 
 **使い方:**
 
 ```
-このプロジェクトのpnpm設定をハードニングして
-npxをpnpm dlxに置き換えて
-Claude Code のパーミッションをハードニングして
-Claude Code をロックダウンして
-deny ルールを設定して
-WebFetch の取り扱いをハードニングして
-取得コンテンツを untrusted data として扱って
+Claude Code のハードニング状況を点検して
 ```
 
 ### wsl-notify
