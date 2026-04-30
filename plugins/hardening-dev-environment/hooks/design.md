@@ -1,9 +1,11 @@
-# Phase 2 Hooks Design Doc
+# Hooks Design Doc
 
 ## Purpose
 
-Two PreToolUse hooks bundled with `hardening-dev-environment` Phase 2 to
-catch attack patterns the static `permissions.deny` rules cannot block:
+Hooks bundled with `hardening-dev-environment` to catch attack patterns
+the static `permissions.{deny,ask}` rules cannot:
+
+**Phase 2 — PreToolUse (block):**
 
 1. **sensitive-bash-guard** — Read-only Bash commands (`cat`, `find`,
    `grep`, etc.) targeting credential paths bypass the `Read(...)` deny
@@ -14,6 +16,19 @@ catch attack patterns the static `permissions.deny` rules cannot block:
    is a high-value supply-chain persistence vector, but file-level
    `Edit(/package.json)` deny is too coarse (legitimate dependency edits
    would be blocked). This hook detects `"scripts"` diffs only.
+
+**Phase 4 — PostToolUse (context inject):**
+
+3. **untrusted-content-reminder** — Marks `WebFetch` results from
+   non-vendor URLs as untrusted DATA via `additionalContext`,
+   reinforcing the trust-boundary principle owned by the
+   `hardening-untrusted-content` skill. Design rationale, data flow,
+   and constraints are documented at
+   `../skills/hardening-untrusted-content/design.md` (single source of
+   truth for this hook's design).
+
+The remaining sections of this document apply to the Phase 2 hooks
+(PreToolUse). Phase 4 details live in the skill's design doc above.
 
 ## Design Decisions
 

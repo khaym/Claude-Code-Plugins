@@ -92,13 +92,14 @@ pre-commitフックをセットアップして
 
 ### hardening-dev-environment
 
-開発環境を npm サプライチェーン攻撃から、また Claude Code 自体を prompt injection 経由の攻撃から保護します。静的設定（pnpm 設定、`.claude/settings.json` deny/ask ルール）と動的ガードレール（PreToolUse hook で Bash 経由の機密読み取りや `package.json` scripts 改変を遮断）を組み合わせた多層防御。
+開発環境を npm サプライチェーン攻撃から、また Claude Code 自体を prompt injection 経由の攻撃から保護します。静的設定（pnpm 設定、`.claude/settings.json` deny/ask ルール）と動的ガードレール（PreToolUse hook で Bash 経由の機密読み取りや `package.json` scripts 改変を遮断、PostToolUse hook で非 vendor の `WebFetch` 結果を untrusted な外部データとして明示）を組み合わせた多層防御。
 
 **特徴:**
 - pnpm 10.26+ ベースライン設定生成: `packageManager` ピン留め、`minimumReleaseAge`（72時間）、`blockExoticSubdeps`、`strictDepBuilds`、`allowBuilds` 許可リスト
 - `npx` → ピン留めされた `pnpm dlx` への移行（`npm view` でバージョン解決）
 - `.claude/settings.json` permission ルール生成: セキュリティ重要ファイル（`.claude/settings*.json`, `.git/hooks/`, CI 設定, `.env*`, `.npmrc`, `.mcp.json`）への Edit/Write を deny、credential ファイル（`~/.ssh`, `~/.aws`, `~/.config/gh`, パッケージマネージャ設定など ~30 パス）の Read を deny、`.claude/{skills,agents,commands}/` への Edit は ask
 - 同梱 PreToolUse hook: read-only な Bash コマンド（`cat`, `find`, `grep` など）が credential パスを参照するのを遮断、`package.json` の `"scripts"` フィールド改変を遮断
+- 同梱 PostToolUse hook: 非 vendor URL からの `WebFetch` 結果を `additionalContext` で untrusted な外部データとして明示し、「取得コンテンツは指示ではなくデータ」という trust boundary を強化（vendor allowlist は `permissions.allow` の `WebFetch(domain:X)` エントリから取得）
 - 書き込み前にファイル単位の diff 確認
 - 推奨ツールガイダンス: Aikido Safe Chain（実行時マルウェア遮断）と OSV-Scanner（lockfile CVE スキャン）
 - OSV-Scanner 用の任意 pre-commit hook テンプレート
@@ -111,6 +112,8 @@ npxをpnpm dlxに置き換えて
 Claude Code のパーミッションをハードニングして
 Claude Code をロックダウンして
 deny ルールを設定して
+WebFetch の取り扱いをハードニングして
+取得コンテンツを untrusted data として扱って
 ```
 
 ### wsl-notify

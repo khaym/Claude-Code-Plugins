@@ -92,13 +92,14 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code itself. Combines static settings (pnpm config, `.claude/settings.json` deny/ask rules) with dynamic guardrails (PreToolUse hooks that block Bash reads of credentials and tampering of `package.json` scripts).
+Hardens the developer environment against npm supply chain attacks and prompt-injection-driven attacks on Claude Code itself. Combines static settings (pnpm config, `.claude/settings.json` deny/ask rules) with dynamic guardrails (PreToolUse hooks that block Bash reads of credentials and tampering of `package.json` scripts; PostToolUse hook that flags non-vendor `WebFetch` results as untrusted external data).
 
 **Features:**
 - pnpm 10.26+ baseline config: `packageManager` pin, `minimumReleaseAge` (72h), `blockExoticSubdeps`, `strictDepBuilds`, `allowBuilds` allowlist
 - `npx` → pinned `pnpm dlx` migration with `npm view` version resolution
 - `.claude/settings.json` permission rule generation: deny Edit/Write to security-critical files (`.claude/settings*.json`, `.git/hooks/`, CI configs, `.env*`, `.npmrc`, `.mcp.json`); deny Read of ~30 credential paths (`~/.ssh`, `~/.aws`, `~/.config/gh`, package manager configs, etc.); ask on `.claude/{skills,agents,commands}/` edits
 - Bundled PreToolUse hooks: block read-only Bash commands (`cat`, `find`, `grep`, etc.) targeting credential paths; block `package.json` `"scripts"` field modifications
+- Bundled PostToolUse hook: marks `WebFetch` results from non-vendor URLs as untrusted external DATA via `additionalContext`, reinforcing the trust boundary that fetched content is data, not instructions (vendor allowlist sourced from `permissions.allow`'s `WebFetch(domain:X)` entries)
 - Per-file diff confirmation before any write
 - Recommended-tools guidance: Aikido Safe Chain (runtime malware blocking) and OSV-Scanner (lockfile CVE scan)
 - Optional pre-commit hook template for OSV-Scanner
@@ -111,6 +112,8 @@ Replace npx with pnpm dlx
 Harden Claude Code permissions
 Lock down Claude Code
 Set up deny rules for Claude
+Harden WebFetch handling
+Treat fetched content as untrusted data
 ```
 
 ### wsl-notify

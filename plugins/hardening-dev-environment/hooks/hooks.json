@@ -1,5 +1,5 @@
 {
-  "description": "Hardens Claude Code session against credential reads via Bash and against package.json scripts modification (hardening-dev-environment Phase 2 dynamic layer)",
+  "description": "Hardens Claude Code session: PreToolUse blocks for credential-read Bash and package.json scripts tampering (Phase 2); PostToolUse trust-boundary reminder for non-vendor WebFetch results (Phase 4)",
   "hooks": {
     "PreToolUse": [
       {
@@ -17,6 +17,17 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/package-json-scripts-guard.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/untrusted-content-reminder.py"
           }
         ]
       }
