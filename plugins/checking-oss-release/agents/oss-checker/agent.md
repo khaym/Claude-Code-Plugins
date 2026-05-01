@@ -68,6 +68,19 @@ See [design.md](design.md) for rationale.
 
 Execute: `bash "${CLAUDE_AGENT_DIR}/pre-commit.sh"` and report the results.
 
+### Allowlist pragma
+
+If a finding is a known-safe fixture (test data, documentation example, etc.), silence it with one of the following pragmas. The marker can sit inside any comment syntax (`#`, `//`, `--`, `<!-- -->`).
+
+```
+<line containing the pattern>   # oss-checker:allow
+```
+
+```
+# oss-checker:allow-next-line
+<line containing the pattern>
+```
+
 ---
 
 ## Full Mode
