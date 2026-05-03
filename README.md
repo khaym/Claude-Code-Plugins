@@ -92,20 +92,19 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the auto-mode classifier gates scope, the trust-boundary reminder shapes how fetched content is interpreted.
+Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the trust-boundary reminder shapes how fetched content is interpreted.
 
 **Layered Defense Map:**
 
 | # | Layer | Owner | Threats addressed |
 |---|-------|-------|-------------------|
-| 1 | Auto-mode classifier + setup | `hardening-auto-mode` (Claude Code v2.1.83+, plan-gated) | Scope escalation, untrusted infrastructure, prompt-injection-driven actions |
-| 2 | Static `permissions.{deny, ask}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (file reads), plugin-authoring confirmation gate |
-| 3 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, indirect prompt injection from `WebFetch` results |
-| 4 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
-| 5 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
-| 6 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
+| 1 | Static `permissions.{deny, ask, allow}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (file reads), outbound exfil, plugin-authoring confirmation gate |
+| 2 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, indirect prompt injection from `WebFetch` results |
+| 3 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
+| 4 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
+| 5 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
 
-Layer 3 hooks auto-activate when this plugin is enabled. Layer 1 is a Claude Code runtime feature gated by plan tier. The other layers are applied via their owner skill.
+Layer 2 hooks auto-activate when this plugin is enabled. The other layers are applied via their owner skill.
 
 **Where to start:** ask Claude to *audit Claude Code hardening* — `hardening-overview` inspects the current state of each layer and recommends a setup order tailored to the project's plan tier and use case.
 

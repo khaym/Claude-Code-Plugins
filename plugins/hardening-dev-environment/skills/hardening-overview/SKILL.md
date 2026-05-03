@@ -18,14 +18,13 @@ Inspect defense layer state, recommend a setup order, and hand off to the specif
 
 | # | Layer | Owner | Threats addressed |
 |---|-------|-------|-------------------|
-| 1 | Auto-mode classifier + setup | `hardening-auto-mode` (Claude Code v2.1.83+, plan-gated) | Scope escalation, untrusted infrastructure, prompt-injection-driven actions |
-| 2 | Static `permissions.{deny, ask}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (reads), plugin-authoring confirmation gate |
-| 3 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` scripts tampering, indirect prompt injection from `WebFetch` results |
-| 4 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
-| 5 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
-| 6 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
+| 1 | Static `permissions.{deny, ask, allow}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (reads), outbound exfil, plugin-authoring confirmation gate |
+| 2 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` scripts tampering, indirect prompt injection from `WebFetch` results |
+| 3 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
+| 4 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
+| 5 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
 
-Layer 3 hooks auto-activate when this plugin is enabled — no setup. Layer 1's classifier is a Claude Code runtime feature; the skill in that row turns it on.
+Layer 2 hooks auto-activate when this plugin is enabled — no setup. The other layers are applied via their owner skill.
 
 ## Workflow
 
@@ -46,9 +45,7 @@ Read settings and project configuration. Treat absent files as "layer unapplied"
 | **applied** | All expected rules / settings present |
 | **partial** | Some present, others missing |
 | **unapplied** | None present |
-| **N/A** | Layer does not apply (pnpm row on a non-Node project; auto-mode rows on Pro plan) |
-
-For layer 1, report "active in auto mode" if `defaultMode: "auto"`, else "available but inactive" / "unavailable" depending on plan tier.
+| **N/A** | Layer does not apply (pnpm row on a non-Node project) |
 
 ### 3. Confirm plan and use case
 
@@ -76,21 +73,21 @@ Point the user to the relevant skill name (see [See Also](#see-also)). This skil
 
 ## Decision Guide
 
-### Plan-tier paths
+### Setup order
 
-| Plan tier | Auto mode | Recommended order |
-|-----------|-----------|-------------------|
-| Pro | Not available | `hardening-claude-permissions` → `hardening-pnpm-config` (if Node) → `hardening-untrusted-content` |
-| Max | Yes — Opus 4.7 only | `hardening-claude-permissions` → `hardening-auto-mode` → `hardening-pnpm-config` (if Node) → `hardening-untrusted-content` |
-| Team / Enterprise / API | Yes — Sonnet 4.6, Opus 4.6, Opus 4.7 | Same as Max. Confirm an admin has enabled auto mode in admin settings before applying `hardening-auto-mode` |
+| Order | Skill | When to apply |
+|-------|-------|----------------|
+| 1 | `hardening-claude-permissions` | First. Mode-agnostic deny rules are hard guarantees, regardless of `defaultMode` |
+| 2 | `hardening-pnpm-config` | If Node project |
+| 3 | `hardening-untrusted-content` | After WebFetch trust-boundary discipline is in place |
 
-`hardening-claude-permissions` runs first: its deny rules are hard guarantees that hold under any mode, including auto mode where the classifier is best-effort. `hardening-auto-mode` is applied after, so the classifier has hard backstops for cases it cannot decide.
+`hardening-claude-permissions` is recommended for all plan tiers — its rule set targets an `acceptEdits`-based permission mode, which works on every plan from Pro upward. Other modes (`default`, `auto`, `dontAsk`) interact with the rule set differently; see `hardening-claude-permissions` for mode-specific guidance.
 
 ### Use-case overlays
 
 | Use case | Adjustment |
 |----------|------------|
-| CI-only (no interactive session) | Use `dontAsk` mode instead of auto / acceptEdits — denies everything not pre-allowed; the auto-mode classifier is not active in non-interactive runs |
+| CI-only (non-interactive) | Use `dontAsk` mode instead of `acceptEdits` — denies everything not pre-allowed |
 | Plugin-authoring repo | Keep `permissions.ask` on `.claude/{skills,agents,commands}/**` — do not promote to deny |
 | Production-touching | Add explicit deny on production-deploy commands (`gcloud deploy`, `kubectl apply`) beyond defaults |
 
@@ -102,12 +99,10 @@ For commit-time content scanning, see the sibling `checking-oss-release` plugin.
 
 | Skill | Purpose |
 |-------|---------|
-| `hardening-auto-mode` | Auto-mode setup + deny/ask overlay |
-| `hardening-claude-permissions` | Static `permissions.{deny, ask}` rules |
+| `hardening-claude-permissions` | Static `permissions.{deny, ask, allow}` rules |
 | `hardening-untrusted-content` | WebFetch trust boundary + vendor allowlist |
 | `hardening-pnpm-config` | pnpm 10.26+ config + `npx → pnpm dlx` |
 
 External:
 
 - [Choose a permission mode](https://code.claude.com/docs/en/permission-modes)
-- [Auto mode for Claude Code](https://claude.com/blog/auto-mode)

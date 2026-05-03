@@ -1,11 +1,11 @@
 ---
 name: hardening-claude-permissions
-description: Writes mode-agnostic deny/ask rules into .claude/settings.json — deny Edit on settings/CI/hook configs and .env*, deny Read on ~30 credential paths, ask on plugin-author paths. Use when you hear "harden claude permissions", "lock down claude code", "set up claude code deny rules".
+description: Writes acceptEdits-tuned permission rules into .claude/settings.json — deny on config writes, credential reads, outbound and privilege-escalation Bash; ask on plugin-author paths; safe-bash allow baseline. Use when you hear "harden claude permissions" or "lock down claude code".
 ---
 
 # Hardening Claude Code Permissions
 
-Reduce the blast radius of prompt injection or compromised dependencies on a Claude Code session by writing recommended `permissions.deny` and `permissions.ask` rules into `.claude/settings.json`. These deny rules are hard guarantees that hold under any permission mode (default, plan, acceptEdits, auto), and they complement runtime checks (auto-mode classifier, bundled hooks). For the full layered defense picture and where this skill fits, see `hardening-overview`.
+Reduce the blast radius of prompt injection or compromised dependencies on a Claude Code session by writing recommended `permissions.{deny, ask, allow}` rules into `.claude/settings.json`. The rule set is tuned for `defaultMode: "acceptEdits"` — file edits are auto-approved by the mode, so denying them at the rule layer is the only way to gate persistence; Bash actions are asked by the mode, so this skill hard-denies the bash routes that should never run and pre-allows a baseline of safe commands to reduce prompt fatigue. For the full layered defense picture and where this skill fits, see `hardening-overview`.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ Reduce the blast radius of prompt injection or compromised dependencies on a Cla
 - [Target Rules](#target-rules)
 - [Interaction with Existing Settings](#interaction-with-existing-settings)
 - [Limitations](#limitations)
-- [Auto Mode Interaction](#auto-mode-interaction)
+- [Operational Modes](#operational-modes)
 - [Recommended Supplements](#recommended-supplements)
 - [Troubleshooting](#troubleshooting)
 
@@ -33,7 +33,7 @@ Read the existing settings file if present:
 [ -f .claude/settings.json ] && cat .claude/settings.json || echo "no settings.json"
 ```
 
-If it exists, parse the `permissions.deny`, `permissions.ask`, and `permissions.allow` arrays. Build a mental model of which target rules are already present, missing, or conflicting.
+If it exists, parse the `permissions.deny`, `permissions.ask`, `permissions.allow`, and `permissions.defaultMode` keys. Build a mental model of which target rules are already present, missing, or conflicting.
 
 If `.claude/` does not exist, it is created in Step 4.
 
@@ -50,7 +50,7 @@ Do not write yet.
 
 ### 3. Confirm with the user
 
-Present a consolidated proposal in three sections (A / B-1 / C-1) showing:
+Present a consolidated proposal in five sections (A / B-1 / C-1 / D-1 / D-2) showing:
 
 - Rules to add (default: all in scope)
 - Rules already covered (skipped, no action)
@@ -60,9 +60,20 @@ The user may opt out of any individual rule. Wait for explicit per-section appro
 
 ### 4. Apply
 
-- If `.claude/settings.json` exists: use `Edit` to merge approved rules into the existing `permissions.deny` and `permissions.ask` arrays
-- If not: use `Write` to create the file with the approved rule set
-- Re-read the file after writing to verify it parses as valid JSON
+Pick the apply path based on the existing settings:
+
+- **`.claude/settings.json` does not exist** — use `Write` to create the file with the approved rule set
+- **File exists, Section A's `Edit(/.claude/settings.json)` is not yet in `permissions.deny`** (typical first run) — use `Edit` to merge approved rules into the existing `permissions.deny`, `permissions.ask`, and `permissions.allow` arrays, and set `permissions.defaultMode` if not already present
+- **File exists, Section A's `Edit(/.claude/settings.json)` is already in `permissions.deny`** (typical re-run, e.g. adding new rules later) — the deny rule blocks the `Edit` tool. Use the bash route instead:
+
+  ```sh
+  TMP=$(mktemp --suffix=.json)
+  jq '<merge expression>' .claude/settings.json > "$TMP" && mv "$TMP" .claude/settings.json
+  ```
+
+  This is intentional: the deny rule scopes to Claude Code's `Edit` / `Write` / `NotebookEdit` tools, while the bash route via `jq` + atomic `mv` is the documented escape hatch. Use it only inside this skill's workflow, after explicit user approval in Step 3 — not as a general-purpose bypass
+
+After every write path, re-read the file to verify it parses as valid JSON.
 
 ### 5. Verify
 
@@ -89,6 +100,7 @@ Tell the user the rules take effect on the **next** Claude Code session; the run
       "Edit(/.gitlab-ci.yml)",
       "Edit(/.circleci/**)",
       "Edit(/.husky/**)",
+      "Edit(/.vscode/**)",
       "Edit(/.envrc)",
       "Edit(/.env)",
       "Edit(/.env.*)",
@@ -105,6 +117,7 @@ Tell the user the rules take effect on the **next** Claude Code session; the run
 | `/.git/hooks/**` | Attacker installs `pre-commit` / `post-checkout` for code execution at git events |
 | `/.github/workflows/**`, `/.gitlab-ci.yml`, `/.circleci/**` | CI tampering — next push runs attacker code |
 | `/.husky/**` | git hook (alternative form) |
+| `/.vscode/**` | IDE config tampering — `tasks.json` runs shell on task invocation, `launch.json` chains `preLaunchTask`, `settings.json` overrides terminal profiles to poison shell startup |
 | `/.envrc`, `/.env`, `/.env.*` | Secret overwrite or poisoning |
 | `/.npmrc` | Registry override → malicious package install |
 | `/.mcp.json` | MCP server addition — new tool surface for the attacker |
@@ -123,7 +136,7 @@ Tell the user the rules take effect on the **next** Claude Code session; the run
 }
 ```
 
-These directories receive legitimate writes during plugin / skill / agent / command authoring. `ask` (not `deny`) preserves a confirmation gate without breaking the workflow. Under default / acceptEdits mode the user is prompted on each write; under auto mode the classifier may auto-approve `ask` matches it judges low-risk (see [Auto Mode Interaction](#auto-mode-interaction) below).
+These directories receive legitimate writes during plugin / skill / agent / command authoring. `ask` (not `deny`) preserves a confirmation gate without breaking the workflow.
 
 If the project will never author Claude Code plugins, the user may opt to promote these from `ask` to `deny` during Step 3.
 
@@ -185,6 +198,74 @@ registry / database / IaC providers.
 }
 ```
 
+### D-1. Bash deny — outbound, privilege escalation, and unsafe package execution
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(curl)",
+      "Bash(curl *)",
+      "Bash(wget)",
+      "Bash(wget *)",
+      "Bash(nc)",
+      "Bash(nc *)",
+      "Bash(eval *)",
+      "Bash(sudo)",
+      "Bash(sudo *)",
+      "Bash(su)",
+      "Bash(su *)",
+      "Bash(npx)",
+      "Bash(npx *)"
+    ]
+  }
+}
+```
+
+| Pattern | Threat blocked |
+|---------|----------------|
+| `Bash(curl/wget/nc *)` | Outbound exfiltration of repository contents or credentials to attacker infrastructure |
+| `Bash(eval *)` | Indirect execution of dynamically-constructed command strings — a primary obfuscation vector |
+| `Bash(sudo/su *)` | Privilege escalation. On NOPASSWD-sudo environments (typical of devcontainers), Claude can otherwise run `sudo tee .claude/settings.json` to overwrite a Section A-protected file via the bash route. Hard-denying sudo/su closes that gap (verified 2026-05) |
+| `Bash(npx *)` | Registry fetch + arbitrary code execution. The `hardening-pnpm-config` skill migrates `npx` to `pnpm dlx`, which applies registry verification, `minimumReleaseAge`, and install-script blocking. A Claude-initiated `npx` is either pre-migration legacy or a bypass attempt |
+
+These rules are `deny` rather than `ask` because:
+- Outbound HTTP from Claude Code should funnel through `WebFetch` (which has its own `WebFetch(domain:...)` allowlist, see [Recommended Supplements](#recommended-supplements)), not arbitrary `curl`
+- Privilege escalation has no legitimate Claude use case — administrative tasks belong to the user, performed in their own terminal where this rule does not apply
+- `npx` has a sanctioned replacement (`pnpm dlx <pkg>@<version>`) shipped by the sibling skill, so denying it does not remove a needed capability
+
+If a project legitimately needs `curl` against a known vendor API, prefer adding the specific `WebFetch(domain:...)` allow rule rather than relaxing this deny.
+
+### D-2. Operating mode and safe Bash allow baseline
+
+```json
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(ls)",
+      "Bash(ls *)",
+      "Bash(pwd)",
+      "Bash(echo *)",
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git branch)",
+      "Bash(git branch *)"
+    ]
+  }
+}
+```
+
+`defaultMode: "acceptEdits"` auto-approves file edits but keeps Bash asked. The allow baseline reduces prompt fatigue on read-only commands with no security implications:
+
+- All listed commands are read-only; none mutate state, write files, or send network traffic
+- The list is intentionally minimal — extend it incrementally for your project using the `fewer-permission-prompts` skill, which scans your transcript for repeated read-only Bash and proposes additions
+
+Do **not** allow broad patterns like `Bash(*)`, `Bash(npm *)`, `Bash(python *)`, or any package-manager script runner (`Bash(npm run *)`, `Bash(pnpm run *)`, `Bash(yarn run *)`, `Bash(bun run *)`). Broad patterns include destructive subcommands (`npm publish`, `python -c "open(...,'w').write(...)"`) that should remain asked. Script runners execute arbitrary `package.json` `scripts` entries, which a compromised dependency or fork can rewrite — the bundled `package-json-scripts-guard` hook blocks tampering with `scripts`, but a *pre-existing* malicious script will still run if the user pre-allows the runner. Pre-allow specific scripts only (e.g. `Bash(npm run test)`).
+
 ## Interaction with Existing Settings
 
 Per Claude Code's permission system, rules evaluate in order **deny → ask → allow** with first-match-wins:
@@ -202,20 +283,23 @@ This skill is **one layer** of defense-in-depth. Gaps that fall outside this ski
 |-----|--------------------------|
 | Plaintext secrets in source content (e.g. `ghp_...` written into a file) | `checking-oss-release` pre-commit content scan |
 | WebFetch exfiltration to arbitrary domain | User-supplied `WebFetch(domain:...)` allowlist (see [Recommended Supplements](#recommended-supplements)) |
-| Bash route to security-config writes (`sed -i .claude/settings.json`, `tee .git/hooks/*`) | Not blocked by this skill. Mode-dependent visibility: default / acceptEdits prompt the user; auto mode may auto-approve. The bundled `sensitive-bash-guard` hook covers credential reads (not writes) |
+| Writes to security-config or credential paths via Bash or arbitrary-language scripts (`sed -i .claude/settings.json`, `tee .git/hooks/*`, `python -c "open(...,'w')"`, npm install postinstall hooks running `node`) | Not blocked by this skill — the bundled `sensitive-bash-guard` hook covers Bash credential **reads** but not writes, and arbitrary-language script writes never appear on the bash command line. Full coverage requires an OS-layer approach (ACL with Claude running under a separate user) |
 
-## Auto Mode Interaction
+## Operational Modes
 
-When `defaultMode: "auto"` is set (typically via `hardening-auto-mode`), the rules in this skill behave as follows:
+This skill targets `defaultMode: "acceptEdits"` as the **recommended permission mode**. The rule set assumes this mode and is tuned for its prompt behavior:
 
-| Rule type | Auto mode behavior |
-|-----------|--------------------|
-| Section A `Edit` deny | **Hard guarantee** — Claude Code blocks the matched tool call regardless of classifier judgment. The Bash route is the gap (see Limitations) |
-| Section C-1 `Read` deny | **Hard guarantee** — same as above. The Bash route is covered by the bundled `sensitive-bash-guard` PreToolUse hook |
-| Section B-1 `Edit` ask (`.claude/{skills,agents,commands}/`) | **Soft hint** — verified 2026-04 (v2.1.123): the auto-mode classifier auto-approves `ask` matches it judges low-risk, with no prompt. If a confirmation gate is required for plugin-author paths even under auto mode, promote B-1 from `ask` to `deny` during Step 3 |
-| Recommended `WebFetch(domain:...)` allowlist | **Hard guarantee for vendor URLs** — the allow rule passes them through. Non-vendor URLs fall through to `WebFetch` `ask`, which auto mode may auto-approve; the bundled `untrusted-content-reminder` PostToolUse hook injects a trust-boundary reminder so the agent treats the content as data |
+- `Edit/Write/NotebookEdit` are auto-approved by the mode itself, so denying them at the rule layer (Section A) is the only way to gate persistence-target writes
+- `Bash` is asked by default in acceptEdits, so Section D-1 hard-denies the bash routes that should never run and Section D-2 sets a baseline of safe always-allow commands
 
-This skill **does not** generate broad `allow` rules (`Bash(*)`, `Bash(awk *)`, `Bash(python *)`, `Agent(*)`, etc.). Auto mode silently drops these on entry, so generating them would create rules that vanish without notice. Narrow allows like `Bash(npm test)` are preferred and survive auto mode.
+### Other modes
+
+| Mode | Compatibility | Notes |
+|------|---------------|-------|
+| `default` | Compatible | All Edit and Bash actions are asked anyway; Section D-2's allow baseline still reduces fatigue on safe Bash |
+| `acceptEdits` | **Recommended** | The rule set is tuned for this mode |
+| `dontAsk` | Compatible (CI use) | Denies everything not explicitly allowed; users must extend Section D-2 with their CI's required Bash patterns. The auto-mode classifier is not active in non-interactive runs |
+| `auto` | Out of scope | Auto mode is a research-preview Claude Code feature whose `ask` / `allow` interaction with the classifier is non-deterministic. This skill does not target auto mode. Users who choose auto mode should rely on Sections A, C-1, and D-1 (mode-agnostic deny — verified hard guarantees) and treat all `ask` / `allow` rules as advisory under that mode |
 
 ## Recommended Supplements
 
@@ -239,23 +323,32 @@ Restrict outbound HTTP via `WebFetch` to vendor-controlled documentation domains
 
 **Do not** allowlist domains that serve arbitrary user-generated content (`github.com`, `registry.npmjs.org`, `gist.github.com`, package registries, Stack Overflow, etc.). These return attacker-controlled text — README files, issue bodies, package metadata — that the agent would then process as trusted input. Allowlisting them defeats the purpose of an allowlist and creates a prompt-injection vector.
 
-When the agent needs to fetch from a user-content site, leave `WebFetch` as `ask` for those domains rather than allow-listing them, so each fetch remains an explicit, visible decision. Note that under auto mode `ask` is a soft hint and the classifier may auto-approve the fetch — the bundled `untrusted-content-reminder` PostToolUse hook backstops this by injecting a trust-boundary reminder for non-vendor results.
+When the agent needs to fetch from a user-content site, leave `WebFetch` as `ask` for those domains rather than allow-listing them, so each fetch remains an explicit, visible decision. The bundled `untrusted-content-reminder` PostToolUse hook backstops this by injecting a trust-boundary reminder for non-vendor results.
 
-### Outbound Bash deny
+### Git remote tampering guard
+
+Threat: a compromised dependency rewrites `.git/config` (or adds a new remote), then a subsequent `git push` exfiltrates repository contents to attacker infrastructure. Section A's `.git/hooks/**` deny stops the hook-write path, but `.git/config` is intentionally writable so legitimate remote setup can proceed — leaving the remote-URL surface as a residual exfiltration channel.
 
 ```json
 {
   "permissions": {
-    "deny": [
-      "Bash(curl *)",
-      "Bash(wget *)",
-      "Bash(nc *)"
+    "ask": [
+      "Bash(git remote add *)",
+      "Bash(git remote set-url *)",
+      "Bash(git config remote.* *)",
+      "Bash(git push --mirror *)",
+      "Bash(git push --all *)"
     ]
   }
 }
 ```
 
-Trade-off: legitimate `curl` invocations get blocked. Pair with the WebFetch allowlist above so the agent has a sanctioned route for vendor docs.
+Trade-offs:
+
+- Scoped to **remote-mutating** subcommands and **broad-scope pushes**, not every `git push`. Daily push to an established `origin` is high-frequency; gating every push creates prompt fatigue
+- `ask` preserves visibility at the moment a remote is being added or rewritten — the actual exfiltration trigger
+- For stricter projects, promote these to `deny` and perform remote setup manually
+- The Bash-route caveat from [Limitations](#limitations) still applies: an attacker reaching `.git/config` via `sed -i` or `tee` is not gated by these rules. The first three patterns above narrow that gap by covering the canonical `git config` invocation
 
 ## Troubleshooting
 
@@ -265,6 +358,8 @@ Trade-off: legitimate `curl` invocations get blocked. Pair with the WebFetch all
 | `.claude/` directory does not exist | Create it as part of Step 4. `Write` on `.claude/settings.json` will create the directory automatically |
 | All target rules are already present | Report no-op and exit. Do not rewrite the file |
 | User has user-level (`~/.claude/settings.json`) overlapping rules | Note that project-level rules take precedence; user-level rules remain in effect for projects that lack the same rules |
-| User wants to skip B-1 (`.claude/{skills,agents,commands}/**`) entirely | Apply A and C-1 only. The B-1 ask rules are independent of the others |
+| User wants to skip B-1 (`.claude/{skills,agents,commands}/**`) entirely | Apply A, C-1, D-1, D-2 only. The B-1 ask rules are independent of the others |
+| User wants to skip D-2 default mode | Apply A, B-1, C-1, D-1 only. Note that without `defaultMode: "acceptEdits"` the workflow falls back to `default` mode, which prompts for every Edit; this is a usability regression but does not weaken security |
 | Existing `permissions.allow` overlaps with our new `deny` | Show the overlap. Deny still takes effect (precedence), but recommend removing the redundant allow for clarity |
+| Existing `permissions.defaultMode` differs from `acceptEdits` | Show the value and note the rule set is tuned for `acceptEdits`. If the user prefers their existing mode, apply A / C-1 / D-1 (mode-agnostic) and skip D-2; warn that `ask` rules become advisory under `auto` mode |
 | Rules don't seem active after apply | The current Claude Code session does not reload project settings mid-flight. Restart the session and re-test |

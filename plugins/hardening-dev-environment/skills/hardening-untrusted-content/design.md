@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Reinforce the trust boundary that content returned by tool calls is DATA, not instructions. v1 covers `WebFetch` only; the principle and structure are designed to extend to `Read` (untrusted origins), `mcp__*` tool outputs, and `Bash` output in future versions. Complements `hardening-claude-permissions` (deny/ask reduces blast radius), the bundled PreToolUse hooks (block known bypasses), and the auto-mode classifier (gates whether actions execute) — this skill operates at the *reception* layer, shaping how the agent processes content it has just consumed.
+Reinforce the trust boundary that content returned by tool calls is DATA, not instructions. v1 covers `WebFetch` only; the principle and structure are designed to extend to `Read` (untrusted origins), `mcp__*` tool outputs, and `Bash` output in future versions. Complements `hardening-claude-permissions` (deny/ask reduces blast radius) and the bundled PreToolUse hooks (block known bypasses) — this skill operates at the *reception* layer, shaping how the agent processes content it has just consumed.
 
 ## Design Decisions
 
@@ -43,4 +43,3 @@ script reads JSON, extracts URL host, reads vendor allowlist from settings
 - `.claude/settings.json` parse covers strict JSON only. Comments and non-standard formats are not supported (Claude Code itself enforces strict JSON)
 - Host extraction uses string split, not `urllib.parse`. Sufficient for http/https URLs that Claude Code's `WebFetch` accepts; pathological inputs are treated as non-vendor (fail-safe)
 - v1 scope: `WebFetch` only. `Read` of files cloned from untrusted origins, `mcp__*` tool outputs, and `Bash` output content are NOT covered by the operational hook (the principle applies to them)
-- The hook complements but does not depend on the auto-mode classifier. Under auto mode the classifier may auto-approve `WebFetch` `ask` rules, letting non-vendor fetches proceed without a prompt; the reminder still fires post-fetch and reinforces the data-not-instructions boundary in agent context

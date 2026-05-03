@@ -2,15 +2,7 @@
 
 ## Purpose
 
-Provide a single, discoverable entry point for `hardening-dev-environment`.
-Before this skill, the plugin's multi-layer defense map lived inside
-`hardening-untrusted-content`, a skill that owns one specific layer.
-That coupling made the plugin's overall structure hard to discover and
-forced users to read a layer-specific skill to understand the whole.
-
-This skill owns the architectural overview, runs an inspection of the
-current state, and routes the user to the layer skill they actually
-need. It does not apply any layer itself.
+Provide a single, discoverable entry point for `hardening-dev-environment`. This skill owns the architectural overview, runs an inspection of the current state, and routes the user to the layer skill they actually need. It does not apply any layer itself.
 
 ## Design Decisions
 
@@ -19,7 +11,7 @@ need. It does not apply any layer itself.
 | Overview as a discoverable skill, not a README | A README in the plugin directory does not surface in Claude Code skill discovery. A skill with appropriate trigger phrases is reachable via natural-language queries ("set up hardening", "harden dev environment") |
 | Inspection + routing, not application | If this skill applied layers itself, it would duplicate logic from each layer skill. Single source of truth lives in each layer skill; the overview only inspects and routes |
 | State classification per layer (applied / partial / unapplied / N/A) | Two-state classification loses information when a project has some but not all rules in a layer; "partial" directs the user to focus on the gap |
-| Plan-tier-driven recommendations | Auto-mode availability is plan-gated. Recommending auto mode universally would mislead Pro users; recommending only static rules to Team users would underuse defenses available to them |
+| Use-case-driven recommendations | The base setup order is the same for all plans, but use cases (CI-only, plugin-authoring, production-touching) need overlays on top. The skill collects plan tier and use case so it can route accurately |
 | Defense Map lives here, not in `hardening-untrusted-content` | Self-containment principle: a skill should not own architecture for layers it does not implement |
 | Hooks listed in the map but not as separate skills | Hooks auto-activate when the plugin is enabled; they are operationally distinct from skills the user invokes. Listing them clarifies what comes "for free" with the plugin |
 | Overview does not auto-invoke other skills | Hand-off via skill name lets the user verify the recommendation before applying. Auto-chaining would amplify any misjudgment in the inspection step |
@@ -53,7 +45,3 @@ Step 5: Hand off — user picks layer, invokes that skill explicitly
 - The Defense Map must be kept in sync as layer skills evolve. When a
   layer skill changes its rule set or scope, the corresponding row in
   this skill must be updated. This is the price of single ownership
-- Auto-mode classifier (row 1) is a Claude Code runtime feature, not
-  an applied layer. Its "state" is reported as "active in auto mode"
-  / "available but inactive" / "unavailable" depending on settings
-  and plan tier

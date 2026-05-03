@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Generate `.claude/settings.json` permission rules that harden a Claude Code session against two attack classes regardless of permission mode (default, plan, acceptEdits, auto): ① persistence via config tampering (writes to `.claude/settings.json`, `.git/hooks/`, `.github/workflows/`, etc. — CVE-2025-59536-style), ② reads of common credential files (`~/.ssh/`, `~/.aws/`, `~/.config/gh/`, etc.). This is the static prevention layer of `hardening-dev-environment`; the bundled PreToolUse hooks (`sensitive-bash-guard`, `package-json-scripts-guard`) cover read-only Bash bypasses and `package.json` `"scripts"` tampering, and `checking-oss-release` pre-commit covers commit-time content patterns.
+Generate `.claude/settings.json` permission rules that harden a Claude Code session against three attack classes: ① persistence via config tampering (writes to `.claude/settings.json`, `.git/hooks/`, `.github/workflows/`, `.vscode/`, etc. — CVE-2025-59536-style), ② reads of common credential files (`~/.ssh/`, `~/.aws/`, `~/.config/gh/`, etc.), ③ outbound exfiltration and privilege escalation via Bash (`curl`, `wget`, `nc`, `eval`, `sudo`, `su`). The rule set is tuned for `defaultMode: "acceptEdits"` — the recommended operating mode for everyday work. This is the static prevention layer of `hardening-dev-environment`; the bundled PreToolUse hooks (`sensitive-bash-guard`, `package-json-scripts-guard`) cover read-only Bash bypasses and `package.json` `"scripts"` tampering, and `checking-oss-release` pre-commit covers commit-time content patterns.
 
-The deny rules are mode-agnostic hard guarantees — Claude Code blocks the matched tool call regardless of whether the session is in default, plan, acceptEdits, or auto mode. The ask rules are mode-sensitive: under default / acceptEdits they prompt the user; under auto mode the classifier may auto-approve `ask` matches it judges low-risk (verified 2026-04 on v2.1.123). For boundaries that must hold under auto mode, prefer `deny` over `ask`.
+The deny rules are mode-agnostic hard guarantees — Claude Code blocks the matched tool call regardless of permission mode. The `ask` and `allow` rules are designed for `acceptEdits` mode where they have well-defined behavior (`ask` prompts the user, `allow` skips the prompt). Under `auto` mode their interaction with the classifier is non-deterministic and out of scope for this skill — see SKILL.md "Operational Modes" for the explicit scope statement.
 
 ## Design Decisions
 
@@ -12,11 +12,17 @@ The deny rules are mode-agnostic hard guarantees — Claude Code blocks the matc
 |----------|-----------|
 | Main session execution | Per-rule confirmation against existing settings; conflict resolution is interactive |
 | Edit existing `settings.json`, not replace | Most projects already have allow rules and project-specific customizations |
-| Three fixed rule categories (A deny / B ask / C deny) | Predictable rule surface across projects; user opts out per rule rather than per category |
-| `.claude/{skills,agents,commands}/**` is `ask`, not `deny` | Plugin-development repos legitimately write here; `ask` preserves a confirmation gate under default / acceptEdits without breaking workflow. Note: under auto mode the classifier may auto-approve these `ask` matches; users who want a hard gate even under auto mode should promote B-1 to `deny` (documented in SKILL.md Auto Mode Interaction section) |
+| Five fixed rule categories (A Edit deny / B-1 Edit ask / C-1 Read deny / D-1 Bash deny / D-2 mode + Bash allow baseline) | Predictable rule surface across projects; user opts out per rule rather than per category |
+| Target `acceptEdits` as recommended operating mode (D-2) | `acceptEdits` has deterministic prompt behavior on `ask` and `allow` rules across all plan tiers (Pro, Max, Team, Enterprise). It auto-approves Edit/Write (relying on Section A deny for persistence-target gating) while keeping Bash asked, where Section D-1 deny + D-2 allow baseline shape prompt frequency |
+| Auto mode out of scope | Recommending settings tuned for auto mode would risk shipping rules whose effective behavior changes between Claude Code versions — the classifier's interaction with `ask` and `allow` is non-deterministic and the feature itself is research-preview. Operational consequences for users who choose auto mode are documented in SKILL.md Operational Modes |
+| `.claude/{skills,agents,commands}/**` is `ask`, not `deny` (B-1) | Plugin-development repos legitimately write here; `ask` preserves a confirmation gate without breaking workflow. Users who never author plugins may promote B-1 to `deny` during Step 3 |
 | `package.json` not denied at the file level | File-level deny is too coarse; only the `"scripts"` section is sensitive — handled by the bundled `package-json-scripts-guard` hook, not this skill |
-| Read deny covers credential files from major cloud / VCS / package-manager providers | Mirrors GitHub Secret Scanning coverage at the file-path level. Content-pattern detection (regex on file contents) is delegated to `checking-oss-release` pre-commit |
+| Read deny covers credential files from major cloud / VCS / package-manager providers (C-1) | Mirrors GitHub Secret Scanning coverage at the file-path level. Content-pattern detection (regex on file contents) is delegated to `checking-oss-release` pre-commit |
+| Bash deny includes `sudo`/`su` even on NOPASSWD environments (D-1) | Verified 2026-05: NOPASSWD-sudo devcontainers let `acceptEdits` mode auto-execute `sudo tee .claude/settings.json` and similar bash-route bypasses of Section A. Hard-denying sudo/su closes that gap |
+| `npx` denied; `pnpm dlx` not denied (D-1) | `npx` lacks registry verification, `minimumReleaseAge`, and install-script blocking. The sibling `hardening-pnpm-config` skill ships `pnpm dlx <pkg>@<version>` as the sanctioned replacement, with all three controls applied. Denying `npx` directs Claude to the safer route without removing capability |
+| Allow baseline is intentionally minimal (D-2) | Broad allows (`Bash(npm *)`, `Bash(python *)`) include destructive subcommands (`npm publish`, `python -c "open(...,'w')"`). The minimal baseline covers only read-only commands with no security implications; users extend it via `fewer-permission-prompts` for project-specific safe patterns |
 | WebFetch domain allowlist not generated by default | Too project-specific to ship as default; documented as recommended supplemental setting |
+| `git push` not denied; remote-mutating subcommands surfaced as supplemental `ask` | Daily push to an established `origin` is high-frequency, so a blanket `ask Bash(git push *)` would create fatigue. Exfiltration via push requires either a rewritten remote URL or a broad-scope push (`--mirror`, `--all`) — narrow `ask` on `git remote add/set-url`, `git config remote.* *`, and `--mirror`/`--all` push covers those triggers. Documented in SKILL.md Recommended Supplements rather than auto-applied |
 | Skill writes project-level settings only | User-level (`~/.claude/settings.json`) is per-developer; managed settings are org policy. Mixing layers multiplies confirmation surface |
 | Freedom level: Medium-Low | Rule set is fixed; only per-rule opt-out and conflict resolution need flexibility |
 
@@ -26,7 +32,7 @@ The deny rules are mode-agnostic hard guarantees — Claude Code blocks the matc
 Input: project root (with or without existing .claude/settings.json)
   ↓
 Step 1: Detect — read existing settings.json,
-                 parse permissions.{deny, ask, allow}
+                 parse permissions.{deny, ask, allow, defaultMode}
   ↓
 Step 2: Plan — for each target rule:
                  missing / present / conflicting
@@ -43,18 +49,21 @@ Step 5: Verify — confirm rules registered,
 
 ## Rule Sets
 
-| Category | Tool | Purpose | Approx count |
-|----------|------|---------|--------------|
-| A | `Edit` deny | Block writes to security-critical files (`.claude/settings*.json`, `.git/hooks/`, CI configs, `.env*`, `.npmrc`, `.mcp.json`) | 12 patterns |
+| Category | Tool / Setting | Purpose | Approx count |
+|----------|----------------|---------|--------------|
+| A | `Edit` deny | Block writes to security-critical files (`.claude/settings*.json`, `.git/hooks/`, CI configs, `.vscode/`, `.env*`, `.npmrc`, `.mcp.json`) | 13 patterns |
 | B-1 | `Edit` ask | Require confirmation for writes to `.claude/{skills,agents,commands}/**` | 3 patterns |
 | C-1 | `Read` deny | Block reads of credential files (cloud, VCS, registry, DB, IaC) | ~30 patterns |
+| D-1 | `Bash` deny | Block outbound (`curl`/`wget`/`nc`), dynamic execution (`eval`), privilege escalation (`sudo`/`su`), and unsafe package execution (`npx`) | 13 patterns |
+| D-2 | `defaultMode` + `Bash` allow | Set `acceptEdits` and pre-allow a minimal baseline of read-only Bash | 1 mode + ~11 patterns |
 
 Concrete patterns are listed in `SKILL.md`.
 
 ## Constraints & Tradeoffs
 
-- Rule list reflects providers in common use as of 2026-04. Niche providers (regional clouds, internal SaaS) require user-extension
+- Rule list reflects providers in common use as of 2026-05. Niche providers (regional clouds, internal SaaS) require user-extension
 - `Read(.env)` deny covers the Read tool / Grep / Glob; `cat .env` via Bash bypasses — mitigated by the bundled `sensitive-bash-guard` hook
-- `Edit(...)` deny covers Edit / Write / NotebookEdit; bash-route writes (`sed -i`, `jq -i`, `tee`) are not blocked by this skill. Mode-dependent visibility: default / acceptEdits prompt the user via Bash's normal flow; auto mode may auto-approve. Documented as a known gap; future work could add a Bash guard for security-config writes
+- `Edit(...)` deny covers Edit / Write / NotebookEdit; bash-route writes (`sed -i`, `tee`, redirect operators) are not blocked by this skill. Section D-1's `sudo` deny closes the privileged-write subset, but unprivileged bash-route writes still bypass. Full coverage requires an OS-layer approach (ACL with Claude under a separate user) — tracked as future work
+- Arbitrary-language scripts (`python -c "open(...,'w')"`, npm install postinstall scripts running `node`) are unobservable from the bash command line and therefore not gated by this skill
 - Rules apply project-wide; per-directory exceptions require user-supplied custom rules
 - Settings precedence is not reconciled: cross-layer conflicts (managed / user / project) are out of scope for this skill

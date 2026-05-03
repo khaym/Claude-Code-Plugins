@@ -16,7 +16,6 @@ This skill ships a PostToolUse hook (auto-registered by `hardening-dev-environme
 - [User-facing Checklist](#user-facing-checklist)
 - [Activation](#activation)
 - [Hook Behavior](#hook-behavior)
-- [Auto Mode Interaction](#auto-mode-interaction)
 - [Limitations](#limitations)
 - [Future Scope](#future-scope)
 - [Troubleshooting](#troubleshooting)
@@ -88,16 +87,9 @@ Host comparison is **exact match** only. List each subdomain explicitly in `perm
 
 Missing or malformed `.claude/settings.json` → empty vendor list → every WebFetch result emits the reminder. Biases toward over-warn, not over-trust.
 
-## Auto Mode Interaction
+### Mode independence
 
-This hook complements the auto-mode classifier; the two operate at different layers and do not overlap:
-
-| Layer | Question answered | Mechanism |
-|-------|-------------------|-----------|
-| Auto mode classifier | "Is the agent's next *action* safe to execute?" | Server-side risk evaluation before each non-trivial tool call. Auto-approves low-risk actions (including `WebFetch` to non-vendor domains) so `ask` rules silently pass under auto mode |
-| `untrusted-content-reminder` hook | "Should the agent treat the *content* it just received as instructions?" | Client-side `additionalContext` injection after every non-vendor `WebFetch`, regardless of permission mode |
-
-The hook fires under any mode (default, plan, acceptEdits, auto). Even when the auto-mode classifier auto-approves a `WebFetch` to a non-vendor domain, the reminder still appears in the agent's context and reinforces the trust boundary. This is the intended division of labor: the classifier gates *whether* an action runs; the hook shapes *how* the agent interprets the result.
+The hook fires after every `WebFetch` regardless of permission mode (`default`, `acceptEdits`, etc.). Permission rules gate *whether* a fetch runs; this hook shapes *how* the result is interpreted once it has run.
 
 ## Limitations
 
@@ -124,4 +116,3 @@ The hook fires under any mode (default, plan, acceptEdits, auto). Even when the 
 
 - `hardening-overview` — full Layered Defense Map across all layers in `hardening-dev-environment` and how this skill fits into it
 - `hardening-claude-permissions` — owns the `WebFetch(domain:...)` allowlist that this skill's hook reads as the vendor trust signal
-- `hardening-auto-mode` — when auto mode is enabled, the classifier auto-approves `WebFetch` `ask` rules; this skill's hook is the layer that keeps non-vendor content classified as data even in that case
