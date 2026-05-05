@@ -170,7 +170,7 @@ These complement the config-level prevention. The skill does not install them on
 
 ### Aikido Safe Chain
 
-Wraps `npm`/`pnpm`/`pip`/etc. via shell aliases to block known-malicious installs against the Aikido Intel feed. Best installed per-developer — interactive prompts make it unsuitable for CI. The installer commands below use `curl`, which `hardening-claude-permissions` Section D-1 denies for Claude — run them in your own shell.
+Wraps `npm`/`pnpm`/`pip`/etc. via shell aliases to block known-malicious installs against the Aikido Intel feed. Best installed per-developer — interactive prompts make it unsuitable for CI. The installer commands below use `curl`, which `hardening-claude-permissions` denies for Claude — run them in your own shell.
 
 Use the official one-line installer (Unix/Linux/macOS):
 

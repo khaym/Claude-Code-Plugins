@@ -20,9 +20,10 @@ Provide a single, discoverable entry point for `hardening-dev-environment`. This
 ## Data Flow
 
 ```
-Input: project root (any state — `.claude/`, package.json optional)
+Input: project root (any state — `.claude/`, package.json, pyproject.toml optional)
   ↓
-Step 1: Inspect — jq settings.json + package.json
+Step 1: Inspect — jq settings.json + package.json,
+                  grep pyproject.toml + ls Python legacy markers
                   treat absent files as "unapplied", do not fail
   ↓
 Step 2: Build state matrix per layer

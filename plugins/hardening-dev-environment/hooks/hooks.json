@@ -1,5 +1,5 @@
 {
-  "description": "Hardens Claude Code session: PreToolUse blocks for credential-read Bash and package.json scripts tampering; PostToolUse trust-boundary reminder for non-vendor WebFetch results",
+  "description": "Hardens Claude Code session: PreToolUse blocks for credential-read Bash, package.json scripts tampering, and pyproject.toml [build-system] / setup.py tampering; PostToolUse trust-boundary reminder for non-vendor WebFetch results",
   "hooks": {
     "PreToolUse": [
       {
@@ -17,6 +17,10 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/package-json-scripts-guard.py"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pyproject-buildsystem-guard.py"
           }
         ]
       }

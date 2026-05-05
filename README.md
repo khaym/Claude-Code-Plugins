@@ -92,16 +92,17 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the trust-boundary reminder shapes how fetched content is interpreted.
+Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm/PyPI supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the trust-boundary reminder shapes how fetched content is interpreted.
 
 **Layered Defense Map:**
 
 | # | Layer | Owner | Threats addressed |
 |---|-------|-------|-------------------|
 | 1 | Static `permissions.{deny, ask, allow}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (file reads), outbound exfil, plugin-authoring confirmation gate |
-| 2 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, indirect prompt injection from `WebFetch` results |
+| 2 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `pyproject-buildsystem-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, `pyproject.toml [build-system]` / `setup.py` tampering, indirect prompt injection from `WebFetch` results |
 | 3 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
-| 4 | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
+| 4a | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
+| 4b | PyPI supply chain config | `hardening-uv-config` | Fresh-malicious-package install / dependency confusion / unpinned `pip install` / `pipx run`; migrates legacy pip / setup.py projects to uv |
 | 5 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
 
 Layer 2 hooks auto-activate when this plugin is enabled. The other layers are applied via their owner skill.

@@ -2,16 +2,18 @@
 # Test harness for hardening-dev-environment runtime hooks.
 #
 # Drives each hook script as a subprocess, feeding a JSON payload on stdin
-# and asserting on its decision. Three hooks are exercised:
+# and asserting on its decision. Four hooks are exercised:
 #
-#   - sensitive-bash-guard.py    PreToolUse on Bash;  silent allow / JSON deny
-#   - package-json-scripts-guard PreToolUse on Edit/Write of package.json
-#   - untrusted-content-reminder PostToolUse on WebFetch; silent / additionalContext
+#   - sensitive-bash-guard.py        PreToolUse on Bash;  silent allow / JSON deny
+#   - package-json-scripts-guard     PreToolUse on Edit/Write of package.json
+#   - pyproject-buildsystem-guard    PreToolUse on Edit/Write of pyproject.toml & setup.py
+#   - untrusted-content-reminder     PostToolUse on WebFetch; silent / additionalContext
 #
-# package.json tests need a real file at the path the hook will open(),
-# so a temp workspace is materialized per-test. The reminder hook collects
-# `WebFetch(domain:...)` allowlist entries from $CWD/.claude/settings.json
-# and $HOME/.claude/settings.json, so its tests pin both via subshell.
+# package.json and pyproject.toml / setup.py tests need a real file at the
+# path the hook will open(), so a temp workspace is materialized per-test.
+# The reminder hook collects `WebFetch(domain:...)` allowlist entries from
+# $CWD/.claude/settings.json and $HOME/.claude/settings.json, so its tests
+# pin both via subshell.
 #
 # Usage: bash tests/plugins/hardening-dev-environment/run.sh
 
@@ -22,6 +24,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel)"
 HOOKS_DIR="$REPO_ROOT/plugins/hardening-dev-environment/hooks/scripts"
 SENS_BASH="$HOOKS_DIR/sensitive-bash-guard.py"
 PKG_GUARD="$HOOKS_DIR/package-json-scripts-guard.py"
+PYBS_GUARD="$HOOKS_DIR/pyproject-buildsystem-guard.py"
 UNTRUSTED="$HOOKS_DIR/untrusted-content-reminder.py"
 
 WORK_DIR=$(mktemp -d)
@@ -239,6 +242,204 @@ print(json.dumps({
 }))' "$NEWPKG" '{"name":"new","scripts":{"postinstall":"x"}}' \
   | python3 "$PKG_GUARD")
 assert_silent "pkg-guard: new file creation is allowed" "$out"
+
+echo ""
+
+# --- pyproject-buildsystem-guard -------------------------------------------
+
+PY_DIR="$WORK_DIR/py"
+mkdir -p "$PY_DIR"
+PYPROJECT="$PY_DIR/pyproject.toml"
+SETUP_PY="$PY_DIR/setup.py"
+
+write_pyproject() {
+  printf '%s\n' "$1" > "$PYPROJECT"
+}
+
+write_setup() {
+  printf '%s\n' "$1" > "$SETUP_PY"
+}
+
+run_pybs_edit() {
+  local target="$1" old="$2" new="$3"
+  python3 -c '
+import json, sys
+print(json.dumps({
+    "tool_name": "Edit",
+    "tool_input": {
+        "file_path": sys.argv[1],
+        "old_string": sys.argv[2],
+        "new_string": sys.argv[3],
+    },
+}))' "$target" "$old" "$new" | python3 "$PYBS_GUARD"
+}
+
+run_pybs_write() {
+  local target="$1" content="$2"
+  python3 -c '
+import json, sys
+print(json.dumps({
+    "tool_name": "Write",
+    "tool_input": {"file_path": sys.argv[1], "content": sys.argv[2]},
+}))' "$target" "$content" | python3 "$PYBS_GUARD"
+}
+
+PYPROJ_BASE='[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "demo"
+version = "0.1.0"
+
+[tool.uv]
+exclude-newer = "P3D"
+'
+
+echo "=== pyproject-buildsystem-guard: deny [build-system] modification ==="
+
+# Modify build-backend value via Edit
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_edit "$PYPROJECT" \
+  'build-backend = "hatchling.build"' \
+  'build-backend = "evil.backend"')
+assert_deny "pybs-guard: change build-backend via Edit" "$out"
+
+# Add a requires entry via Edit
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_edit "$PYPROJECT" \
+  'requires = ["hatchling"]' \
+  'requires = ["hatchling", "evil-plugin"]')
+assert_deny "pybs-guard: add requires entry via Edit" "$out"
+
+# Replace whole file via Write, mutating [build-system]
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_write "$PYPROJECT" '[build-system]
+requires = ["hatchling", "evil-plugin"]
+build-backend = "hatchling.build"
+
+[project]
+name = "demo"
+version = "0.1.0"
+')
+assert_deny "pybs-guard: mutate [build-system] via Write" "$out"
+
+# Sub-table [build-system.<x>] modification
+write_pyproject '[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[build-system.config]
+backend-path = ["./_build"]
+
+[project]
+name = "demo"
+'
+out=$(run_pybs_edit "$PYPROJECT" \
+  'backend-path = ["./_build"]' \
+  'backend-path = ["./_build", "./evil"]')
+assert_deny "pybs-guard: mutate [build-system.config] sub-table" "$out"
+
+echo ""
+echo "=== pyproject-buildsystem-guard: allow non-[build-system] changes ==="
+
+# Edit [project] field
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_edit "$PYPROJECT" 'version = "0.1.0"' 'version = "0.1.1"')
+assert_silent "pybs-guard: bump project.version via Edit" "$out"
+
+# Edit [tool.uv] field — this is the whole reason the hook is section-scoped
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_edit "$PYPROJECT" \
+  'exclude-newer = "P3D"' \
+  'exclude-newer = "P7D"')
+assert_silent "pybs-guard: bump tool.uv.exclude-newer via Edit" "$out"
+
+# Add [project.dependencies]
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_edit "$PYPROJECT" \
+  'name = "demo"' \
+  'name = "demo"
+dependencies = ["requests"]')
+assert_silent "pybs-guard: add project.dependencies via Edit" "$out"
+
+# Rewrite identical [build-system] via Write
+write_pyproject "$PYPROJ_BASE"
+out=$(run_pybs_write "$PYPROJECT" "$PYPROJ_BASE")
+assert_silent "pybs-guard: identical Write is allowed" "$out"
+
+# New pyproject.toml (no existing file): allow per spec
+NEWPY="$PY_DIR/new/pyproject.toml"
+mkdir -p "$(dirname "$NEWPY")"
+out=$(run_pybs_write "$NEWPY" "$PYPROJ_BASE")
+assert_silent "pybs-guard: new pyproject.toml is allowed" "$out"
+
+# Pyproject without [build-system]: editing other tables still allowed
+write_pyproject '[project]
+name = "demo"
+version = "0.1.0"
+
+[tool.uv]
+exclude-newer = "P3D"
+'
+out=$(run_pybs_edit "$PYPROJECT" 'version = "0.1.0"' 'version = "0.1.1"')
+assert_silent "pybs-guard: file with no [build-system] is allowed" "$out"
+
+echo ""
+echo "=== pyproject-buildsystem-guard: setup.py is fully sensitive ==="
+
+# Any modification to setup.py blocks
+write_setup 'from setuptools import setup
+setup(name="demo", version="0.1.0")
+'
+out=$(run_pybs_edit "$SETUP_PY" 'version="0.1.0"' 'version="0.1.1"')
+assert_deny "pybs-guard: any setup.py Edit blocks" "$out"
+
+# Write replacing setup.py blocks
+write_setup 'from setuptools import setup
+setup(name="demo")
+'
+out=$(run_pybs_write "$SETUP_PY" 'from setuptools import setup
+setup(name="demo", install_requires=["evil"])
+')
+assert_deny "pybs-guard: setup.py Write blocks" "$out"
+
+# Identical Write is a no-op — allow. Uses printf '%s' (no appended newline)
+# so file bytes and Write payload match exactly.
+SETUP_IDENTICAL='from setuptools import setup
+setup(name="demo")
+'
+printf '%s' "$SETUP_IDENTICAL" > "$SETUP_PY"
+out=$(run_pybs_write "$SETUP_PY" "$SETUP_IDENTICAL")
+assert_silent "pybs-guard: setup.py identical Write is allowed" "$out"
+
+# New setup.py (no existing file): allow per spec
+NEWSETUP="$PY_DIR/new/setup.py"
+mkdir -p "$(dirname "$NEWSETUP")"
+out=$(run_pybs_write "$NEWSETUP" 'from setuptools import setup
+setup(name="new")
+')
+assert_silent "pybs-guard: new setup.py is allowed" "$out"
+
+echo ""
+echo "=== pyproject-buildsystem-guard: irrelevant inputs pass silently ==="
+
+# Edit on an unrelated file — hook is matcher-scoped but defensively allows
+NONPY="$PY_DIR/other.toml"
+echo '[a]
+b = 1
+' > "$NONPY"
+out=$(run_pybs_edit "$NONPY" 'b = 1' 'b = 2')
+assert_silent "pybs-guard: ignores non-pyproject/setup.py files" "$out"
+
+# Bash tool — hook is matcher-scoped to Edit/Write
+out=$(echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' \
+  | python3 "$PYBS_GUARD")
+assert_silent "pybs-guard: Bash tool name is ignored" "$out"
+
+# Malformed stdin
+out=$(echo 'not json' | python3 "$PYBS_GUARD")
+assert_silent "pybs-guard: malformed stdin is ignored" "$out"
 
 echo ""
 

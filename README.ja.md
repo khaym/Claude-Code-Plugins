@@ -92,7 +92,7 @@ pre-commitフックをセットアップして
 
 ### hardening-dev-environment
 
-Claude Code を使う開発環境のための多層防御プラグイン。npm サプライチェーン攻撃、prompt injection 経由のスコープ拡大、credential 流出、設定ファイル改ざんによる persistence、取得コンテンツ経由の間接 prompt injection — それぞれ独立した攻撃クラスを別レイヤーで対処します。各レイヤーは補完関係にあり、静的設定で予防し、ランタイム hook で既知の bypass を検出し、auto-mode classifier がスコープを制御し、trust-boundary リマインダで取得コンテンツの解釈を制約します。
+Claude Code を使う開発環境のための多層防御プラグイン。npm/PyPI サプライチェーン攻撃、prompt injection 経由のスコープ拡大、credential 流出、設定ファイル改ざんによる persistence、取得コンテンツ経由の間接 prompt injection — それぞれ独立した攻撃クラスを別レイヤーで対処します。各レイヤーは補完関係にあり、静的設定で予防し、ランタイム hook で既知の bypass を検出し、auto-mode classifier がスコープを制御し、trust-boundary リマインダで取得コンテンツの解釈を制約します。
 
 **多層防御マップ:**
 
@@ -100,9 +100,10 @@ Claude Code を使う開発環境のための多層防御プラグイン。npm �
 |---|---------|------|-------------|
 | 1 | Auto-mode classifier + 設定 | `hardening-auto-mode`（Claude Code v2.1.83+、プラン制限あり） | スコープ拡大、信頼できないインフラ、prompt injection 由来のアクション |
 | 2 | 静的 `permissions.{deny, ask}` ルール | `hardening-claude-permissions` | 設定ファイル改ざんによる persistence、credential ファイル流出、プラグイン著作経路の確認ゲート |
-| 3 | 同梱ランタイム hook（自動有効） | このプラグイン（`sensitive-bash-guard`, `package-json-scripts-guard`, `untrusted-content-reminder`） | Bash 経由の credential 読み取り bypass、`package.json` `scripts` 改ざん、`WebFetch` 結果由来の間接 prompt injection |
+| 3 | 同梱ランタイム hook（自動有効） | このプラグイン（`sensitive-bash-guard`, `package-json-scripts-guard`, `pyproject-buildsystem-guard`, `untrusted-content-reminder`） | Bash 経由の credential 読み取り bypass、`package.json` `scripts` 改ざん、`pyproject.toml [build-system]` / `setup.py` 改ざん、`WebFetch` 結果由来の間接 prompt injection |
 | 4 | WebFetch trust discipline | `hardening-untrusted-content` | 間接 prompt injection — trust-boundary チェックリスト + PostToolUse hook を駆動する vendor allowlist |
-| 5 | npm サプライチェーン設定 | `hardening-pnpm-config` | 悪性パッケージのインストール / install スクリプト実行 / 未ピンの `npx` |
+| 5a | npm サプライチェーン設定 | `hardening-pnpm-config` | 悪性パッケージのインストール / install スクリプト実行 / 未ピンの `npx` |
+| 5b | PyPI サプライチェーン設定 | `hardening-uv-config` | 直近に公開された悪性パッケージのインストール / dependency confusion / 未ピンの `pip install` / `pipx run`、レガシー pip / setup.py プロジェクトの uv 移行 |
 | 6 | Pre-commit シークレット scan | `checking-oss-release` プラグイン（兄弟プラグイン） | コミット時に到達するプレーンテキストの secret |
 
 レイヤー 3 の hook はプラグイン有効化と同時に自動起動します。レイヤー 1 はプランによって利用可否が決まる Claude Code のランタイム機能です。それ以外のレイヤーは担当 skill から適用します。
