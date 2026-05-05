@@ -216,7 +216,9 @@ registry / database / IaC providers.
       "Bash(su)",
       "Bash(su *)",
       "Bash(npx)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(pipx)",
+      "Bash(pipx *)"
     ]
   }
 }
@@ -228,11 +230,12 @@ registry / database / IaC providers.
 | `Bash(eval *)` | Indirect execution of dynamically-constructed command strings — a primary obfuscation vector |
 | `Bash(sudo/su *)` | Privilege escalation. On NOPASSWD-sudo environments (typical of devcontainers), Claude can otherwise run `sudo tee .claude/settings.json` to overwrite a Section A-protected file via the bash route. Hard-denying sudo/su closes that gap (verified 2026-05) |
 | `Bash(npx *)` | Registry fetch + arbitrary code execution. The `hardening-pnpm-config` skill migrates `npx` to `pnpm dlx`, which applies registry verification, `minimumReleaseAge`, and install-script blocking. A Claude-initiated `npx` is either pre-migration legacy or a bypass attempt |
+| `Bash(pipx *)` | Registry fetch + arbitrary code execution from PyPI. The `hardening-uv-config` skill migrates `pipx run` to `uvx <pkg>@<version>` and `pipx install` to `uv tool install`, which apply `[tool.uv]` settings (`exclude-newer`, `index-strategy`). A Claude-initiated `pipx` is either pre-migration legacy or a bypass attempt |
 
 These rules are `deny` rather than `ask` because:
 - Outbound HTTP from Claude Code should funnel through `WebFetch` (which has its own `WebFetch(domain:...)` allowlist, see [Recommended Supplements](#recommended-supplements)), not arbitrary `curl`
 - Privilege escalation has no legitimate Claude use case — administrative tasks belong to the user, performed in their own terminal where this rule does not apply
-- `npx` has a sanctioned replacement (`pnpm dlx <pkg>@<version>`) shipped by the sibling skill, so denying it does not remove a needed capability
+- `npx` and `pipx` both have sanctioned replacements (`pnpm dlx` / `uvx` / `uv tool install`) shipped by the sibling skills, so denying them does not remove a needed capability. `pip install` is intentionally not denied here — persistent installers are addressed at the config layer (`[tool.uv]` lockfile + cooldown) rather than the permission layer, mirroring the `npm install` stance
 
 If a project legitimately needs `curl` against a known vendor API, prefer adding the specific `WebFetch(domain:...)` allow rule rather than relaxing this deny.
 

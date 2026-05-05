@@ -169,6 +169,8 @@ no-build-isolation-package = []
 
 ## pip / pipx Migration Rules
 
+`pipx` is also denied at the permission layer when `hardening-claude-permissions` is applied. Migrating tracked-file occurrences here covers documentation and scripts; the permission deny prevents Claude from invoking `pipx` ad-hoc in interactive sessions. `pip install` is **not** permission-denied — see `hardening-claude-permissions` design notes for the rationale (persistent installers are handled at the `[tool.uv]` config layer).
+
 | Pattern | Class | Replacement |
 |---------|-------|-------------|
 | `pip install pkg` (project dep) | auto | `uv add pkg` (resolves a pin into pyproject.toml + uv.lock) |

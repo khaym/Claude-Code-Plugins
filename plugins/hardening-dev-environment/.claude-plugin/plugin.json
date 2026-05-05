@@ -1,5 +1,5 @@
 {
   "name": "hardening-dev-environment",
   "description": "Hardens the developer environment against npm/PyPI supply chain attacks and prompt-injection-driven attacks on Claude Code. Generates pnpm 10.26+ config and migrates `npx` to `pnpm dlx`; generates uv `[tool.uv]` config, migrates legacy pip / setup.py projects to uv, and replaces `pip install` / `pipx run` with pinned `uv add` / `uvx`; generates `.claude/settings.json` `permissions.{deny, ask, allow}` rules tuned for an `acceptEdits`-based operating mode, with hard-guarantee deny on credential reads, persistence-target writes, and privilege-escalation Bash; bundles PreToolUse hooks that block sensitive Bash reads, `package.json` `scripts` tampering, and `pyproject.toml [build-system]` / `setup.py` tampering, and a PostToolUse hook that marks non-vendor `WebFetch` results as untrusted external data.",
-  "version": "2.1.0"
+  "version": "2.1.1"
 }
