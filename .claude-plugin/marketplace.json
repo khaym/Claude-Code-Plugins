@@ -51,7 +51,7 @@
       "name": "hardening-dev-environment",
       "source": "./plugins/hardening-dev-environment",
       "description": "Hardens Claude Code dev environments: pnpm supply-chain config + npx-to-pnpm-dlx migration; mode-agnostic .claude/settings.json deny/ask rules and v2.1.83+ auto-mode overlay (defaultMode + classifier backstops); PreToolUse hooks (credential reads, package.json scripts tampering); PostToolUse trust-boundary reminder for non-vendor WebFetch results",
-      "version": "1.4.0",
+      "version": "2.1.2",
       "category": "security",
       "tags": ["security", "pnpm", "supply-chain", "npm", "hardening", "prompt-injection", "auto-mode"]
     }
