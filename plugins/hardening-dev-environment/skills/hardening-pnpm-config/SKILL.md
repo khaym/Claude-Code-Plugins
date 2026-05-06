@@ -192,6 +192,20 @@ pnpm safe-chain-verify
 
 Reference: <https://github.com/AikidoSec/safe-chain>
 
+#### Apply to Claude Code's Bash tool
+
+Safe Chain's shell aliases only load in interactive shells. Claude Code's `Bash` tool runs `bash -c` non-interactively, so the aliases do not apply to Claude-issued installs by default. To extend coverage, set `BASH_ENV` in your **user-level** `~/.claude/settings.json` so every `Bash` invocation sources the Safe Chain init script:
+
+```json
+{
+  "env": {
+    "BASH_ENV": "${HOME}/.safe-chain/scripts/init-posix.sh"
+  }
+}
+```
+
+Edit this file from your own shell — `hardening-claude-permissions` denies Claude write access to `~/.claude/settings.json`. Keep the entry in user-level settings (not project `.claude/settings.json`), since Safe Chain is a per-developer install and the path will not exist for collaborators who have not installed it. Bash silently ignores a missing `BASH_ENV` target, but install Safe Chain first to avoid surprises. Restart Claude Code to pick up the new env, then run `pnpm --version` (or `npm` / `pip`) under the `Bash` tool to confirm Safe Chain's banner appears.
+
 ### OSV-Scanner
 
 Scans `pnpm-lock.yaml` against the OSV.dev CVE database. Suitable for both pre-commit and CI.
