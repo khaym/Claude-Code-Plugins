@@ -1,0 +1,5 @@
+{
+  "name": "docs-authoring",
+  "description": "Guides writing and reviewing engineering documents (design docs, tickets) so a reader understands them in one pass, using a content-identification process and structural principles",
+  "version": "0.1.0"
+}
