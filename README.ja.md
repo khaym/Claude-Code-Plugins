@@ -14,6 +14,7 @@ TSVファイルとシェルスクリプトによる軽量タスク/チケット�
 - TSV + Markdownによる人間が読める形式（`.tasks/`）
 - スラッシュコマンド: `/task-tracker:add`, `/task-tracker:list`, `/task-tracker:show`, `/task-tracker:update`, `/task-tracker:close`
 - カテゴリ分類: `bug`, `improvement`, `task`
+- 関連カラム（`blocked-by` / `related`）を `list` に表示し、着手判断を一目で把握
 - 開発中に発見した問題をClaudeが自動トラッキングするスキル付き
 
 **使い方:**
@@ -25,6 +26,7 @@ TSVファイルとシェルスクリプトによる軽量タスク/チケット�
 /task-tracker:list all
 /task-tracker:show 1
 /task-tracker:update 1 -s "更新されたタイトル"
+/task-tracker:update 2 -b "1,4"
 /task-tracker:close 1 ハンドラーの更新で修正
 ```
 

@@ -19,4 +19,9 @@ If the user provided additional details beyond the subject line, use the `-d` fl
 ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh add -s "Subject" -c "category" -d "Detailed description"
 ```
 
+If the user mentioned dependencies or related tasks, record them with comma-separated IDs. `-b`/`--blocked-by` lists the tasks this one is waiting on; `-r`/`--related` lists loosely related tasks:
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/task.sh add -s "Subject" -b "1,2" -r "5"
+```
+
 Show the output to the user after running.

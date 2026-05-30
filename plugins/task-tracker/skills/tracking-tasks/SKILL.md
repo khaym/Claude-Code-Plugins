@@ -18,10 +18,10 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh <command> [options]
 | Command | Usage | Description |
 |---------|-------|-------------|
 | `init` | `task.sh init` | Initialize `.tasks/` directory (idempotent) |
-| `add` | `task.sh add -s "Subject" [-c category] [-d "Details"]` | Add a new task |
+| `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-d "Details"]` | Add a new task |
 | `list` | `task.sh list [--status open\|closed\|all] [--category cat]` | List tasks (default: open) |
 | `show` | `task.sh show <id>` | Show task metadata + details |
-| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-d details]` | Update fields |
+| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]` | Update fields |
 | `close` | `task.sh close <id> [-d "Comment"]` | Close a task |
 | `delete` | `task.sh delete <id>` | Delete a task |
 
@@ -31,6 +31,15 @@ Use standard categories to classify tasks:
 - `bug` — Defects or broken behavior
 - `improvement` — Enhancements to existing features
 - `task` — General work items (default)
+
+## Relations
+
+Two optional columns let the `list` view convey priority without opening each task:
+
+- `BLOCKED_BY` (`-b`/`--blocked-by`) — IDs of tasks this one is waiting on. Stored in this single direction (not the inverse `blocks`) so a row shows what holds it back at a glance.
+- `RELATED` (`-r`/`--related`) — IDs of loosely related tasks.
+
+Both take comma-separated IDs (e.g. `-b "1,2"`). On `update` the value **replaces** the field — pass the full set. References are kept loose: IDs are not validated and dangling references after a `delete` are left as-is (they behave as memo notes, not enforced links).
 
 ## Workflow
 
@@ -75,7 +84,7 @@ No special recovery is needed — read the error message and retry with correcte
 ## Data Storage
 
 Tasks are stored in `.tasks/` at the project root:
-- `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED)
+- `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED)
 - `.tasks/details/<id>.md` — Detailed descriptions per task
 
-The TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context.
+The TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context. Older 6-column TSV files (created before the relation columns existed) are migrated to 8 columns automatically on the next command.

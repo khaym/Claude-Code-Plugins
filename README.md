@@ -14,6 +14,7 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 - Human-readable TSV + Markdown format (`.tasks/`)
 - Slash commands: `/task-tracker:add`, `/task-tracker:list`, `/task-tracker:show`, `/task-tracker:update`, `/task-tracker:close`
 - Categories: `bug`, `improvement`, `task`
+- Relation columns (`blocked-by`, `related`) surfaced in `list` to convey priority at a glance
 - Includes a skill for Claude to automatically track issues found during development
 
 **Usage:**
@@ -25,6 +26,7 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 /task-tracker:list all
 /task-tracker:show 1
 /task-tracker:update 1 -s "Updated title"
+/task-tracker:update 2 -b "1,4"
 /task-tracker:close 1 Fixed by updating the handler
 ```
 

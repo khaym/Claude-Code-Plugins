@@ -8,7 +8,8 @@ TASKS_DIR=".tasks"
 TSV_FILE="$TASKS_DIR/tasks.tsv"
 DETAILS_DIR="$TASKS_DIR/details"
 COUNTER_FILE="$TASKS_DIR/.counter"
-TSV_HEADER="ID\tSTATUS\tCATEGORY\tSUBJECT\tCREATED\tUPDATED"
+TSV_HEADER=$'ID\tSTATUS\tCATEGORY\tSUBJECT\tCREATED\tUPDATED\tBLOCKED_BY\tRELATED'
+NUM_COLS=8
 
 # ── Helpers ──────────────────────────────────────────────────
 
@@ -19,6 +20,20 @@ now() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 ensure_init() {
   if [[ ! -f "$TSV_FILE" ]]; then
     cmd_init
+  else
+    migrate_schema
+  fi
+}
+
+# Upgrade older TSV files (pre-relations, 6 columns) to the current schema by
+# rewriting the header and padding every row to NUM_COLS fields. Idempotent.
+migrate_schema() {
+  local cols
+  cols=$(head -n1 "$TSV_FILE" | awk -F'\t' '{ print NF }')
+  if [[ "$cols" -lt "$NUM_COLS" ]]; then
+    awk -F'\t' -v OFS='\t' -v header="$TSV_HEADER" -v n="$NUM_COLS" \
+      'NR == 1 { print header; next } { NF = n; print }' "$TSV_FILE" > "$TSV_FILE.tmp"
+    mv "$TSV_FILE.tmp" "$TSV_FILE"
   fi
 }
 
@@ -44,8 +59,10 @@ get_field() {
     status)   col=2 ;;
     category) col=3 ;;
     subject)  col=4 ;;
-    created)  col=5 ;;
-    updated)  col=6 ;;
+    created)    col=5 ;;
+    updated)    col=6 ;;
+    blocked_by) col=7 ;;
+    related)    col=8 ;;
     *) die "Unknown field: $field" ;;
   esac
   awk -F'\t' -v id="$id" -v col="$col" 'NR>1 && $1 == id { print $col }' "$TSV_FILE"
@@ -66,7 +83,7 @@ cmd_init() {
     return 0
   fi
   mkdir -p "$DETAILS_DIR"
-  printf '%b\n' "$TSV_HEADER" > "$TSV_FILE"
+  printf '%s\n' "$TSV_HEADER" > "$TSV_FILE"
   echo "0" > "$COUNTER_FILE"
 
   # Add .tasks to .gitignore if not already present
@@ -80,12 +97,14 @@ cmd_init() {
 }
 
 cmd_add() {
-  local subject="" category="task" details=""
+  local subject="" category="task" details="" blocked_by="" related=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -s|--subject) subject="$2"; shift 2 ;;
       -c|--category) category="$2"; shift 2 ;;
       -d|--details) details="$2"; shift 2 ;;
+      -b|--blocked-by) blocked_by="$2"; shift 2 ;;
+      -r|--related) related="$2"; shift 2 ;;
       *) die "Unknown option: $1" ;;
     esac
   done
@@ -97,7 +116,7 @@ cmd_add() {
   local ts
   ts=$(now)
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "open" "$category" "$subject" "$ts" "$ts" >> "$TSV_FILE"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "open" "$category" "$subject" "$ts" "$ts" "$blocked_by" "$related" >> "$TSV_FILE"
 
   if [[ -n "$details" ]]; then
     mkdir -p "$DETAILS_DIR"
@@ -136,10 +155,11 @@ cmd_list() {
     return 0
   fi
 
-  # Print header and matching rows as a table
-  printf '%-4s  %-8s  %-12s  %s\n' "ID" "STATUS" "CATEGORY" "SUBJECT"
-  printf '%-4s  %-8s  %-12s  %s\n' "----" "--------" "------------" "-------"
-  awk -F'\t' "$awk_filter"' { printf "%-4s  %-8s  %-12s  %s\n", $1, $2, $3, $4 }' "$TSV_FILE"
+  # Print header and matching rows as a table (relations before the
+  # variable-width SUBJECT so columns stay aligned)
+  printf '%-4s  %-8s  %-12s  %-10s  %-8s  %s\n' "ID" "STATUS" "CATEGORY" "BLOCKED_BY" "RELATED" "SUBJECT"
+  printf '%-4s  %-8s  %-12s  %-10s  %-8s  %s\n' "----" "--------" "------------" "----------" "--------" "-------"
+  awk -F'\t' "$awk_filter"' { printf "%-4s  %-8s  %-12s  %-10s  %-8s  %s\n", $1, $2, $3, $7, $8, $4 }' "$TSV_FILE"
   echo ""
   echo "Total: $count task(s)"
 }
@@ -152,11 +172,13 @@ cmd_show() {
   find_line "$id" > /dev/null 2>&1 || die "Task #$id not found"
 
   echo "── Task #$id ──"
-  echo "Subject:  $(get_field "$id" subject)"
-  echo "Status:   $(get_field "$id" status)"
-  echo "Category: $(get_field "$id" category)"
-  echo "Created:  $(get_field "$id" created)"
-  echo "Updated:  $(get_field "$id" updated)"
+  echo "Subject:    $(get_field "$id" subject)"
+  echo "Status:     $(get_field "$id" status)"
+  echo "Category:   $(get_field "$id" category)"
+  echo "Created:    $(get_field "$id" created)"
+  echo "Updated:    $(get_field "$id" updated)"
+  echo "Blocked-by: $(get_field "$id" blocked_by)"
+  echo "Related:    $(get_field "$id" related)"
 
   if [[ -f "$DETAILS_DIR/$id.md" ]]; then
     echo ""
@@ -167,7 +189,7 @@ cmd_show() {
 
 cmd_update() {
   local id="${1:-}"
-  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-d details]"
+  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-b blocked-by] [-r related] [-d details]"
   shift
 
   ensure_init
@@ -180,6 +202,8 @@ cmd_update() {
       -s|--subject) update_field "$line" 4 "$2"; updated=true; shift 2 ;;
       -c|--category) update_field "$line" 3 "$2"; updated=true; shift 2 ;;
       --status) update_field "$line" 2 "$2"; updated=true; shift 2 ;;
+      -b|--blocked-by) update_field "$line" 7 "$2"; updated=true; shift 2 ;;
+      -r|--related) update_field "$line" 8 "$2"; updated=true; shift 2 ;;
       -d|--details)
         mkdir -p "$DETAILS_DIR"
         echo "$2" > "$DETAILS_DIR/$id.md"
@@ -273,13 +297,13 @@ Usage: task.sh <command> [options]
 
 Commands:
   init                          Initialize .tasks/ directory
-  add -s "Subject" [-c cat] [-d "Details"]
-                                Add a new task
+  add -s "Subject" [-c cat] [-b blocked-by] [-r related] [-d "Details"]
+                                Add a new task (-b/-r take comma-separated IDs)
   list [--status open|closed|all] [--category cat]
                                 List tasks (default: open)
   show <id>                     Show task details
-  update <id> [-s subject] [-c cat] [--status status] [-d details]
-                                Update task fields
+  update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]
+                                Update task fields (-b/-r replace the field)
   close <id> [-d "Comment"]     Close a task
   delete <id>                   Delete a task
 USAGE

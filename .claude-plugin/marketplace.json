@@ -11,7 +11,7 @@
       "name": "task-tracker",
       "source": "./plugins/task-tracker",
       "description": "Lightweight task/ticket tracker using TSV files and shell scripts",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "productivity",
       "tags": ["task", "tracker", "project-management"]
     },
