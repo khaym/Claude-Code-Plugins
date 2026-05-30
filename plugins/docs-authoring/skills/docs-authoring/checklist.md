@@ -57,6 +57,7 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 | W1 | The apex verb names a domain-specific action — swapping its noun and verb for another domain breaks the sentence (substitution test) |
 | W2 | Load-bearing terms come from the reader's vocabulary; author-side terms are glossed or replaced |
 | W3 | Success criteria, evidence, and support speak in the same vocabulary as the goal |
+| W4 | No filler — every word carries meaning; throat-clearing, hedging, and restated context are cut (fewer words, not fewer facts) |
 
 ## B: Boundary (P4)
 

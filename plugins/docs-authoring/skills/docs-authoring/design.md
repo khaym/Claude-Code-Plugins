@@ -32,6 +32,8 @@ LLM-generated and human-written engineering prose tends to fail in recurring way
 | Principles-first, not lenses-first | Writing is a High freedom-level task (skill-authoring's Freedom Level Design). High freedom calls for text instructions plus examples, not branching diagnostic checklists. Principles teach the why; diagnostic-only lenses do not. |
 | P0 (viewpoint) sits above the other principles | Viewpoint drift compounds across sections; local fixes leak when viewpoint slides. The other principles assume P0 is already satisfied. |
 | P0 propagates to wording (P3 absorbs both substitution test and reader-vocabulary) | Once viewpoint is pinned, the right vocabulary is largely determined by the reader's side. "Concrete verbs" and "reader's vocabulary" were merged from two principles into one to reflect this. |
+| Sentence-level concision folded into P3 + Core Concept, not added as a new principle | The output-length complaint ("generated docs run long") traced to an asymmetry: the model warned against dropping facts (A3, F4) five times but had no pressure to cut *words*. Fix splits "Less, but better" explicitly into facts (keep — relocate, don't delete) vs words (cut filler), states *fewer words, not fewer facts* in Core Concept, and extends P3 from word *choice* to word *count* (`Cut filler`, checklist W4). Folded into P3 rather than a new P5 to respect the five-principle cap — a sixth principle would itself bloat the model it polices. F1 (verbosity) now maps to P2 (list-level) **and** P3 (prose-level). |
+| Guidelines explain the skill-specific, not the generally-known | Compaction (189→127 lines) cut self-evident justification and kept only what removes 認識齟齬: skill-specific vocabulary, non-obvious calibrations (P0 compounds, fact/word split), and Detour/Direct examples for the easy-to-misread principles only (P0, P2 — dropped for P1/P3/P4). A skill directs attention; it does not re-teach what the reader already knows. |
 | P2 (sibling independence) absorbs "no overlap" + "no inter-item dependency" | Dependent items presented as siblings force the reader to reverse-engineer the pipeline. This is the same failure as restatement and umbrella-mixing — the reader has to reconstruct the list before reading the content. |
 | "When writing" workflow described as bottom-up → top-down iteration | Top-down structure is the target shape, not the drafting process. Writers usually brainstorm bottom-up, abstract to find the apex, then restructure. Describing only the target shape would be a lie about the process. |
 | Failure patterns kept as a small mapping table | Reviewers often start from a symptom ("this feels off"). The mapping table gives them a path back to the missed principle. |
@@ -79,13 +81,13 @@ P0. Hold one viewpoint throughout      (Foundational — subject stance, abstrac
                                         role declaration, argument frame)
 P1. Build top-down                     (apex first; support, premises, examples below)
 P2. Keep sibling items independent     (MECE, same abstraction, no inter-item dependencies)
-P3. Use concrete words from the         (substitution test + reader-side translation cost)
-    reader's vocabulary
+P3. Use concrete words, only the         (substitution test + reader-side translation cost
+    ones that carry the claim              + cut filler — fewer words, not fewer facts)
 P4. Mark the boundary                  (out-of-scope; rejected alternatives;
                                         skip when scope is already obvious)
 ```
 
-Failure patterns F1–F4 are surface symptoms; each maps back to a missed step or principle, giving reviewers a path from "feels off" to "fix here". F4 (missing decision-relevant facts) is the symptom that motivated Phase A's introduction.
+Failure patterns F1–F4 are surface symptoms; each maps back to a missed step or principle, giving reviewers a path from "feels off" to "fix here". F4 (missing decision-relevant facts) is the symptom that motivated Phase A's introduction; F1 (repetition / verbosity) maps to both P2 (list-level redundancy) and P3 (prose-level padding).
 
 ## Constraints & Tradeoffs
 
