@@ -92,20 +92,21 @@ What boundary values should I test?
 
 ### hardening-dev-environment
 
-Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm/PyPI supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the trust-boundary reminder shapes how fetched content is interpreted.
+Layered defense for a development environment running Claude Code. Each layer addresses a distinct attack class — npm/PyPI supply chain compromise, prompt-injection-driven scope escalation, credential exfiltration, persistence via config tampering, indirect injection from fetched content. Layers compose: static config prevents, runtime hooks catch known bypasses, the auto-mode classifier governs scope, and the trust-boundary reminder shapes how fetched content is interpreted.
 
 **Layered Defense Map:**
 
 | # | Layer | Owner | Threats addressed |
 |---|-------|-------|-------------------|
-| 1 | Static `permissions.{deny, ask, allow}` rules | `hardening-claude-permissions` | Persistence (config writes), credential exfil (file reads), outbound exfil, plugin-authoring confirmation gate |
-| 2 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `pyproject-buildsystem-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, `pyproject.toml [build-system]` / `setup.py` tampering, indirect prompt injection from `WebFetch` results |
-| 3 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
-| 4a | npm supply chain config | `hardening-pnpm-config` | Malicious package install / build-script execution / unpinned `npx` |
-| 4b | PyPI supply chain config | `hardening-uv-config` | Fresh-malicious-package install / dependency confusion / unpinned `pip install` / `pipx run`; migrates legacy pip / setup.py projects to uv |
-| 5 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
+| 1 | Auto-mode classifier + settings | `hardening-auto-mode` (Claude Code v2.1.83+, plan-gated) | Scope escalation, untrusted infrastructure, prompt-injection-driven actions |
+| 2 | Static `permissions.{deny, ask}` rules | `hardening-claude-permissions` | Persistence (config tampering), credential file exfiltration, plugin-authoring confirmation gate |
+| 3 | Bundled runtime hooks (auto-active) | This plugin (`sensitive-bash-guard`, `package-json-scripts-guard`, `pyproject-buildsystem-guard`, `untrusted-content-reminder`) | Bash credential-read bypass, `package.json` `scripts` tampering, `pyproject.toml [build-system]` / `setup.py` tampering, indirect prompt injection from `WebFetch` results |
+| 4 | WebFetch trust discipline | `hardening-untrusted-content` | Indirect prompt injection — trust-boundary checklist + vendor allowlist that drives the PostToolUse hook |
+| 5a | npm supply chain config | `hardening-pnpm-config` | Malicious package install / install-script execution / unpinned `npx` |
+| 5b | PyPI supply chain config | `hardening-uv-config` | Fresh-malicious-package install / dependency confusion / unpinned `pip install` / `pipx run`; migrates legacy pip / setup.py projects to uv |
+| 6 | Pre-commit secret scan | `checking-oss-release` plugin (sibling) | Plaintext secrets reaching commit-time |
 
-Layer 2 hooks auto-activate when this plugin is enabled. The other layers are applied via their owner skill.
+Layer 3 hooks auto-activate when this plugin is enabled. Layer 1 is a plan-gated Claude Code runtime feature. The other layers are applied via their owner skill.
 
 **Where to start:** ask Claude to *audit Claude Code hardening* — `hardening-overview` inspects the current state of each layer and recommends a setup order tailored to the project's plan tier and use case.
 
@@ -146,6 +147,26 @@ Windows desktop notifications for Claude Code via [wsl-relay](https://github.com
 | `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | Permission notification title |
 | `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | Permission notification body |
 
+### docs-authoring
+
+Produces **shorter, clearer** engineering documents — design docs, tickets, RFCs — that a reader understands in one pass. The guiding idea is Dieter Rams' **"Less, but better"**: cut every word that doesn't earn its place, while keeping every fact the reader actually needs. Rather than filling a template, the plugin works out *what the reader came for* and lays it out on the shortest path to it — whether you're drafting from scratch or tightening a draft that runs long.
+
+A `docs-review` Custom SubAgent audits a finished document in an isolated context and returns a read-only findings report — it diagnoses, never edits.
+
+**How it works (the writing model):**
+- **Two phases** — first pin down *what* a specifically-named reader came for (their questions / decisions), then structure it into the shortest one-pass path
+- **Five principles** — hold one viewpoint throughout, build top-down (claim before evidence), keep list items independent, use concrete words from the reader's vocabulary, mark the scope boundary
+- **Fewer words, not fewer facts** — empty phrasing and restated context get cut; a fact that doesn't fit gets relocated, never deleted
+- **Self-review** — a binary OK/NG checklist (shared with the docs-review agent) catches verbosity, viewpoint drift, and missing decision-relevant facts before the doc ships
+
+**Usage:**
+
+```
+Write a design doc for the rule engine
+Tighten this ticket / make this clearer
+Review this document   (routes to the docs-review agent)
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -167,6 +188,7 @@ Windows desktop notifications for Claude Code via [wsl-relay](https://github.com
 /plugin install designing-test-cases@khaym-claude-plugins
 /plugin install hardening-dev-environment@khaym-claude-plugins
 /plugin install wsl-notify@khaym-claude-plugins
+/plugin install docs-authoring@khaym-claude-plugins
 ```
 
 ### Update

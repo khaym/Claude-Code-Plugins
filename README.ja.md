@@ -147,6 +147,26 @@ Claude Code のハードニング状況を点検して
 | `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | 権限通知のタイトル |
 | `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | 権限通知の本文 |
 
+### docs-authoring
+
+設計ドキュメント・チケット・RFC を、**より短く・明快に**、読者が一読で理解できる文章にします。指針は Dieter Rams の **「Less, but better」** — 役割を果たさない語は削り、読者に本当に必要な事実は残す。テンプレートを埋めるのではなく、「読者が何を求めて来たか」を見極めて最短経路に並べます。新規執筆にも、長くなりすぎた既存文書の推敲にも使えます。
+
+`docs-review` カスタム SubAgent は、仕上がった文書を分離コンテキストで監査し、読み取り専用の指摘レポートを返します（編集はせず診断のみ）。
+
+**仕組み（ライティングモデル）:**
+- **2フェーズ** — まず「名前を特定した読者の問い／意思決定」を特定し、それを一読できる最短経路に構造化
+- **5原則** — 視点を1つに固定 / トップダウン（主張を根拠の前に） / 並列項目を独立に保つ / 読者の語彙の具体語を使う / スコープの境界を明示
+- **語は減らすが事実は減らさない** — 空疎な言い回しや繰り返しは削り、収まらない事実は削除せず再配置
+- **セルフレビュー** — 二値 OK/NG チェックリスト（docs-review エージェントと共用）で、冗長・視点のブレ・判断に必要な事実の欠落を出荷前に検出
+
+**使い方:**
+
+```
+ルールエンジンの設計ドキュメントを書いて
+このチケットを推敲して / もっと分かりやすくして
+このドキュメントをレビューして   （docs-review エージェントに振り分け）
+```
+
 ## インストール
 
 ### マーケットプレイスの追加
@@ -168,6 +188,7 @@ Claude Code のハードニング状況を点検して
 /plugin install designing-test-cases@khaym-claude-plugins
 /plugin install hardening-dev-environment@khaym-claude-plugins
 /plugin install wsl-notify@khaym-claude-plugins
+/plugin install docs-authoring@khaym-claude-plugins
 ```
 
 ### アップデート
