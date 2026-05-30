@@ -54,6 +54,14 @@
       "version": "2.1.2",
       "category": "security",
       "tags": ["security", "pnpm", "supply-chain", "npm", "hardening", "prompt-injection", "auto-mode"]
+    },
+    {
+      "name": "docs-authoring",
+      "source": "./plugins/docs-authoring",
+      "description": "Guides writing and tightening engineering documents (design docs, tickets) in the main session, with a docs-review Custom SubAgent that audits documents in an isolated context and returns a read-only findings report",
+      "version": "0.2.0",
+      "category": "productivity",
+      "tags": ["documentation", "writing", "review", "design-doc", "ticket"]
     }
   ]
 }

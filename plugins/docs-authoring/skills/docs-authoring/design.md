@@ -41,6 +41,7 @@ LLM-generated and human-written engineering prose tends to fail in recurring way
 | Skill value scales with input messiness | Comparative rewrite tests showed that measurable improvements (apex placement, viewpoint unification, anchor explicitness) are clearly visible when the input is unstructured — AI-generated bloat, conversational notes, ambiguous viewpoint — and only marginally visible when the source is already well-edited technical material. The skill's trigger phrases ("make this clearer", "tighten this doc", "読みやすくしたい") and the Phase A → Phase B workflow target the messy-input case. |
 | Main session, not SubAgent | Writing assistance is iterative — the user reacts to each suggestion. Context isolation would break the feedback loop. |
 | Markdown is the only supported output format at v0.1 | Jira / Confluence / Notion-specific shapes are deferred. The principles apply regardless; only templates would differ. |
+| Self-review pass is cost-gated, not blanket-mandatory | The writing workflow chains into docs-review **for substantive output** (design docs, RFCs, postmortems, multi-paragraph tickets) and skips it for trivial cases (one-line subjects, comments, few-line fixes). Reason: the agent's load (guidelines.md + checklist.md + draft in isolated context) only pays off when the writing model has surface to bite on. A blanket "always run" would impose SubAgent dispatch cost on outputs where the 22-check sweep yields little. The criteria live in SKILL.md; this design decision records the principle (cost proportional to value). |
 
 ## Data Flow
 
@@ -94,4 +95,11 @@ Failure patterns F1–F4 are surface symptoms; each maps back to a missed step o
 
 ## Composition
 
-Standalone skill. Not consumed by other skills or agents at v0.1. If a future `docs-review` agent ships, it will preload this skill via the `skills:` frontmatter field (DI pattern).
+The skill is the single source of truth for the writing model (guidelines.md + checklist.md) and has two consumers:
+
+| Consumer | Mode | Loads via |
+|----------|------|-----------|
+| Main session | Writing / tightening (iterative, edits the document) | Skill auto-loaded by trigger phrases |
+| `docs-review` agent | Audit (one-shot, isolated context, read-only findings report) | `skills: docs-authoring` frontmatter (DI) |
+
+Trigger phrases are partitioned so the two consumers do not compete: writing/tightening verbs route to the skill; audit verbs route to the agent. The skill remains self-contained — no cross-references into the agent.

@@ -1,5 +1,5 @@
 {
   "name": "docs-authoring",
-  "description": "Guides writing and reviewing engineering documents (design docs, tickets) so a reader understands them in one pass, using a content-identification process and structural principles",
-  "version": "0.1.0"
+  "description": "Guides writing and tightening engineering documents (design docs, tickets) in the main session, with a docs-review Custom SubAgent that audits documents in an isolated context and returns a read-only findings report",
+  "version": "0.2.0"
 }

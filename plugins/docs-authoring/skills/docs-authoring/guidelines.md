@@ -175,7 +175,7 @@ The two phases run in order: Phase A identifies what to convey, Phase B structur
 7. **Refine words (P3).** Apply the substitution test. Replace abstract verbs and writer-side terms.
 8. **Mark the boundary (P4)** where ambiguity is plausible.
 9. **Re-read for viewpoint drift (P0).** After the body has expanded, check that every section still reads from the same stance.
-10. **Run the [checklist](checklist.md) as a final sweep.** Turn each item OK; fix any NG.
+10. **Run docs-review as the self-review pass when the output is substantive.** Invoke the `docs-review` agent on the draft and apply each NG finding before handing the document back. Skip for trivial output (short ticket subjects, comments, few-line fixes) — see SKILL.md for the run/skip criteria. The agent uses the same [checklist](checklist.md) in an isolated context, so the heavy reads stay out of the main session.
 
 Steps 4–8 are iterative. The first apex is usually wrong; refining it sharpens the structure of the body, which in turn sharpens the apex.
 
