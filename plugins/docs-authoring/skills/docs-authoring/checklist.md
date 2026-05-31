@@ -27,7 +27,7 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 | # | Check item |
 |---|-----------|
 | V1 | A one-line role declaration appears near the top (who the reader is, what the document does) |
-| V2 | The grammatical subject of each section is consistent, or any shift is signposted |
+| V2 | The stance's subject is consistent across sections, or any shift is signposted |
 | V3 | Abstraction level does not move up and down between sections |
 | V4 | The argument frame (problem being solved) stays constant; any change is marked explicitly |
 
@@ -35,7 +35,7 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 
 | # | Check item |
 |---|-----------|
-| T1 | The apex is one verb-first sentence — the title for short docs, the first sentence after the title for long docs |
+| T1 | The apex is one sentence naming the action or outcome the document delivers (not its topic) — the title for short docs, the first sentence after the title for long docs |
 | T2 | A reader who reads only the apex can answer "what is this document for?" |
 | T3 | Premises sit above the sections that depend on them (inline if short, in a Background section if long) |
 | T4 | Every example or piece of evidence is placed below the claim it serves, not beside it |

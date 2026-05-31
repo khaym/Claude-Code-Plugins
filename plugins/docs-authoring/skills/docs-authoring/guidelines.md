@@ -49,7 +49,7 @@ P0 is foundational — the other four assume it holds. Binary checks for each li
 
 Every shift in viewpoint forces the reader to rebuild "whose stance am I reading from now?" — a cost that compounds across the whole document and can't be patched section by section. Pin the viewpoint and the right vocabulary (P3) largely follows; let it slide and word choices drift even when each is individually defensible.
 
-- **Subject stance** (most important): keep the grammatical subject consistent across sections — user, system, we, the function, the investigator. If the natural subject changes by section, the viewpoint has slid.
+- **Subject stance** (most important): keep the stance's subject consistent across sections — user, system, we, the function, the investigator. If the natural subject changes by section, the viewpoint has slid.
 - **Abstraction level**: don't move strategy → implementation → strategy between sections.
 - **Role declaration**: state the stance once near the top, in one sentence ("This document is the shape of the library"; "This ticket commissions an investigation, not an implementation").
 - **Argument frame**: keep "the problem being solved" constant; mark any change explicitly.
@@ -60,7 +60,7 @@ Every shift in viewpoint forces the reader to rebuild "whose stance am I reading
 
 A reader who reads only the apex should know what the document is for. Below it, claims precede their evidence, premises precede the sections that use them, examples sit under the claims they illustrate. A broken chain forces the reader to backtrack.
 
-- Apex = one verb-first sentence: the title for short docs (tickets, comments); the first sentence after the title for long ones.
+- Apex = one sentence that names the action or outcome the document delivers, not its topic: the title for short docs (tickets, comments); the first sentence after the title for long ones.
 - Premises above what depends on them — inline if short, a Background section before Goal if long.
 - For each section, ask: is this an apex, or support for an earlier apex? A section that is neither doesn't belong in the chain.
 
