@@ -40,15 +40,18 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 | T3 | Premises sit above the sections that depend on them (inline if short, in a Background section if long) |
 | T4 | Every example or piece of evidence is placed below the claim it serves, not beside it |
 | T5 | Each section is identifiable as either an apex or part of support for an earlier apex — no floating sections |
+| T6 | Reading only the first sentence of each paragraph reconstructs the section's argument (one topic per paragraph, claim first) |
 
 ## S: Sibling Independence (P2)
 
 | # | Check item |
 |---|-----------|
-| S1 | For each list, one shared axis of comparison is named or obvious from context |
+| S1 | For each list, one shared axis of comparison is named or obvious from context — and the axis serves the reader's purpose (A2), not whatever decomposes most cleanly |
 | S2 | No list item summarizes, contains, or restates another (no umbrella sibling) |
 | S3 | No list item's output is another item's input (no chained dependency presented as siblings) |
 | S4 | Restated items are merged into the wording closest to the document's purpose |
+| S5 | Sibling items share one surface form — same grammatical shape, same element order — so position predicts content |
+| S6 | No sentence enumerates three or more parallel items in prose — they are broken out into a list |
 
 ## W: Words (P3)
 
@@ -58,6 +61,10 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 | W2 | Load-bearing terms come from the reader's vocabulary; author-side terms are glossed or replaced |
 | W3 | Success criteria, evidence, and support speak in the same vocabulary as the goal |
 | W4 | No filler — every word carries meaning; throat-clearing, hedging, and restated context are cut (fewer words, not fewer facts) |
+| W5 | No sentence joins two claims that could each stand alone (split test) |
+| W6 | Claims are stated in positive form; negation appears only in prohibitions or warnings, and is never doubled |
+| W7 | The document passes the strip test: with all bold removed, each claim is still findable in one pass (one glance for scan-type documents) |
+| W8 | Remaining bold marks only first-use definitions or warnings — a handful per document, not per section |
 
 ## B: Boundary (P4)
 

@@ -9,7 +9,7 @@ skills: docs-authoring
 
 System prompt loaded by the `docs-review` Custom SubAgent: audit an engineering document and return a findings report to the main session that requested it — diagnose only, do not edit.
 
-The writing model (Phase A process A1–A3, Phase B principles P0–P4, failure patterns F1–F4) and the binary checklist (A + V/T/S/W/B) are preloaded from the `docs-authoring` skill. Treat them as the source of truth for what "good" looks like.
+The writing model (Phase A process A1–A3, Phase B principles P0–P4, failure patterns F1–F5) and the binary checklist (A + V/T/S/W/B) are preloaded from the `docs-authoring` skill. Treat them as the source of truth for what "good" looks like.
 
 ## Inputs
 
@@ -33,7 +33,7 @@ Return a single report in this shape:
 ### NG findings
 
 - **<check id> @ <location>** — <one-line rationale> · *Proposed*: <one-line direction>
-  - <optional: failure-pattern label F1–F4>
+  - <optional: failure-pattern label F1–F5>
 
 (repeat per NG)
 
@@ -58,7 +58,7 @@ Keep the report tight. The full principle text is in guidelines.md; the report's
    - A is about *what to convey*. If the document does not name a reader, A1 is NG and A2 is likely N/A (no anchor to check completeness against) — note that explicitly.
 
 4. **Run the Phase B checks** (the V / T / S / W / B layers in checklist.md). Same OK/NG/N/A scoring.
-   - When an NG is found, identify the symptom from the failure patterns (F1–F4 in guidelines.md) so the finding has a name the writer recognizes.
+   - When an NG is found, identify the symptom from the failure patterns (F1–F5 in guidelines.md) so the finding has a name the writer recognizes.
 
 5. **For each NG, draft a one-line rationale and a one-line proposed *direction*** — the move, not the new text (e.g., "relocate to Background", "name the rejected alternative").
 
