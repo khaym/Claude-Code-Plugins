@@ -120,12 +120,13 @@ Audit Claude Code hardening
 
 ### wsl-notify
 
-Windows desktop notifications for Claude Code via [wsl-relay](https://github.com/khaym/wslconnector). Get notified when Claude finishes a task or needs permission — no more staring at the terminal.
+Windows desktop notifications and sleep inhibition for Claude Code via [wsl-relay](https://github.com/khaym/wslconnector). Get notified when Claude finishes a task or needs permission, and keep the host from sleeping mid-task — no more staring at the terminal, no more waking up to a suspended build.
 
 **Features:**
 - Auto-registered hooks — works immediately after install, no manual configuration
 - **Stop** event → "Task completed" notification
 - **Notification (permission_prompt)** event → "Permission required" notification
+- Sleep inhibition while Claude works: acquired on prompt submit, renewed on each tool call, released on stop / permission prompt. If the session dies, the relay's TTL (default 10 min) releases it automatically — display sleep is never blocked
 - Slash command: `/wsl-notify:test-notify` to verify connectivity
 - Customizable via environment variables (`WSL_RELAY_HOST`, `WSL_RELAY_PORT`, message overrides)
 
@@ -148,6 +149,8 @@ Windows desktop notifications for Claude Code via [wsl-relay](https://github.com
 | `WSL_NOTIFY_STOP_BODY` | `Task completed` | Stop notification body |
 | `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | Permission notification title |
 | `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | Permission notification body |
+| `WSL_NOTIFY_POWER_INHIBIT` | `1` | Set to `0` to disable sleep inhibition |
+| `WSL_NOTIFY_POWER_TTL` | relay default (600) | Inhibit TTL in seconds (auto-release deadline) |
 
 ### docs-authoring
 

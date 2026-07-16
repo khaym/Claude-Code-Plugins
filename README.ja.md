@@ -120,12 +120,13 @@ Claude Code のハードニング状況を点検して
 
 ### wsl-notify
 
-[wsl-relay](https://github.com/khaym/wslconnector) 経由でClaude CodeのイベントをWindowsデスクトップ通知として受け取ります。タスク完了や権限リクエスト時に通知が届くため、ターミナルを見続ける必要がなくなります。
+[wsl-relay](https://github.com/khaym/wslconnector) 経由で、Claude CodeのイベントをWindowsデスクトップ通知として受け取り、タスク実行中のホストスリープを抑止します。タスク完了や権限リクエスト時に通知が届き、離席中にPCがスリープしてタスクが中断されることもなくなります。
 
 **特徴:**
 - フック自動登録 — インストール後すぐに動作、手動設定不要
 - **Stop** イベント → 「Task completed」通知
 - **Notification (permission_prompt)** イベント → 「Permission required」通知
+- タスク実行中のスリープ抑止: プロンプト送信で開始、ツール実行ごとに更新、停止・権限待ちで解除。セッションが異常終了してもrelay側のTTL（既定10分）で自動解除。ディスプレイ消灯は妨げません
 - スラッシュコマンド: `/wsl-notify:test-notify` で接続確認
 - 環境変数でカスタマイズ可能（`WSL_RELAY_HOST`, `WSL_RELAY_PORT`, メッセージ変更）
 
@@ -148,6 +149,8 @@ Claude Code のハードニング状況を点検して
 | `WSL_NOTIFY_STOP_BODY` | `Task completed` | Stop通知の本文 |
 | `WSL_NOTIFY_PERMISSION_TITLE` | `Claude Code` | 権限通知のタイトル |
 | `WSL_NOTIFY_PERMISSION_BODY` | `Permission required` | 権限通知の本文 |
+| `WSL_NOTIFY_POWER_INHIBIT` | `1` | `0` でスリープ抑止を無効化 |
+| `WSL_NOTIFY_POWER_TTL` | relay既定値（600） | 抑止のTTL秒数（自動解除までの期限） |
 
 ### docs-authoring
 
