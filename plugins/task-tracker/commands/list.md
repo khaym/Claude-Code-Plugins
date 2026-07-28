@@ -5,8 +5,8 @@ description: List tasks from the tracker
 List tasks using the task tracker CLI.
 
 Parse `$ARGUMENTS` to determine the filter:
-- Empty or no arguments → `--status open` (default)
-- `open`, `closed`, or `all` → `--status <value>`
+- Empty or no arguments → no flag (default: every status except closed)
+- Any status value (e.g. `open`, `closed`, `loop-ready`) or `all` → `--status <value>`
 - A category name can be passed with `--category`
 
 Run:

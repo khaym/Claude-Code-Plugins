@@ -19,7 +19,7 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh <command> [options]
 |---------|-------|-------------|
 | `init` | `task.sh init` | Initialize `.tasks/` directory (idempotent) |
 | `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-d "Details"]` | Add a new task |
-| `list` | `task.sh list [--status open\|closed\|all] [--category cat]` | List tasks (default: open) |
+| `list` | `task.sh list [--status <status>\|active\|all] [--category cat]` | List tasks (default: active = all but closed; any other value filters that exact status) |
 | `show` | `task.sh show <id>` | Show task metadata + details |
 | `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]` | Update fields |
 | `close` | `task.sh close <id> [-d "Comment"]` | Close a task |

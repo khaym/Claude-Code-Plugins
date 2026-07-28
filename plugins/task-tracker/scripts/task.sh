@@ -127,7 +127,7 @@ cmd_add() {
 }
 
 cmd_list() {
-  local status_filter="open" category_filter=""
+  local status_filter="active" category_filter=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --status) status_filter="$2"; shift 2 ;;
@@ -138,9 +138,12 @@ cmd_list() {
 
   ensure_init
 
-  # Build awk filter
+  # Build awk filter. Status values are free-form; "active" (the default)
+  # means any status except closed, "all" disables the filter entirely.
   local awk_filter='NR > 1'
-  if [[ "$status_filter" != "all" ]]; then
+  if [[ "$status_filter" == "active" ]]; then
+    awk_filter="$awk_filter && \$2 != \"closed\""
+  elif [[ "$status_filter" != "all" ]]; then
     awk_filter="$awk_filter && \$2 == \"$status_filter\""
   fi
   if [[ -n "$category_filter" ]]; then
@@ -156,10 +159,11 @@ cmd_list() {
   fi
 
   # Print header and matching rows as a table (relations before the
-  # variable-width SUBJECT so columns stay aligned)
-  printf '%-4s  %-8s  %-12s  %-10s  %-8s  %s\n' "ID" "STATUS" "CATEGORY" "BLOCKED_BY" "RELATED" "SUBJECT"
-  printf '%-4s  %-8s  %-12s  %-10s  %-8s  %s\n' "----" "--------" "------------" "----------" "--------" "-------"
-  awk -F'\t' "$awk_filter"' { printf "%-4s  %-8s  %-12s  %-10s  %-8s  %s\n", $1, $2, $3, $7, $8, $4 }' "$TSV_FILE"
+  # variable-width SUBJECT so columns stay aligned). STATUS is sized for
+  # free-form workflow states like "awaiting-human", not just open/closed.
+  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %s\n' "ID" "STATUS" "CATEGORY" "BLOCKED_BY" "RELATED" "SUBJECT"
+  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %s\n' "----" "--------------" "------------" "----------" "--------" "-------"
+  awk -F'\t' "$awk_filter"' { printf "%-4s  %-14s  %-12s  %-10s  %-8s  %s\n", $1, $2, $3, $7, $8, $4 }' "$TSV_FILE"
   echo ""
   echo "Total: $count task(s)"
 }
@@ -299,8 +303,9 @@ Commands:
   init                          Initialize .tasks/ directory
   add -s "Subject" [-c cat] [-b blocked-by] [-r related] [-d "Details"]
                                 Add a new task (-b/-r take comma-separated IDs)
-  list [--status open|closed|all] [--category cat]
-                                List tasks (default: open)
+  list [--status <status>|active|all] [--category cat]
+                                List tasks (default: active = all but closed;
+                                any other value filters that exact status)
   show <id>                     Show task details
   update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]
                                 Update task fields (-b/-r replace the field)

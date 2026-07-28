@@ -14,7 +14,7 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh update <id> [flags]
 Available flags:
 - `-s "New subject"` — Update the subject
 - `-c "category"` — Update the category
-- `--status open|closed` — Update the status
+- `--status <status>` — Update the status. Values are free-form (e.g. `open`, `closed`, or workflow states like `loop-ready`); `closed` hides the task from the default `list`, and `active`/`all` are reserved as `list` filter keywords
 - `-b "1,2"` / `--blocked-by` — Replace the blocked-by IDs (comma-separated; pass the full set)
 - `-r "5"` / `--related` — Replace the related IDs (comma-separated; pass the full set)
 - `-d "New details"` — Update/replace the details
