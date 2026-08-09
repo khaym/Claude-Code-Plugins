@@ -172,6 +172,28 @@ Tighten this ticket / make this clearer
 Review this document   (routes to the docs-review agent)
 ```
 
+### ticket-authoring
+
+Files tickets as **user stories** — one ticket, one user-visible capability. When code vocabulary takes a ticket's subject position, the most important things — what to build, whose value it serves, why — drop out, and the means becomes the end. That cost arrives late: the work clings to existing code until review-stage rework that only a rethink of the approach can fix, dependencies between tickets become unreadable, and when other tickets change the code underneath, what was to be done is lost with it. User stories are the antibody: they anchor each ticket to value the code cannot invalidate — purposes tied to external phenomena (user-visible behavior, an upcoming release, a named person's rework), decisions phrased in outcome vocabulary.
+
+A `ticket-review` Custom SubAgent audits a draft or existing ticket in an isolated context — a reader who knows nothing about the code, which is precisely the instrument that detects code-anchoring — and returns a read-only findings report, including a one-line restatement of the ticket's value (or the explicit finding that it cannot be restated).
+
+**How it works:**
+- **One unit** — one ticket = one capability a user gains; implementation steps fold into the Done checklist, never into tickets of their own
+- **Five premise checks (T1–T5)** — discrimination test, purpose anchoring, done viewpoint, decision vocabulary, boundary & dependencies (shared between the authoring pass and the ticket-review agent)
+- **Value anchor resolution** — the audit reads who "the user" is from a caller-provided anchor, else the repo's CLAUDE.md / README purpose section, else falls back to a generic external-anchoring standard and reports the gap
+- **Tracker-agnostic** — audits pasted drafts and files anywhere; resolves tracker IDs directly when the sibling task-tracker plugin is installed
+
+Prose readability stays with docs-authoring — the two plugins compose: structure and premises here, one-pass writing there.
+
+**Usage:**
+
+```
+File a ticket for the offline progress cap
+Review this ticket   (routes to the ticket-review agent)
+Audit ticket 42 before making it loop-ready
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -194,6 +216,7 @@ Review this document   (routes to the docs-review agent)
 /plugin install hardening-dev-environment@khaym-claude-plugins
 /plugin install wsl-notify@khaym-claude-plugins
 /plugin install docs-authoring@khaym-claude-plugins
+/plugin install ticket-authoring@khaym-claude-plugins
 ```
 
 ### Update
