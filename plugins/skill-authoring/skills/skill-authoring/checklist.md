@@ -3,6 +3,12 @@
 Evaluation criteria used by both the creation and review workflows.
 Rate each item as **OK / NG / N/A**.
 
+## Table of Contents
+
+- [Design Principles](#design-principles) — G: Context Design
+- [Standard Rules](#standard-rules-apply-to-all-projects) — S: Structure / F: Frontmatter / C: Content
+- [Recommended Practices](#recommended-practices) — D: design.md / A: Scripts & External Integrations / M: Memory Integrity
+
 ---
 
 ## Design Principles
@@ -18,15 +24,7 @@ Rate each item as **OK / NG / N/A**.
 | G5 | Output to the main session is concisely controlled |
 | G6 | On step failure, the skill does not act contrary to its purpose (e.g., reporting "all clear" with stale data) |
 
-**G2 Selection Flow** (apply steps in order, note the path with arrows in remarks):
-
-1. Requires interactive back-and-forth with user? → Yes: **Main session**
-2. Need to reference main context while isolating context cost? → Yes: **context: fork**
-3. Will it be executed repeatedly?
-   - No → **Built-in SubAgent**
-   - Yes → **Custom SubAgent** (requires definition in `.claude/agents/`. [Details](custom-subagent.md))
-
-Remarks example: `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-in → NG"`
+**G2**: apply the selection flow in [guidelines.md](guidelines.md) step by step and note the path with arrows in remarks — e.g. `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-in → NG"`
 
 ---
 

@@ -2,17 +2,18 @@
 
 ## Purpose
 
-Standardize skill quality by providing structured workflows for both creation and review. Prevents knowledge silos by encoding best practices into a reusable, auditable process.
+Standardize skill quality by providing structured workflows for both creation and review. Prevents knowledge silos by encoding the standard rules and recommended practices into a reusable, auditable process.
 
 ## Design Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Interactive skill (no SubAgent) | Both creation and review require file writes, making interactive main-session execution essential |
+| Interactive skill for creation and improvement | File writes and user alignment make main-session execution essential for authoring work |
+| Audit delegated to the skill-review Custom SubAgent | The checklist audit is read-only, repeated, and needs no main-session context (G2 flow: 1.No → 2.No → 3.Yes). Isolation keeps the heavy reads — guidelines, checklist, the whole target skill — out of the main session. The agent preloads this skill via `skills:` (DI), so the knowledge stays single-source |
 | `disable-model-invocation: false` (default) | Should auto-trigger on phrases like "create a skill" |
 | SKILL.md as Navigation Hub | Progressive disclosure: detect intent first, then route to the appropriate workflow |
 | guidelines.md as shared reference | Eliminates duplication between creation and review; single point of update when rules change |
-| Standard rules vs. recommended practices separated | Distinguishes mandatory requirements from optional best practices; makes the skill portable across projects |
+| Standard rules vs. recommended practices separated | Distinguishes mandatory requirements from optional practices; makes the skill portable across projects |
 | Checklist with category grouping | Standard rules and recommended practices grouped by letter code ensure coverage while making applicability clear |
 | plugin-structure.md added | Plugin packaging is a natural next step after skill/agent creation; guides standalone-to-plugin conversion and marketplace distribution |
 | Interface clarity as Workflow Design principle | Ambiguous boundary values (SubAgent params, script args, return values) are a frequent failure source; explicit format/type specification prevents miscommunication |
@@ -27,13 +28,14 @@ SKILL.md: Intent detection
   ↓
 guidelines.md (load shared rules)
   ↓
-[Create] create-workflow.md    [Review] review-workflow.md
-  ↓                              ↓
-Execute workflow                Execute workflow
-  ↓                              ↓
-checklist.md quality check      checklist.md evaluation
-  ↓                              ↓
-Output (new skill)              Review report + improvements
+[Create] create-workflow.md         [Review] Review Flow in SKILL.md
+  ↓                                   ↓
+Execute workflow                    skill-review agent (isolated context)
+  ↓                                   │  guidelines comparison + checklist.md evaluation
+skill-review agent quality check      ↓
+  ↓                                 Findings report
+Output (new skill)                    ↓
+                                    Improvements (main session)
 ```
 
 ## Constraints & Tradeoffs
@@ -44,5 +46,5 @@ Output (new skill)              Review report + improvements
   - https://code.claude.com/docs/en/plugins
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
   - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-- Interactive-only — cannot be automated via SubAgent since user involvement is always required
+- Authoring is interactive — creation and improvement implementation always involve the user; only the read-only audit is automated (skill-review agent)
 - Checklist aims for "necessary and sufficient" — exhaustive coverage would make it impractical to use

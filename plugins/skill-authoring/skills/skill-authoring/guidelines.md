@@ -6,7 +6,7 @@ Shared reference for both the creation workflow and the review workflow.
 
 - [Skill Design Principles](#skill-design-principles) — Why skill-ify / Context design / Composition
 - [Agent Skills Standard Rules](#agent-skills-standard-rules) — Frontmatter / Naming / Structure / Content / Workflow
-- [Recommended Practices](#recommended-practices) — design.md / File naming conventions / Memory Integrity
+- [Recommended Practices](#recommended-practices) — design.md / File naming / Token optimization / Credential placement / Memory Integrity
 
 ---
 
@@ -55,7 +55,7 @@ There are several context separation methods. Choose the optimal pattern based o
 
 **Custom SubAgent**: A dedicated agent defined as a YAML-frontmatter Markdown file in `.claude/agents/` (or `<plugin>/agents/` for plugin distribution). The `description` field handles delegation criteria, so no CLAUDE.md entry is needed. See [custom-subagent.md](custom-subagent.md) for details.
 
-> **Plugin note**: `context: fork` may not work reliably in plugins. Use Custom SubAgents for context isolation in plugins. See [plugin-structure.md](plugin-structure.md).
+> **Plugin note**: for skills distributed in plugins, see the `context: fork` caveat in [plugin-structure.md](plugin-structure.md).
 
 **Selection flow**:
 
@@ -122,6 +122,7 @@ Rules required for Claude to recognize and execute Agent Skills.
 - **Avoid time-dependent language**: Don't use "latest", "current", etc. Use specific versions or dates instead
 - **Narrow choices**: When multiple approaches exist, present one default and mention alternatives only for specific conditions
 - **Self-contained**: Do not reference another skill's internal structure (section numbers, headings)
+- **Procedure only in SKILL.md**: The SKILL.md body carries operating procedure. Rationale, history, and agreement dates belong in design.md or the project's source-of-truth document
 - **Coherence after updates**: When modifying an existing skill, review the whole document for duplication and emphasis imbalance. Rewrite affected sections rather than patching
 
 ### Freedom Level Design
@@ -153,7 +154,7 @@ Calibrate how prescriptive each step should be based on the nature of the task:
 
 ## Recommended Practices
 
-Best practices that improve skill quality. These are not mandatory but strongly encouraged.
+Practices that improve skill quality. These are not mandatory but strongly encouraged.
 
 ### design.md
 
@@ -178,6 +179,24 @@ Recommended naming patterns for scripts and output files:
 | Result data | `{prefix}_result.json` | `slack_result.json` |
 | Report | `{prefix}_report.md` | `jira_report.md` |
 | Script | `{prefix}_{verb}.py` | `gmail_fetch.py` |
+
+### Token Optimization
+
+For skills that fetch external data and generate reports, having Claude read all raw data wastes context. Perform filtering and format conversion in scripts wherever possible, passing only minimal data to Claude. When responding to the main session, avoid returning full datasets.
+
+Key techniques:
+
+- Generate Markdown reports in scripts; the agent reads only the report
+- Don't use LLMs for data formatting (handle it in scripts)
+- Direct API calls are more token-efficient than MCP for data retrieval
+
+### Credential File Placement
+
+To prevent credential leaks (git inclusion, AI training data exposure), store credentials outside the skill directory:
+
+- Location: `~/.<name>_token` or `~/.<name>_credentials.json`
+- Permissions: `chmod 600`
+- Never hardcode credentials in the skill
 
 ### Memory Integrity
 

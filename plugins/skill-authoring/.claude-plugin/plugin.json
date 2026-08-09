@@ -1,5 +1,5 @@
 {
   "name": "skill-authoring",
-  "description": "Guides creation and review of Claude Code Agent Skills with standardized workflows and quality checklists",
-  "version": "1.5.0"
+  "description": "Guides creation and review of Claude Code Agent Skills with standardized workflows and quality checklists, with a skill-review Custom SubAgent that audits skills in an isolated context and returns a read-only findings report",
+  "version": "1.6.0"
 }

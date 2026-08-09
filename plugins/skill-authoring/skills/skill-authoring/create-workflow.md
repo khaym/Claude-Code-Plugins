@@ -33,16 +33,11 @@ If information is missing, present choices and confirm with the user.
 
 ## 2. Execution Pattern Selection
 
-Follow the selection flow in [guidelines.md](guidelines.md) to determine the optimal execution pattern:
-
-1. **Main session**: Interactive back-and-forth is central (e.g., skill-authoring itself)
-2. **Skill (context: fork)**: Independent work while referencing main context
-3. **Built-in SubAgent**: One-off research or data retrieval
-4. **Custom SubAgent**: Repeatedly executed specialized tasks (e.g., slack-check, jira-check)
+Follow the selection flow in [guidelines.md](guidelines.md) to determine the optimal execution pattern (main session / context: fork / Built-in SubAgent / Custom SubAgent).
 
 If Custom SubAgent is selected:
 - Refer to [custom-subagent.md](custom-subagent.md) to consider design options (tool restrictions, model selection, memory, etc.)
-- **Determine whether to separate skills**: If the agent has only one procedure, embed it directly in agent.md (no skill needed). Only create separate skills when the agent uses multiple interchangeable procedures
+- **Determine whether to separate skills**: apply the Skill vs SubAgent decision in [custom-subagent.md](custom-subagent.md)
 - If Custom SubAgent is chosen, read the remaining steps with these adjustments:
   - Step 3: Create design.md inside the agent directory
   - Step 4: Design the agent subdirectory structure
@@ -74,23 +69,10 @@ Solidify the design before writing structure or code. Create `design.md` first.
 
 ### Patterns to Consider During Design
 
-Evaluate whether these patterns apply and record decisions in design.md.
+Evaluate whether the recommended practices in [guidelines.md](guidelines.md) apply, and record the decisions in design.md:
 
-**Token optimization** (for skills that fetch external data and generate reports):
-
-When fetching external data to generate reports, having Claude read all raw data wastes context. Perform filtering and format conversion in scripts wherever possible, passing only minimal data to Claude. When responding to the main session, avoid returning full datasets — minimize context waste.
-
-Key techniques:
-- Generate Markdown reports in scripts; SubAgent reads only the report
-- Don't use LLMs for data formatting (handle it in scripts)
-- Direct API calls are more token-efficient than MCP for data retrieval
-
-**Credential file placement** (for skills using external APIs):
-
-To prevent credential leaks (git inclusion, AI training data exposure), store credentials outside the skill directory:
-- Location: `~/.<name>_token` or `~/.<name>_credentials.json`
-- Permissions: `chmod 600`
-- Never hardcode credentials in the skill
+- **Token optimization** — for skills that fetch external data and generate reports
+- **Credential file placement** — for skills using external APIs
 
 Share the design with the user and get alignment before proceeding.
 
@@ -100,19 +82,9 @@ Based on design.md's data flow and decisions, determine the directory structure.
 
 ### A. Custom SubAgent (subdirectory pattern)
 
-```
-.claude/agents/{agent-name}/
-├── agent.md      # Agent definition + procedure (required)
-├── design.md     # Design document
-├── fetch.py      # Script (if needed)
-└── report.md     # Output file (if needed)
-```
+Follow [custom-subagent.md](custom-subagent.md) for the subdirectory pattern and the skill-vs-agent separation decision.
 
 For plugin distribution, use `<plugin-root>/agents/` instead of `.claude/agents/`. See [plugin-structure.md](plugin-structure.md).
-
-- Write the system prompt and procedure directly in agent.md
-- Place scripts and output files in the same directory as the agent
-- Only separate skills into `.claude/skills/` when the agent uses multiple interchangeable procedures
 
 ### B. Skill (main session / context: fork)
 
@@ -175,10 +147,7 @@ description: {Third-person description + trigger phrases}
 ---
 ```
 
-Description tips:
-- Describe functionality in third person ("Checks...", "Generates...", "Assists with...")
-- Include phrases users might say to invoke the skill
-- Max 1024 characters
+Follow the frontmatter rules in [guidelines.md](guidelines.md); phrase the functionality like "Checks...", "Generates...", "Assists with...".
 
 **Note**: If the skill is exclusively for a Custom SubAgent, do not add frontmatter (see [guidelines.md](guidelines.md) frontmatter section).
 
@@ -203,11 +172,11 @@ Implement according to the design decisions from Step 3. Script roles vary by sk
 
 ## 7. Quality Check
 
-Evaluate all items in [checklist.md](checklist.md).
+Run the `skill-review` Custom SubAgent on the newly created skill directory (pass the MEMORY.md path if memory integrity should be checked). It evaluates all items in [checklist.md](checklist.md) in an isolated context and returns a findings report.
 
-- Rate each item as OK / NG / N/A
-- Fix all NG items before proceeding to the next step
-- Consult the user if a rating is unclear
+- Fix all NG items before proceeding to the next step, then re-run the agent to confirm they rate OK
+- Consult the user if a finding is unclear
+- If the draft has not been written to disk yet, evaluate checklist.md directly in the main session instead
 
 ## 8. Test & Report
 

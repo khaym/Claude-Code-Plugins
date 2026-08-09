@@ -22,8 +22,8 @@
     {
       "name": "skill-authoring",
       "source": "./plugins/skill-authoring",
-      "description": "Guides creation and review of Claude Code Agent Skills with standardized workflows and quality checklists",
-      "version": "1.5.0",
+      "description": "Guides creation and review of Claude Code Agent Skills with standardized workflows and quality checklists, with a skill-review Custom SubAgent that audits skills in an isolated context and returns a read-only findings report",
+      "version": "1.6.0",
       "category": "productivity",
       "tags": [
         "skill",
@@ -95,7 +95,7 @@
       "name": "docs-authoring",
       "source": "./plugins/docs-authoring",
       "description": "Guides writing and tightening engineering documents (design docs, tickets) in the main session, with a docs-review Custom SubAgent that audits documents in an isolated context and returns a read-only findings report",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "productivity",
       "tags": [
         "documentation",

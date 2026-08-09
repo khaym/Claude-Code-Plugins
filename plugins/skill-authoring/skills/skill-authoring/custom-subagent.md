@@ -74,12 +74,20 @@ System prompt and procedure go here.
 | `description` | Yes | Description used by Claude for delegation decisions |
 | `tools` | No | List of allowed tools (inherits all if omitted) |
 | `disallowedTools` | No | List of prohibited tools |
-| `model` | No | `sonnet` / `opus` / `haiku` / `inherit` (default: `inherit`) |
+| `model` | No | `sonnet` / `opus` / `haiku` / `inherit` (default: `inherit`). Resolution order: `CLAUDE_CODE_SUBAGENT_MODEL` env var > invocation-time model > this field > inherit — the env var silently overrides the others |
 | `permissionMode` | No | `default` / `acceptEdits` / `dontAsk` / `bypassPermissions` / `plan` |
 | `maxTurns` | No | Maximum turns (prevents runaway execution) |
-| `skills` | No | Skill names to preload at startup |
+| `skills` | No | Skill names to preload at startup ([semantics](#the-skills-field)) |
 | `mcpServers` | No | MCP servers to use |
 | `memory` | No | Persistent memory scope (`user` / `project` / `local`) |
 | `hooks` | No | Lifecycle hooks (PreToolUse, PostToolUse, Stop) |
+
+## The skills Field
+
+| Aspect | Behavior |
+|--------|----------|
+| Name form | Bare skill name (`skills: my-skill`) — resolves for project/user skills and for skills in the same plugin as the agent (verified: the bare form injects the sibling skill). For a skill in another plugin, the namespaced `plugin-name:skill-name` form is the documented convention |
+| Preload scope | Only the SKILL.md body is injected at startup. Files it references are not preloaded — the agent reads them at runtime with the Read tool |
+| Missing skill | Skipped with a debug-log warning; the agent still starts. An agent whose judgments depend on preloaded content must verify at startup that the content is present, and report the failure instead of proceeding |
 
 Details: https://code.claude.com/docs/en/sub-agents
