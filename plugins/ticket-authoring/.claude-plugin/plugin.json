@@ -1,5 +1,5 @@
 {
   "name": "ticket-authoring",
   "description": "Guides filing tickets as user stories that keep purpose in charge of means, with a ticket-review Custom SubAgent that audits a ticket's premises in an isolated context and returns a read-only findings report",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

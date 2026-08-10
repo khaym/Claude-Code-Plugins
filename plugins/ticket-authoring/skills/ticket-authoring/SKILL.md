@@ -15,9 +15,18 @@ For premise audits ("review this ticket", "audit this draft"), the `ticket-revie
 
 | Intent | Example triggers | Action |
 |--------|-----------------|--------|
-| **File / draft a ticket** | "file a ticket", "draft a user story" | Apply [guidelines.md](guidelines.md), then run the audit pass below |
+| **File / draft a ticket** | "file a ticket", "draft a user story" | Run the [filing flow](#filing-flow) below |
 | **Audit a draft or existing ticket** | "review this ticket", "ticket premise check" | Invoke the `ticket-review` agent |
 | **Rule lookup** | "ticket structure", "how should tickets be cut" | Answer from [guidelines.md](guidelines.md) |
+
+## Filing flow
+
+The order matters: a writing model loaded *before* drafting shapes the prose, while a review pass afterwards anchors on the existing text and only patches it.
+
+1. **Load the installed writing skill** (e.g. `docs-authoring`) before drafting. Its writing model is drafting input, not a post-hoc check. Skip this step only when no writing skill is installed.
+2. **Apply [guidelines.md](guidelines.md)** — the user-story unit, value anchoring, subject and details layout — and draft in the main session.
+3. **Audit the premises** — run the pass below.
+4. **Self-review the prose** — run the writing skill's own self-review pass per its own run/skip criteria. The premise audit and the prose review are different layers; passing one says nothing about the other.
 
 ## Premise audit pass before filing
 
@@ -30,5 +39,5 @@ Run the `ticket-review` agent (when installed via plugin, subagent type `ticket-
 
 ## Notes
 
-- Prose readability (one-pass structure, wording) is a general writing concern — this skill owns ticket structure and premise validity only. If a writing skill such as `docs-authoring` is installed, apply both.
+- This skill owns ticket structure and premise validity; prose readability belongs to the writing skill (filing flow steps 1 and 4).
 - Drafting runs in the main session (iterative); only the audit pass is delegated to the SubAgent.
