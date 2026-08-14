@@ -1,0 +1,5 @@
+{
+  "name": "gnome-loop",
+  "description": "Development pipeline plugin. Carries the six-stage development cycle as the dev-cycle skill - the method skeleton that any session follows from ticket filing to close and that an autonomous loop can run laps over.",
+  "version": "0.1.0"
+}
