@@ -1,0 +1,30 @@
+# gnome-loop host configuration — copy to <repo root>/.claude/gnome-loop.toml
+# and fill in. Values only: procedures with judgment live in the project's
+# verify / observe skills, not here.
+
+[paths]
+# Lease directory for session exclusion (a gitignored location is typical).
+lease = "work/gnome-loop.lease"
+# Lap log: classified observations, one line per lap. Format home:
+# gnome-loop SKILL.md, lap step 9.
+lap_log = "work/gnome-lap-log.md"
+# Base directory for per-ticket worktrees.
+worktrees = "~/worktrees"
+
+[loop]
+# How many tickets may be in-flight at once. Raise only by human agreement.
+parallel_limit = 1
+# Branch names become <branch_prefix><ticket-id>-<slug>.
+branch_prefix = "gnome/"
+
+[serial]
+# Tickets whose work touches these paths never run in parallel with each
+# other (shared structures where merges are not mechanical).
+globs = []
+# One line naming why, shown when the rule defers a pickup.
+note = ""
+
+[untracked_assets]
+# Paths that are gitignored yet load-bearing (skills, generators, agreed
+# observation files). Handling rules: gnome-loop SKILL.md, lap step 4.
+paths = []

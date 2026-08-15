@@ -196,18 +196,22 @@ Audit ticket 42 before making it loop-ready
 
 ### gnome-loop
 
-Development pipeline plugin — the method, and in later versions the machinery that runs it. Install v0.1's **dev-cycle** skill and your sessions run one disciplined route from ticket filing to close: facts are observed for real before code is touched, tickets are cut by user value, rules are pinned by tests before implementation, finished changes are reviewed against requirements without being asked, and nothing closes without your confirmation. Your CLAUDE.md gains just a single trigger line — the method itself loads on invoke and improves across projects with plugin updates, so there is no per-project method document to write and maintain.
+Development pipeline plugin — the method, and the machinery that runs it. Install the **dev-cycle** skill and your sessions run one disciplined route from ticket filing to close: facts are observed for real before code is touched, tickets are cut by user value, rules are pinned by tests before implementation, finished changes are reviewed against requirements without being asked, and nothing closes without your confirmation. Your CLAUDE.md gains just a single trigger line — the method itself loads on invoke and improves across projects with plugin updates, so there is no per-project method document to write and maintain.
+
+The **gnome-loop** skill digests the tickets you mark loop-ready in autonomous laps — implementing in a worktree (pattern work through your project's lane skills, everything else through the bundled implementer agent), reviewing requirements-first, attaching running evidence, and parking the ticket for your confirmation. Merges happen only on your approval reply. While you are thinking through the next ticket, the AI is implementing the previous one — and the machinery that keeps that parallelism safe (session exclusion, a ticket state machine, stop conditions) comes along with it.
 
 **How it works:**
 - **Your CLAUDE.md carries one line plus your project's declarations** — the trigger line, and answers to "what are this project's immovable facts, which automated tests are its quality nets, who approves commits/pushes/closes". The method itself lives in the skill and loads before code-changing work
 - **Rework stops upstream** — observing facts and cutting plans by value happen before code is touched, so "built it, then noticed it misses the requirement" rework shrinks; the finishing code-review also starts from requirements
 - **Composes with siblings** — ticket quality is ticket-authoring's job (with ticket-review), one-pass prose is docs-authoring's, ticket management is the tracker's; each fires at its fixed stage of the cycle
-- **Roadmap** — later versions add the gnome loop skill (autonomous laps that digest loop-ready tickets), a bundled implementer agent, and an onboarding skill that makes setup a single conversation
+- **The judgment gates stay on your side** — the loop only picks tickets you marked loop-ready, and only merges on your approval reply; when it gets stuck, it stops with the needed decision as the first line
+- **Roadmap** — a later version adds an onboarding skill that makes setup (prerequisite audit, slot generation, trigger-line placement) a single conversation
 
 **Usage:**
 
 ```
 /gnome-loop:dev-cycle      (before starting any code-changing work)
+/gnome-loop:gnome-loop     (one lap; pair with /loop to self-drive)
 How do we develop here?
 ```
 

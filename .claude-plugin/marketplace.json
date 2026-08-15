@@ -122,8 +122,8 @@
     {
       "name": "gnome-loop",
       "source": "./plugins/gnome-loop",
-      "description": "Development pipeline plugin. Carries the six-stage development cycle as the dev-cycle skill - the method skeleton that any session follows from ticket filing to close and that an autonomous loop can run laps over.",
-      "version": "0.1.0",
+      "description": "Development pipeline plugin. The dev-cycle skill carries the six-stage development method any session follows from ticket filing to close; the gnome-loop skill runs autonomous laps over loop-ready tickets (worktree implementation, review, evidence, merge queue) with a bundled implementer agent for novel-lane work.",
+      "version": "0.2.0",
       "category": "productivity",
       "tags": [
         "development-cycle",

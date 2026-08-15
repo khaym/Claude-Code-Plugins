@@ -32,7 +32,7 @@ The frame below is invariant; these project-bound inputs come from the host:
 | Binding | What the host declares | Home |
 |---|---|---|
 | Immovable facts | The external realities that cannot be negotiated (data formats, API output, real rendering behavior) — stage 2 observes these | Host CLAUDE.md |
-| Domain quality nets | Project-specific automated layers (snapshot regressions, invariant suites) added to the automated layer below | Host CLAUDE.md |
+| Domain quality nets | Project-specific automated layers (snapshot regressions, invariant suites) added to the automated layer below | Host CLAUDE.md, or the project's `verify` skill where the gnome loop is wired (its contract lives in the gnome-loop skill) |
 | Story-list source of truth | Where user stories live and how they are referenced by ID | Host CLAUDE.md task-registration rules |
 | Development log | The file that receives proposals that cannot state user value (filed nowhere else) | Host CLAUDE.md |
 | Toolchain | Tracker / writing / filing / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), code-review | Host CLAUDE.md |
@@ -131,8 +131,10 @@ of a layer above:
 Subagent delegation: tasks whose goal and context fold into a single
 delegation prompt — stage 2 observation, research, mechanical work — may be
 delegated to a cheaper-model subagent (general-purpose). Judge by "does the
-context fold into one prompt", not by task kind. Requirements alignment,
-planning, and review stay in the main conversation.
+context fold into one prompt", not by task kind. Stage 4 implementation of
+a planned ticket delegates to this plugin's bundled `implementer` agent
+(the agreed plan checklist is the delegation prompt). Requirements
+alignment, planning, and review stay in the main conversation.
 
 ## Business rules (the shared unit of tests and comments)
 
