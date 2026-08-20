@@ -8,6 +8,9 @@
 #     (or edit that directory's .gitignore)
 #   - update -d replaces the entire details text (the documented
 #     contract callers must know before passing -d)
+#   - update -a appends after a blank line and never rewrites the
+#     existing bytes (the safe path for progress notes on long-lived
+#     ticket bodies; -d's fetch-edit-replace round trip destroyed one)
 #   - pre-relations 6-column TSV files are migrated to the current
 #     schema by any command, not just init
 #
@@ -76,6 +79,24 @@ case "$out" in *"original body"*) check "show prints the details" ok ok ;;
 bash "$TASK" update 1 -d "replacement body" > /dev/null
 check "update -d exits 0" 0 $?
 check "details are replaced, not merged" "replacement body" "$(cat .tasks/details/1.md)"
+
+# --- update -a appends without touching existing bytes ---------------------------
+
+bash "$TASK" update 1 -a "appended note" > /dev/null
+check "update -a exits 0" 0 $?
+printf 'replacement body\n\nappended note\n' > expected.md
+cmp -s expected.md .tasks/details/1.md \
+  && check "append keeps the body and adds after a blank line" ok ok \
+  || check "append keeps the body and adds after a blank line" ok "$(cat .tasks/details/1.md)"
+
+bash "$TASK" add -s "Second" > /dev/null
+bash "$TASK" update 2 --append-details "first note" > /dev/null
+check "append to a task with no details exits 0" 0 $?
+printf 'first note\n' > expected.md
+cmp -s expected.md .tasks/details/2.md \
+  && check "append to empty details starts the file" ok ok \
+  || check "append to empty details starts the file" ok "$(cat .tasks/details/2.md)"
+rm -f expected.md
 
 bash "$TASK" close 1 -d "done" > /dev/null
 check "close exits 0" 0 $?

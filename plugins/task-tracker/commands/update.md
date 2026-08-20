@@ -18,10 +18,12 @@ Available flags:
 - `-b "1,2"` / `--blocked-by` — Replace the blocked-by IDs (comma-separated; pass the full set)
 - `-r "5"` / `--related` — Replace the related IDs (comma-separated; pass the full set)
 - `-d "New details"` — Replace the details: the existing text is overwritten entirely, not merged. To keep any of the current details, include them in the new text
+- `-a "Progress note"` / `--append-details` — Append to the details: the text is added after the existing details, separated by a blank line, without touching them. Prefer this over `-d` for progress notes
 
 Examples:
 - `/task-tracker:update 1 -s "New title"` → `task.sh update 1 -s "New title"`
 - `/task-tracker:update 3 -c bug --status closed` → `task.sh update 3 -c bug --status closed`
 - `/task-tracker:update 2 -b "1,4"` → `task.sh update 2 -b "1,4"`
+- `/task-tracker:update 5 -a "2026-08-20 verify green, awaiting review"` → `task.sh update 5 -a "2026-08-20 verify green, awaiting review"`
 
 Show the output to the user.

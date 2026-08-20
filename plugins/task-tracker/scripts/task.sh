@@ -196,7 +196,7 @@ cmd_show() {
 
 cmd_update() {
   local id="${1:-}"
-  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-b blocked-by] [-r related] [-d details]"
+  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]"
   shift
 
   ensure_init
@@ -214,6 +214,18 @@ cmd_update() {
       -d|--details)
         mkdir -p "$DETAILS_DIR"
         echo "$2" > "$DETAILS_DIR/$id.md"
+        updated=true; shift 2
+        ;;
+      # Append-only progress notes: ticket bodies are long-lived context, and
+      # the fetch-edit-replace round trip through -d destroys the whole body
+      # when the fetch step goes wrong. Appending never rewrites existing bytes.
+      -a|--append-details)
+        mkdir -p "$DETAILS_DIR"
+        if [[ -s "$DETAILS_DIR/$id.md" ]]; then
+          printf '\n%s\n' "$2" >> "$DETAILS_DIR/$id.md"
+        else
+          printf '%s\n' "$2" > "$DETAILS_DIR/$id.md"
+        fi
         updated=true; shift 2
         ;;
       *) die "Unknown option: $1" ;;
@@ -314,9 +326,11 @@ Commands:
                                 List tasks (default: active = all but closed;
                                 any other value filters that exact status)
   show <id>                     Show task details
-  update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]
+  update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]
                                 Update task fields (-b/-r replace the field;
-                                -d replaces the entire details text)
+                                -d replaces the entire details text;
+                                -a/--append-details appends to it instead,
+                                separated by a blank line)
   close <id> [-d "Comment"]     Close a task
   delete <id>                   Delete a task
 USAGE

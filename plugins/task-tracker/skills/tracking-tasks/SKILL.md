@@ -21,7 +21,7 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh <command> [options]
 | `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-d "Details"]` | Add a new task |
 | `list` | `task.sh list [--status <status>\|active\|all] [--category cat]` | List tasks (default: active = all but closed; any other value filters that exact status) |
 | `show` | `task.sh show <id>` | Show task metadata + details |
-| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]` | Update fields (`-d` replaces the entire details text) |
+| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]` | Update fields (`-d` replaces the entire details text; `-a`/`--append-details` appends to it, separated by a blank line — use this for progress notes) |
 | `close` | `task.sh close <id> [-d "Comment"]` | Close a task |
 | `delete` | `task.sh delete <id>` | Delete a task |
 
