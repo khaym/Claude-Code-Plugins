@@ -17,7 +17,7 @@ Available flags:
 - `--status <status>` — Update the status. Values are free-form (e.g. `open`, `closed`, or workflow states like `loop-ready`); `closed` hides the task from the default `list`, and `active`/`all` are reserved as `list` filter keywords
 - `-b "1,2"` / `--blocked-by` — Replace the blocked-by IDs (comma-separated; pass the full set)
 - `-r "5"` / `--related` — Replace the related IDs (comma-separated; pass the full set)
-- `-d "New details"` — Update/replace the details
+- `-d "New details"` — Replace the details: the existing text is overwritten entirely, not merged. To keep any of the current details, include them in the new text
 
 Examples:
 - `/task-tracker:update 1 -s "New title"` → `task.sh update 1 -s "New title"`

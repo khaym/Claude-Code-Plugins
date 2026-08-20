@@ -1,5 +1,5 @@
 {
   "name": "task-tracker",
   "description": "Lightweight task/ticket tracker using TSV files and shell scripts for efficient context-aware task management",
-  "version": "1.2.0"
+  "version": "1.3.0"
 }

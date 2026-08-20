@@ -17,11 +17,11 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh <command> [options]
 
 | Command | Usage | Description |
 |---------|-------|-------------|
-| `init` | `task.sh init` | Initialize `.tasks/` directory (idempotent) |
+| `init` | `task.sh init` | Initialize `.tasks/` in the current working directory (idempotent; the only command that creates it) |
 | `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-d "Details"]` | Add a new task |
 | `list` | `task.sh list [--status <status>\|active\|all] [--category cat]` | List tasks (default: active = all but closed; any other value filters that exact status) |
 | `show` | `task.sh show <id>` | Show task metadata + details |
-| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]` | Update fields |
+| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]` | Update fields (`-d` replaces the entire details text) |
 | `close` | `task.sh close <id> [-d "Comment"]` | Close a task |
 | `delete` | `task.sh delete <id>` | Delete a task |
 
@@ -75,6 +75,7 @@ Both take comma-separated IDs (e.g. `-b "1,2"`). On `update` the value **replace
 
 All commands exit with non-zero status and print an error message on failure. Common cases:
 
+- **Not initialized**: every command except `init` fails if `.tasks/` is missing under the current working directory — `cd` to the project root and retry (or run `task.sh init` for a new project)
 - **Task not found**: `show`, `update`, `close`, `delete` fail if the ID does not exist
 - **Missing required arguments**: `add` requires `-s`; `show`/`update`/`close`/`delete` require an ID
 - **Already closed**: `close` fails if the task is already closed
@@ -83,7 +84,8 @@ No special recovery is needed — read the error message and retry with correcte
 
 ## Data Storage
 
-Tasks are stored in `.tasks/` at the project root:
+Tasks are stored in `.tasks/`, resolved relative to the **current working directory** — run commands from the project root. Only `init` creates the directory; every other command fails when it is missing, so a command run in the wrong directory cannot plant a stray `.tasks/`. The directory holds:
+
 - `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED)
 - `.tasks/details/<id>.md` — Detailed descriptions per task
 

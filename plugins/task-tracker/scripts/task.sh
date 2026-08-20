@@ -17,12 +17,15 @@ die() { echo "Error: $*" >&2; exit 1; }
 
 now() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 
+# $TASKS_DIR is resolved relative to the current working directory, so a
+# silent auto-init here would plant a stray .tasks/ (and edit .gitignore)
+# wherever a command happens to run. Only cmd_init may create the directory;
+# everything else surfaces the wrong-CWD mistake as an error.
 ensure_init() {
   if [[ ! -f "$TSV_FILE" ]]; then
-    cmd_init
-  else
-    migrate_schema
+    die "no task tracker in $PWD ($TSV_FILE not found) — cd to the project root, or run 'task.sh init' to start one here"
   fi
+  migrate_schema
 }
 
 # Upgrade older TSV files (pre-relations, 6 columns) to the current schema by
@@ -299,8 +302,12 @@ task-tracker: Lightweight TSV-based task manager
 
 Usage: task.sh <command> [options]
 
+Tasks live in .tasks/ under the current working directory — run commands
+from the project root. Only 'init' creates .tasks/; every other command
+fails if it is missing.
+
 Commands:
-  init                          Initialize .tasks/ directory
+  init                          Initialize .tasks/ in the current directory
   add -s "Subject" [-c cat] [-b blocked-by] [-r related] [-d "Details"]
                                 Add a new task (-b/-r take comma-separated IDs)
   list [--status <status>|active|all] [--category cat]
@@ -308,7 +315,8 @@ Commands:
                                 any other value filters that exact status)
   show <id>                     Show task details
   update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details]
-                                Update task fields (-b/-r replace the field)
+                                Update task fields (-b/-r replace the field;
+                                -d replaces the entire details text)
   close <id> [-d "Comment"]     Close a task
   delete <id>                   Delete a task
 USAGE
