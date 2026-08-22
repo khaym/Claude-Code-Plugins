@@ -60,13 +60,17 @@ layers are domain-specific (host binding above).
     Audits premise validity — user-anchored purpose, outcome vocabulary for
     decisions — as a reader with no project knowledge, in an isolated
     context (one-pass readability belongs to docs-review).
+  - docs-review — audits one-pass readability in an isolated context
+    (docs-authoring plugin). Fires alongside ticket-review at filing — a
+    premise audit is no substitute for readability — and stands in for
+    code-review on docs- or ticket-only changes.
   - code-review — runs without being asked once a code change is complete.
     **Verifying the diff against the ticket's success criteria comes first**
     — do not shrink it to bug-hunting (requirements validity → correctness).
     Findings are limited to correctness / requirement gaps / duplicated
     statements of a business rule (defined below); style is optional
     (chasing it is over-engineering). Apply and report before moving on.
-    Docs- or ticket-only changes take docs-review instead.
+    Docs- or ticket-only changes: docs-review above.
   - Human Audit — closing happens only after the user confirms: summarize
     the outcome → get agreement → close. Even under "just wrap it up", keep
     that order. The authority behind this gate stays in the host CLAUDE.md
@@ -93,7 +97,7 @@ of a layer above:
 
 | Stage | Layers fired (kind) |
 |---|---|
-| 1 File | docs-authoring, ticket-review (non-automated) |
+| 1 File | docs-authoring, ticket-review, docs-review (non-automated) |
 | 2 Observe facts [shift-left] | fact-observation gate (the most upstream layer) |
 | 3 Plan shape [shift-left] | plan-shape gate (cut by value?) |
 | 4 TDD implementation | linter/hooks, unit tests (automated) |
@@ -104,7 +108,8 @@ of a layer above:
    criteria, and out-of-scope (load docs-authoring and ticket-authoring
    *before* drafting → register in the tracker; reviewing after drafting
    only patches existing text). Gate: the discrimination test (does the
-   value reach the reader?) — ticket-review audits independently.
+   value reach the reader?) — ticket-review audits the premises and
+   docs-review the readability, each independently.
 2. **Observe facts** — before touching code, observe external reality (the
    host's immovable facts: data, API output, real behavior) with the real
    thing, and put it in shared form. **Do not skip.** A wrong premise
@@ -132,9 +137,10 @@ Subagent delegation: tasks whose goal and context fold into a single
 delegation prompt — stage 2 observation, research, mechanical work — may be
 delegated to a cheaper-model subagent (general-purpose). Judge by "does the
 context fold into one prompt", not by task kind. Stage 4 implementation of
-a planned ticket delegates to this plugin's bundled `implementer` agent
-(the agreed plan checklist is the delegation prompt). Requirements
-alignment, planning, and review stay in the main conversation.
+a planned ticket delegates to this plugin's bundled `implementer` agent —
+its agent definition owns the delegation contract (what the prompt must
+carry). Requirements alignment, planning, and review stay in the main
+conversation.
 
 ## Business rules (the shared unit of tests and comments)
 
@@ -163,17 +169,9 @@ solution down in this form.
 
 ## Host wiring (install)
 
-Add one MUST-form trigger line to the host project's CLAUDE.md — the
-always-resident dispatch surface this skill depends on:
-
-> Development method: before starting any work that changes code, you MUST
-> invoke the `dev-cycle` skill (gnome-loop plugin) and follow its cycle
-> from filing to close.
-
-Keep the host side to this line, the host bindings above, and the authority
-rules below; this skill body is the single home of the method itself.
-Translate the line into the host's CLAUDE.md language if that language is
-not English; keep the MUST form.
+The install procedure and the MUST-form trigger line's canonical wording
+live in this plugin's onboarding skill; the host side stays that one line
+plus the host bindings above and the authority rules below.
 
 ## What this skill never owns
 
