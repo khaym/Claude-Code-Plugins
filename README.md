@@ -215,6 +215,34 @@ The **gnome-loop** skill digests the tickets you mark loop-ready in autonomous l
 How do we develop here?
 ```
 
+### decision-queue
+
+The conversation log is linear — it shows only the latest topic, so when several questions are waiting on you at once, the older ones drop off your radar. decision-queue keeps every pending judgment in sight: Claude appends a line to a per-session queue file whenever a decision starts waiting on you and deletes it when you answer, and a statusline renderer shows the whole list under the input box. While nothing is pending, the statusline stays silent.
+
+**Features:**
+- Every judgment currently waiting on you, one row each with a count, resident under the input box — an empty queue renders nothing
+- One queue file per session: parallel sessions never see each other's items; the SessionStart hook tells Claude the session's file path via context injection
+- Self-healing registration: the hook re-links the stable path `~/.claude/decision-queue/statusline.sh` to the installed plugin version at every session start, so after a plugin update the registration heals at the next session start
+- A session's queue file is deleted when that session ends (`--resume` keeps the same session and its queue); a 30-day fallback catches sessions that died without the hook firing
+
+**Prerequisites:**
+- `jq` on PATH
+
+**Setup (one-time):** Claude Code plugins cannot ship a `statusLine` setting, so register it once yourself. Install the plugin, start one session (the hook creates the stable path), then add to a settings file (e.g. `~/.claude/settings.json`):
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "~/.claude/decision-queue/statusline.sh"
+}
+```
+
+**Usage:** nothing to invoke — the bundled skill carries the convention, and items appear and disappear as decisions arise and are answered. You can also steer it directly:
+
+```
+Add the release timing question to the decision queue
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -239,6 +267,7 @@ How do we develop here?
 /plugin install docs-authoring@khaym-claude-plugins
 /plugin install ticket-authoring@khaym-claude-plugins
 /plugin install gnome-loop@khaym-claude-plugins
+/plugin install decision-queue@khaym-claude-plugins
 ```
 
 ### Update

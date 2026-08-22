@@ -132,6 +132,20 @@
         "tdd",
         "quality"
       ]
+    },
+    {
+      "name": "decision-queue",
+      "source": "./plugins/decision-queue",
+      "description": "Keeps the decisions awaiting the user always visible in the statusline — one queue file per session, updated by Claude as items arise and resolve, surviving plugin updates via a self-healing stable path",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": [
+        "statusline",
+        "pending-decisions",
+        "visibility",
+        "session",
+        "hooks"
+      ]
     }
   ]
 }

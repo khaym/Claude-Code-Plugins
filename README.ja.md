@@ -215,6 +215,34 @@ loop-ready にする前に #42 を監査して
 このプロジェクトの開発の進め方は？
 ```
 
+### decision-queue
+
+会話ログは線形で、見えるのは最新の話題だけ——複数の質問があなたの回答を待っていると、古いものから視界の外に落ちていきます。decision-queue は判断待ちの全量を視界に留めます: あなたの判断を待つ事項が発生すると Claude がセッション単位のキューのファイルに 1 行追記し、回答すると削除。statusline レンダラがその全行を入力欄の下に常駐表示します。判断待ちがない間、statusline は沈黙します。
+
+**特徴:**
+- あなたの回答待ちになっている判断事項を、件数付き・1 件 1 行で入力欄直下に常駐表示——キューが空なら何も表示しない
+- キューのファイルはセッションごとに 1 つ: 並行セッションの項目は混ざらない。SessionStart hook が context 注入で自セッションのファイルパスを Claude に伝える
+- 自己修復する登録: hook がセッション開始のたびに安定パス `~/.claude/decision-queue/statusline.sh` をインストール済みバージョンへ張り直すため、plugin 更新後も次のセッション開始で登録が復元される
+- キューのファイルはセッション終了時に削除（`--resume` は同一セッション扱いでキューも維持）。hook が発火せず死んだセッションの残骸は 30 日で回収
+
+**前提:**
+- `jq` が PATH にあること
+
+**セットアップ（初回のみ）:** Claude Code の plugin は `statusLine` 設定を同梱できないため、一度だけ手動で登録します。plugin をインストールし、セッションを 1 回起動（hook が安定パスを作成）した後、settings ファイル（例: `~/.claude/settings.json`）に追記:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "~/.claude/decision-queue/statusline.sh"
+}
+```
+
+**使い方:** 呼び出しは不要——同梱スキルが規約を担い、判断待ちの発生・回答に応じて項目が増減します。直接指示することもできます:
+
+```
+リリース時期の相談を判断待ちキューに入れて
+```
+
 ## インストール
 
 ### マーケットプレイスの追加
@@ -239,6 +267,7 @@ loop-ready にする前に #42 を監査して
 /plugin install docs-authoring@khaym-claude-plugins
 /plugin install ticket-authoring@khaym-claude-plugins
 /plugin install gnome-loop@khaym-claude-plugins
+/plugin install decision-queue@khaym-claude-plugins
 ```
 
 ### アップデート

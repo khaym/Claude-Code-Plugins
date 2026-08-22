@@ -1,0 +1,28 @@
+{
+  "description": "Maintain the decision-queue statusline registration, announce the session's queue file, and clean the queue up when the session ends",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/on-session-start.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "clear|logout|prompt_input_exit|other",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/on-session-end.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
