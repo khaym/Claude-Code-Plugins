@@ -48,10 +48,8 @@ never proceed as if a gate had fired:
   `metadata: { lane: pattern }` and whose class of work matches the ticket.
   The loop session runs that skill's procedure itself in the worktree — no
   spec, no delegation. The lane skill is the truth source for everything
-  the lap consumes from it: the pre-filing agreements behind loop-ready,
-  its inputs, stop conditions, expected test reds, its rebase/conflict
-  rule (step 6, merge step 5), and its own verification for untracked
-  assets it owns (merge step 2).
+  the lap consumes from it; the contract — and the protocol for adding a
+  lane to a host — lives in [lane-protocol.md](lane-protocol.md).
 - **Novel lane** — everything else. Delegate implementation to the bundled
   `implementer` agent with the plan checklist agreed on the ticket.
 - Reviewer and implementer stay separate: the loop session gates
@@ -340,6 +338,7 @@ to notice its absence.
 | File | Role |
 |---|---|
 | [config.example.toml](config.example.toml) | host config schema (values only) |
+| [lane-protocol.md](lane-protocol.md) | the lane test, the lane-skill contract, and the script/skill split — how a host adds a pattern lane |
 | [scripts/lease.sh](scripts/lease.sh) | session-exclusion mechanics (exit codes above) |
 | [design.md](design.md) | decisions and rationale behind this procedure |
 | dev-cycle skill (this plugin) | the development cycle the lap projects |
