@@ -318,9 +318,9 @@ classify + one line + (conditionally) one ticket.
 
 ## Ending the turn and pacing
 
-Under self-paced `/loop`, arm a wakeup matching the state each time the
-turn ends — except when stopping the loop: end without a wakeup and
-release the lease.
+Under self-paced `/loop`, arm a wakeup (a `ScheduleWakeup` call) matching
+the state each time the turn ends — except when stopping the loop: end
+without a wakeup and release the lease.
 
 - Waiting on background work (delegation, verification): the completion
   notification is the primary signal; arm a 1800 s fallback wakeup
@@ -328,6 +328,11 @@ release the lease.
 - A lap just finished and loop-ready tickets remain: 60 s to the next lap
 - Only awaiting-human / blocked: recheck every 30 minutes
 - Nothing at all: every 30 minutes
+
+A turn that also carries a human-facing reply arms the wakeup **first**
+and writes the reply as the turn's final text, with no tool call after
+it — text written before a tool call can drop from the terminal
+(rationale in [design.md](design.md)).
 
 One-shot runs (outside `/loop`) arm no wakeups — the only resume signal is
 the completion notification, and the human who launched the lap is present
