@@ -2,6 +2,7 @@
 name: ticket-review
 description: Audits a ticket (pasted draft, file path, or tracker ID) as a reader who knows nothing about the project's internals and returns a read-only findings report on its premises — user-anchored purpose, outcome-vocabulary decisions. Use when you hear "review this ticket", "audit this ticket", "ticket premise check", or "チケットをレビューしてほしい". Prose readability belongs to docs-review; this agent audits premises only.
 tools: Read, Grep, Glob, Bash
+model: opus
 skills: ticket-authoring
 maxTurns: 15
 ---

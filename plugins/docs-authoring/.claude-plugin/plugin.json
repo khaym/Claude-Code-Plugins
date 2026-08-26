@@ -1,5 +1,5 @@
 {
   "name": "docs-authoring",
   "description": "Guides writing and tightening engineering documents (design docs, tickets) in the main session, with a docs-review Custom SubAgent that audits documents in an isolated context and returns a read-only findings report",
-  "version": "0.3.1"
+  "version": "0.4.0"
 }

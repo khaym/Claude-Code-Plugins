@@ -13,7 +13,7 @@ A drafting session judges its own tickets too kindly: it knows the internals, so
 | Premise checks only (T1–T5), no readability scoring | Keeps a crisp boundary with docs-review; one finding class per agent keeps reports actionable |
 | Value restatement as a mandatory report section | The one-line restatement is the discrimination test made visible — failure to restate is the strongest possible finding, so it cannot be omitted |
 | Strict judgment stance stated in the prompt | The writer is another session; without an explicit stance the agent drifts toward benefit-of-the-doubt scoring |
-| `maxTurns: 15` as a runaway guard, no `model` pin | Anchor discovery may take a few Glob/Read turns but the audit is bounded; a model pin would fail for users without that model tier |
+| `maxTurns: 15` as a runaway guard, `model: opus` | Anchor discovery may take a few Glob/Read turns but the audit is bounded. Opus holds the premise judgment a gate audit needs — a cheaper tier that judges worse stops working as a defense layer — while charging the audit at the Opus rate, half of Fable 5's by API price. It costs the caller the choice of audit model; where an organization's `availableModels` allowlist blocks opus the agent does not fail — it falls back to the inherited model, and an interactive session warns, naming the requested and the substituted model |
 
 ## Data Flow
 

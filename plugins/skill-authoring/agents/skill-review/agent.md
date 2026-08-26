@@ -2,6 +2,7 @@
 name: skill-review
 description: Audits a skill directory against the skill-authoring guidelines and quality checklist and returns a read-only findings report — diagnoses, does not edit. Use when you hear "review skill", "audit skill", "skill quality check", or "スキルをレビューしてほしい".
 tools: Read, Grep, Glob, Bash
+model: opus
 skills: skill-authoring
 ---
 

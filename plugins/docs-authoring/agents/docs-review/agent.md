@@ -2,6 +2,7 @@
 name: docs-review
 description: Audits a Markdown document against the docs-authoring writing model and returns a read-only findings report — diagnoses, does not edit. Use when you hear "review this document", "audit this doc", "lint this doc", or "ドキュメントをレビューしてほしい".
 tools: Read, Grep, Glob, Bash
+model: opus
 skills: docs-authoring
 ---
 
