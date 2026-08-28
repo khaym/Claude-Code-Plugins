@@ -179,7 +179,7 @@ Files tickets as **user stories** — one ticket, one user-visible capability. W
 A `ticket-review` Custom SubAgent audits a draft or existing ticket in an isolated context — a reader who knows nothing about the code, which is precisely the instrument that detects code-anchoring — and returns a read-only findings report, including a one-line restatement of the ticket's value (or the explicit finding that it cannot be restated).
 
 **How it works:**
-- **One unit** — one ticket = one capability a user gains; implementation steps fold into the Done checklist, never into tickets of their own
+- **One unit** — one ticket = one capability a user gains; implementation steps are never tickets of their own, and Done carries the success criteria they serve
 - **Five premise checks (T1–T5)** — discrimination test, purpose anchoring, done viewpoint, decision vocabulary, boundary & dependencies (shared between the authoring pass and the ticket-review agent)
 - **Value anchor resolution** — the audit reads who "the user" is from a caller-provided anchor, else the repo's CLAUDE.md / README purpose section, else falls back to a generic external-anchoring standard and reports the gap
 - **Tracker-agnostic** — audits pasted drafts and files anywhere; resolves tracker IDs directly when the sibling task-tracker plugin is installed

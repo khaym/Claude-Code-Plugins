@@ -7,7 +7,7 @@ description: Guides filing tickets as user stories — one ticket, one user-visi
 
 File tickets as user stories to keep the purpose in charge of the means — the antibody against code-anchored tickets, whose means quietly become their end (mechanism and failure chain: design.md).
 
-Read [guidelines.md](guidelines.md) for the structure rules — the user-story unit, value anchoring, subject and details layout, header metadata, and filing principles. [checklist.md](checklist.md) holds the binary premise checks (T1–T5) used during the audit pass below.
+Read [guidelines.md](guidelines.md) for the structure rules — the user-story unit, value anchoring, subject, the Done shape, details layout, what the tracker carries, and filing principles. [checklist.md](checklist.md) holds the binary premise checks (T1–T5) used during the audit pass below.
 
 For premise audits ("review this ticket", "audit this draft"), the `ticket-review` Custom SubAgent runs in an isolated context — a reader with no project knowledge — and returns a findings report. It preloads this skill via the `skills:` field, so the criteria are shared — no duplication.
 
@@ -24,7 +24,7 @@ For premise audits ("review this ticket", "audit this draft"), the `ticket-revie
 The order matters: a writing model loaded *before* drafting shapes the prose, while a review pass afterwards anchors on the existing text and only patches it.
 
 1. **Load the installed writing skill** (e.g. `docs-authoring`) before drafting. Its writing model is drafting input, not a post-hoc check. Skip this step only when no writing skill is installed.
-2. **Apply [guidelines.md](guidelines.md)** — the user-story unit, value anchoring, subject and details layout — and draft in the main session.
+2. **Apply [guidelines.md](guidelines.md)** — the structure rules enumerated above — and draft in the main session.
 3. **Audit the premises** — run the pass below.
 4. **Self-review the prose** — run the writing skill's own self-review pass per its own run/skip criteria. The premise audit and the prose review are different layers; passing one says nothing about the other.
 
