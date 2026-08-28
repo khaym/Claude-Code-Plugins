@@ -11,12 +11,34 @@ under the input box, and stays silent while nothing is pending.
 
 ## Setup (one-time)
 
-Claude Code plugins cannot ship a `statusLine` setting, so register it once:
+Two settings, both in your user settings file (`~/.claude/settings.json`).
+A Claude Code plugin can ship only the `agent` and `subagentStatusLine`
+settings keys — never `permissions`, `sandbox`, or `statusLine` — so these
+stay yours to add, once, and they take effect at the next session start.
+
+### 1. Allow writes to the queue directory
+
+```json
+"permissions": {
+  "allow": ["Edit(~/.claude/decision-queue/**)"]
+}
+```
+
+Without it, every queue update stops and asks: with the Bash sandbox on,
+appending a line fails with `Read-only file system` and Claude has to ask
+you to run it unsandboxed; the file-editing tools prompt each time under
+`acceptEdits`. This one rule opens both paths — it permits Edit / Write on
+the directory outright, and `~/.claude/decision-queue` joins the Bash
+sandbox's write-allow list (check it with `/sandbox`). The queue lives
+under your home rather than in a project, so the rule belongs in user
+settings, not a project's.
+
+### 2. Register the statusline
 
 1. Install and enable the plugin.
 2. Start one session — the SessionStart hook creates the stable path
    `~/.claude/decision-queue/statusline.sh`.
-3. Add to a settings file (e.g. `~/.claude/settings.json`):
+3. Add to the same settings file:
 
    ```json
    "statusLine": {
@@ -53,5 +75,6 @@ SessionEnd hook firing are deleted once untouched for over 30 days.
 
 1. Disable or uninstall the plugin first — while it is enabled, the
    SessionStart hook recreates the directory and symlink on every session.
-2. Remove the `statusLine` key from your settings.
+2. Remove the `statusLine` key and the `Edit(~/.claude/decision-queue/**)`
+   allow rule from your settings.
 3. Delete `~/.claude/decision-queue/`.

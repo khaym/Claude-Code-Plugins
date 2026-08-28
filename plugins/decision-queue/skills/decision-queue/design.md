@@ -17,6 +17,7 @@ statusline renderer form a resident view of "everything waiting on you".
 | Empty or absent file renders nothing | A permanent "no pending decisions" row would waste a statusline line all day; silence is the correct steady state. |
 | Statusline registered against a stable symlink, refreshed on every SessionStart | Plugin cache paths are versioned and change on every update; `statusLine.command` cannot use `${CLAUDE_PLUGIN_ROOT}`. The self-healing symlink is the only registration that survives updates. |
 | Queue file deleted by the SessionEnd hook; 30-day age fallback | A resumed session keeps its session_id, so cleanup must fire on real ends only — the SessionEnd matcher excludes `resume`. Age alone was rejected: it deletes the still-pending queue of a long-lived resident session. The fallback catches sessions that died without the hook firing. |
+| Queue directory kept under `~/.claude`, its write permission left to Setup | Every default-writable alternative breaks something: `<project>/.claude/` lands session state in the user's repository; `$TMPDIR` is invisible to the hook and the renderer; `${CLAUDE_PLUGIN_DATA}` sits under the protected `~/.claude/plugins/`. `~/.claude/decision-queue` is unprotected: one allow rule reaches it. |
 
 ## Data Flow
 
@@ -30,8 +31,9 @@ statusline renderer form a resident view of "everything waiting on you".
 
 ## Constraints & Tradeoffs
 
-- Registration is a one-time manual step (`statusLine` cannot be shipped in
-  plugin settings); the README owns that procedure.
+- Setup is a one-time manual step: a plugin can ship neither `statusLine` nor
+  `permissions`, so both the registration and the queue-directory allow rule
+  are the user's to add. The README owns that procedure.
 - The queue is a convention, not an enforcement: nothing blocks a session
   that forgets to write. The skill keeps the convention loaded; the injected
   context line re-points to it every session.

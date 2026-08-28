@@ -180,7 +180,7 @@ A `ticket-review` Custom SubAgent audits a draft or existing ticket in an isolat
 
 **How it works:**
 - **One unit** — one ticket = one capability a user gains; implementation steps are never tickets of their own, and Done carries the success criteria they serve
-- **Five premise checks (T1–T5)** — discrimination test, purpose anchoring, done viewpoint, decision vocabulary, boundary & dependencies (shared between the authoring pass and the ticket-review agent)
+- **Five premise checks (T1–T5)** — discrimination test, purpose anchoring, Done shape and viewpoint, decision vocabulary, boundary & dependencies (shared between the authoring pass and the ticket-review agent)
 - **Value anchor resolution** — the audit reads who "the user" is from a caller-provided anchor, else the repo's CLAUDE.md / README purpose section, else falls back to a generic external-anchoring standard and reports the gap
 - **Tracker-agnostic** — audits pasted drafts and files anywhere; resolves tracker IDs directly when the sibling task-tracker plugin is installed
 
@@ -228,14 +228,7 @@ The conversation log is linear — it shows only the latest topic, so when sever
 **Prerequisites:**
 - `jq` on PATH
 
-**Setup (one-time):** Claude Code plugins cannot ship a `statusLine` setting, so register it once yourself. Install the plugin, start one session (the hook creates the stable path), then add to a settings file (e.g. `~/.claude/settings.json`):
-
-```json
-"statusLine": {
-  "type": "command",
-  "command": "~/.claude/decision-queue/statusline.sh"
-}
-```
+**Setup (one-time):** two entries in your user settings file (`~/.claude/settings.json`): an allow rule that lets Claude write the queue directory, and the statusline registration (a plugin can ship neither). `statusLine` holds a single command, so this renderer replaces an existing statusline unless you wrap both — the procedure and the wrapper recipe live in the [plugin README](plugins/decision-queue/README.md#setup-one-time).
 
 **Usage:** nothing to invoke — the bundled skill carries the convention, and items appear and disappear as decisions arise and are answered. You can also steer it directly:
 

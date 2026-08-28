@@ -43,6 +43,11 @@ Rules for the line itself:
 
 ## Troubleshooting
 
+- A queue write stops — `Read-only file system` from Bash with the sandbox on,
+  or a permission prompt from Edit / Write: the queue directory's allow rule is
+  missing from the user's settings. Point them at Setup in the plugin
+  [README](../../README.md) — one line in `permissions.allow`, which covers
+  both paths — rather than running the write unsandboxed each time.
 - Statusline shows nothing while items exist: check that `jq` is on PATH
   (hook and renderer both need it), and that the `statusLine` setting points
   at the stable symlink `statusline.sh` in the queue directory — the parent
