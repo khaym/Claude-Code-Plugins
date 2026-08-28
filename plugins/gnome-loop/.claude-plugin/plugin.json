@@ -1,5 +1,5 @@
 {
   "name": "gnome-loop",
   "description": "Development pipeline plugin. The dev-cycle skill carries the six-stage development method any session follows from ticket filing to close; the gnome-loop skill runs autonomous laps over loop-ready tickets (worktree implementation, review, evidence, merge queue) with a bundled implementer agent for novel-lane work; the onboarding skill wires a new host project in one conversation.",
-  "version": "0.3.1"
+  "version": "0.3.2"
 }

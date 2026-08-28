@@ -304,6 +304,9 @@ classify + one line + (conditionally) one ticket.
    state and record the rebase; red → blocked. Skip in-flight branches
    with a running background implementation — that lap's review step 6
    picks them up.
+6. Reply to the human with the merge result: the merged commit, the
+   post-merge verify outcome (step 2), and which branches were rebased
+   (step 5).
 
 ## On failure
 
@@ -318,6 +321,9 @@ classify + one line + (conditionally) one ticket.
 
 ## Ending the turn and pacing
 
+The turn ends the moment a `ScheduleWakeup` call returns: only text written
+before that call is produced.
+
 Under self-paced `/loop`, arm a wakeup (a `ScheduleWakeup` call) matching
 the state each time the turn ends — except when stopping the loop: end
 without a wakeup and release the lease.
@@ -329,10 +335,17 @@ without a wakeup and release the lease.
 - Only awaiting-human / blocked: recheck every 30 minutes
 - Nothing at all: every 30 minutes
 
-A turn that also carries a human-facing reply arms the wakeup **first**
-and writes the reply as the turn's final text, with no tool call after
-it — text written before a tool call can drop from the terminal
-(rationale in [design.md](design.md)).
+A turn that carries a human-facing reply — the step 8 report, the merge
+report (merge step 6) — ends on that reply as its **final text**:
+
+- Finish the step's tool work first — ticket-log append, lap log, evidence
+  copy — so nothing is left to do once the reply is written.
+- Under `/loop`, the closing `ScheduleWakeup` is the only tool call that
+  may follow the reply, with nothing between the two. A one-shot or
+  stopping turn ends on the text itself.
+- Any other tool call after the reply can drop it from the terminal
+  (observed 2026-08-22), and the ticket log stays the durable copy
+  (rationale in [design.md](design.md)).
 
 One-shot runs (outside `/loop`) arm no wakeups — the only resume signal is
 the completion notification, and the human who launched the lap is present
