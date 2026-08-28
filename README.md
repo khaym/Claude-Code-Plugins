@@ -272,13 +272,18 @@ Add the release timing question to the decision queue
 
 ## Development setup
 
-Contributing to this marketplace? After cloning, enable the bundled pre-commit hook:
+Contributing to this marketplace? After cloning, enable the bundled hooks:
 
 ```
 git config core.hooksPath .githooks
 ```
 
-This activates secret / git-email / .gitignore checks on every `git commit`, powered by the `checking-oss-release` plugin.
+That single setting activates both of them:
+
+- `pre-commit` — secret / git-email / .gitignore checks on every `git commit`, powered by the `checking-oss-release` plugin.
+- `pre-push` — on a push that updates `main`, blocks the push when a plugin's version differs between `plugins/<name>/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. Such a publication leaves `claude plugin update` on the old version, so the change never reaches users. Pushes of other branches are not checked.
+
+The same version check runs without the hook via `bash tests/marketplace/run.sh`, or directly as `bash scripts/check-version-drift.sh`.
 
 
 ## License

@@ -272,13 +272,18 @@ loop-ready にする前に #42 を監査して
 
 ## 開発環境のセットアップ
 
-このマーケットプレイスにコントリビュートする場合、clone後に同梱の pre-commit フックを有効化してください:
+このマーケットプレイスにコントリビュートする場合、clone後に同梱のフックを有効化してください:
 
 ```
 git config core.hooksPath .githooks
 ```
 
-これにより、すべての `git commit` でシークレット / Git email / .gitignore のチェックが実行されます（`checking-oss-release` プラグインが提供）。
+この設定ひとつで、次の2つが有効になります:
+
+- `pre-commit` — すべての `git commit` でシークレット / Git email / .gitignore のチェックを実行します（`checking-oss-release` プラグインが提供）。
+- `pre-push` — `main` を更新する push のとき、プラグインのバージョンが `plugins/<name>/.claude-plugin/plugin.json` と `.claude-plugin/marketplace.json` で食い違っていれば push を止めます。この状態で公開すると `claude plugin update` が古い版のまま止まり、変更が利用者に届きません。`main` 以外のブランチの push は対象外です。
+
+同じバージョン検査は、フック無しでも `bash tests/marketplace/run.sh`、または直接 `bash scripts/check-version-drift.sh` で実行できます。
 
 
 ## ライセンス

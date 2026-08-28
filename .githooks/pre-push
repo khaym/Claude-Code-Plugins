@@ -1,0 +1,74 @@
+#!/bin/bash
+# Git pre-push hook: stops a publication whose version declarations disagree.
+#
+# Business rule: publication is a push that updates `main` on the remote —
+# users install from `.claude-plugin/marketplace.json` as it stands on main —
+# so only ref updates targeting main are gated; pushes of any other branch
+# (the gnome worktree branches) are never blocked by this check. Pre-push was
+# chosen over pre-commit because it is where publication actually happens: a
+# version bump may travel through intermediate commits, and commits created
+# without this hook (--no-verify, another clone) still pass through here.
+#
+# What decides is the pushed commit, not the working tree the push runs from:
+# the tree may carry edits that are not part of the push.
+#
+# The comparison lives in scripts/check-version-drift.sh (its single home; the
+# tests/marketplace/run.sh harness calls the same script), and anything short
+# of exit 0 from it blocks the push — a check that cannot conclude must not
+# read as "declarations agree".
+#
+# stdin: one "<local ref> <local sha> <remote ref> <remote sha>" line per
+# updated ref. $1 = remote name, $2 = remote URL.
+#
+# Exit 0 = allow push, exit 1 = block push.
+
+main() {
+  set -uo pipefail
+  local root checker
+  local errors=()
+
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || root=""
+  if [ -z "$root" ]; then
+    echo "=== Pre-push check FAILED ==="
+    echo "  FAIL: not inside a git repository"
+    exit 1
+  fi
+  checker="$root/scripts/check-version-drift.sh"
+
+  local local_ref local_sha remote_ref remote_sha out rc line
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    [ "$remote_ref" = "refs/heads/main" ] || continue
+    # A deleted ref carries an all-zero local sha: nothing is published.
+    [ -n "$local_sha" ] || continue
+    [ -n "$(printf '%s' "$local_sha" | tr -d '0')" ] || continue
+
+    if [ ! -f "$checker" ]; then
+      errors+=("version check script is missing: $checker")
+      continue
+    fi
+
+    out=$(bash "$checker" --rev "$local_sha" 2>&1)
+    rc=$?
+    if [ "$rc" -ne 0 ]; then
+      while IFS= read -r line; do
+        [ -n "$line" ] && errors+=("$line")
+      done <<< "$out"
+    fi
+  done
+
+  if [ ${#errors[@]} -gt 0 ]; then
+    echo "=== Pre-push check FAILED ==="
+    local e
+    for e in "${errors[@]}"; do echo "  FAIL: $e"; done
+    echo ""
+    echo "Publishing with drifted declarations leaves 'claude plugin update'"
+    echo "on the old version. Set the same version in both manifests:"
+    echo "  plugins/<name>/.claude-plugin/plugin.json"
+    echo "  .claude-plugin/marketplace.json"
+    exit 1
+  fi
+
+  exit 0
+}
+
+main "$@"
