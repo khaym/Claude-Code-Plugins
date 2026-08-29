@@ -23,7 +23,7 @@ prerequisites.
 | Loop statuses are loop-written | The first dry run (2026-08-15) stopped at the pick gate because a dialog-driven ticket sat in-flight: out-of-loop work using the loop's status vocabulary collides with the in-flight count and the crash-trace recovery rule. Ruling: in-flight / awaiting-human are written only by the loop for work it carries; out-of-loop work stays open with ticket-log progress. |
 | Ticket-log appends use a guarded read-modify-write | The tracker's `-d` is a full replace; an empty extraction plus `-d` silently destroys the ticket body (observed 2026-08-14). The skill pins the exact extraction and the non-empty guard. The round-trip disappears entirely when the tracker grows an append operation — filed as a tracker improvement. |
 | The lap ends turns instead of waiting | Long waits (implementation, verification) block the session's turn, which is where merge approvals and user input get processed. Dispatch to background, note the position on the ticket, end the turn; notifications resume the lap. Wakeups are fallbacks, not the primary signal. |
-| Human-facing replies come before ScheduleWakeup | Only text written before the pacing call is produced — the turn ends when it returns, and Claude Code's own `/loop` skill prescribes the same order (both observed 2026-08-29). Replying after the call, on the 2026-08-22 observation that an earlier reply can drop, is rejected: a drop is intermittent, a later reply never exists. The ticket log stays the durable copy. |
+| Human-facing replies end the turn with no tool call after them | A turn ending with `ScheduleWakeup` shows no text — before the call hidden, after it never produced (2026-08-22, 2026-08-29; anthropics/claude-code #74184) — so both orders are out, 0.3.2's reply-first too. The harness's idle wakeup, its ScheduleWakeup ~20 min after a turn that neither armed nor stopped, carries the lap on (scheduled-tasks docs, 2026-08-29). |
 | English body | Marketplace-wide convention; hosts choose their conversation language in their own CLAUDE.md. |
 
 ## Data Flow
@@ -55,3 +55,9 @@ human: deviation check → "#N merge OK"
 - **The loop reads tickets, not minds.** Judgment work not finished before
   loop-ready (per the lane skill's list or the plan checklist) surfaces as
   blocked, by design.
+- **A report turn arms no wakeup, so the next lap's pickup waits for the
+  harness's idle wakeup (~20 min) instead of the 60 s the loop would have
+  armed.** Report scenarios were already paced at 30 minutes, so the cost
+  lands inside the old budget. Awaiting-human and merge turns leave no
+  background work, so that idle wakeup is the only signal a report turn
+  gets. Fix issue #74184 and a report turn may arm its own wakeup again.

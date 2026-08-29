@@ -304,7 +304,7 @@ classify + one line + (conditionally) one ticket.
    state and record the rebase; red → blocked. Skip in-flight branches
    with a running background implementation — that lap's review step 6
    picks them up.
-6. Reply to the human with the merge result: the merged commit, the
+6. Reply to the human with the merge report: the merged commit, the
    post-merge verify outcome (step 2), and which branches were rebased
    (step 5).
 
@@ -313,43 +313,43 @@ classify + one line + (conditionally) one ticket.
 - **Unexpected test red**: never blessed away, never fixed by bending
   agreed values. Facts to the ticket log, blocked.
 - **Subagent crash or timeout**: retry once; still failing → blocked.
-- **Completion notification never arrived** (a fallback wakeup resumed
-  you): check whether the background task is alive. Dead → retry once as
-  above; still running → re-arm the fallback and wait.
+- **Completion notification never arrived** (the 1800 s fallback wakeup
+  resumed you): check whether the background task is alive. Dead → retry
+  once as above; still running → re-arm the 1800 s fallback and wait.
+- **Nothing resumed you after a report turn** (the harness's idle wakeup
+  did not fire): the human's next message re-enters the loop, and the lap
+  position is on the ticket.
 - **in-flight ticket with no branch** (crash trace): return it to
   loop-ready. Branch exists → assess its state, continue or blocked.
 
 ## Ending the turn and pacing
 
-The turn ends the moment a `ScheduleWakeup` call returns: only text written
-before that call is produced.
-
 Under self-paced `/loop`, arm a wakeup (a `ScheduleWakeup` call) matching
-the state each time the turn ends — except when stopping the loop: end
-without a wakeup and release the lease.
+the state each time the turn ends, except the two turns below that arm
+none:
 
 - Waiting on background work (delegation, verification): the completion
   notification is the primary signal; arm a 1800 s fallback wakeup
-  (detects lost notifications and hangs)
-- A lap just finished and loop-ready tickets remain: 60 s to the next lap
 - Only awaiting-human / blocked: recheck every 30 minutes
 - Nothing at all: every 30 minutes
 
 A turn that carries a human-facing reply — the step 8 report, the merge
-report (merge step 6) — ends on that reply as its **final text**:
+report (merge step 6) — arms nothing:
 
-- Finish the step's tool work first — ticket-log append, lap log, evidence
-  copy — so nothing is left to do once the reply is written.
-- Under `/loop`, the closing `ScheduleWakeup` is the only tool call that
-  may follow the reply, with nothing between the two. A one-shot or
-  stopping turn ends on the text itself.
-- Any other tool call after the reply can drop it from the terminal
-  (observed 2026-08-22), and the ticket log stays the durable copy
-  (rationale in [design.md](design.md)).
+1. Finish the step's tool work: ticket-log append, lap log, evidence copy.
+2. Write the reply as the turn's last output.
+3. Call nothing after it, `ScheduleWakeup` included.
 
-One-shot runs (outside `/loop`) arm no wakeups — the only resume signal is
-the completion notification, and the human who launched the lap is present
-to notice its absence.
+The loop resumes on the harness's idle wakeup (about 20 minutes later), a
+completion notification, or the human's reply; that turn arms the pacing
+again and, when loop-ready tickets remain, picks the next one at once.
+The ticket log stays the durable copy of every report.
+
+A turn that stops the loop arms nothing and releases the lease.
+
+One-shot runs (outside `/loop`) arm no wakeups; the reply rule applies
+unchanged, and the resume signals are the completion notification and the
+present human (rationale for all of the above in [design.md](design.md)).
 
 ## Related files
 
