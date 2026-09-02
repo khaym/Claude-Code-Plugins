@@ -5,8 +5,9 @@
 [paths]
 # Lease directory for session exclusion (a gitignored location is typical).
 lease = "work/gnome-loop.lease"
-# Lap log: classified observations, one line per lap. Format home:
-# gnome-loop SKILL.md, lap step 9.
+# Lap log: classified observations, one line per observation. Format and
+# classes: the dev-cycle skill's lap-log procedure; this path is that
+# binding's loop-side home.
 lap_log = "work/gnome-lap-log.md"
 # Base directory for per-ticket worktrees.
 worktrees = "~/worktrees"

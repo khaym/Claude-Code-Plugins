@@ -20,8 +20,9 @@ One lap carries one loop-ready ticket from pickup through worktree
 implementation → code review → evidence → awaiting-human. Merging happens
 only on an explicit human approval reply. The lap is the dev-cycle skill's
 development cycle projected onto a state machine: stages 4–5 run inside the
-loop; stages 1–3 (filing, observation, plan agreement) and stage 6 (audit,
-merge approval) stay with humans and dialog sessions. Rationale lives in
+loop; stages 1–3 (filing, observation, plan agreement) and stage 6's audit
+and merge approval stay with humans and dialog sessions, while stage 6's
+lap log is written by the lap (step 9). Rationale lives in
 [design.md](design.md); this file is the operating procedure.
 
 All paths run from the repository root. Ticket operations always run from
@@ -227,8 +228,8 @@ requirements first, correctness second:
 - **Novel**: review against the ticket's plan checklist; rerun the verify
   skill; return findings to the same implementer agent via SendMessage
   (keeps the delegation context; re-delegate if the agent is gone). Not
-  converged after two round trips → blocked. Record round-trip count in
-  the lap log.
+  converged after two round trips → blocked. The round-trip count is one
+  of step 9's observations.
 
 ### 7. Evidence and commit
 
@@ -261,31 +262,15 @@ names the files and the fact they live on the shared main copy.
 
 ### 9. Lap log (every lap, lightweight)
 
-Classify review findings and the implementer's self-reported rework into
-four classes and append one line each to config `paths.lap_log`, one line
-per observation:
+Write the lap log per the dev-cycle skill's stage 6 — format, classes,
+dispositions, and the file's location binding live there; config
+`paths.lap_log` is that binding's loop-side home. Two rules are the loop's
+own:
 
-```
-- <YYYY-MM-DD> #<ticket> <class>[<topic-slug>] <the fact, one line> → <disposition>
-```
-
-The topic-slug is the recurrence key — grep past lines and reuse the slug
-for the same phenomenon. If the file does not exist, create it with a
-one-line header pointing here for the format and classes. In the pattern
-lane, the lane skill's stops, warnings, and expected-vs-actual red gaps
-are the "rework" equivalent.
-
-- **net-gap** (a defect class no net covers) → file an improvement ticket
-  now, purpose anchored in the developer's rework
-- **net-miss** (a net exists but let it through) → record; second same
-  topic → improvement ticket
-- **judgment** (a design decision) → blocked or ticketed (should already
-  be handled by step 6)
-- **noise** (one-off) → record only
-
-Improvement tickets are proposals. **The loop never rewrites its own
-procedure, templates, or skills mid-run.** Per-lap overhead stays at
-classify + one line + (conditionally) one ticket.
+- In the pattern lane, the lane skill's stops, warnings, and
+  expected-vs-actual red gaps are the "rework" that gets classified.
+- **The loop never rewrites its own procedure, templates, or skills
+  mid-run.** Improvements it observes become tickets, not edits.
 
 ## Merge procedure (only on a human approval reply)
 

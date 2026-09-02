@@ -35,6 +35,7 @@ The frame below is invariant; these project-bound inputs come from the host:
 | Domain quality nets | Project-specific automated layers (snapshot regressions, invariant suites) added to the automated layer below | Host CLAUDE.md, or the project's `verify` skill where the gnome loop is wired (its contract lives in the gnome-loop skill) |
 | Story-list source of truth | Where user stories live and how they are referenced by ID | Host CLAUDE.md task-registration rules |
 | Development log | The file that receives proposals that cannot state user value (filed nowhere else) | Host CLAUDE.md |
+| Lap log | The file that receives each lap's observations, classified per stage 6 below — a separate file from the development log | Host CLAUDE.md, or the loop config's `paths.lap_log` where the gnome loop is wired |
 | Toolchain | Tracker / writing / filing / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), code-review | Host CLAUDE.md |
 
 When a binding or a named sibling tool is missing at the moment its gate
@@ -102,7 +103,7 @@ of a layer above:
 | 3 Plan shape [shift-left] | plan-shape gate (cut by value?) |
 | 4 TDD implementation | linter/hooks, unit tests (automated) |
 | 5 code-review | code-review (non-automated), E2E (automated) |
-| 6 Confirm & close | Human Audit (non-automated) |
+| 6 Confirm & close | lap log (below), Human Audit (non-automated) |
 
 1. **File** — file the work as a user story and confirm purpose, success
    criteria, and out-of-scope (load docs-authoring and ticket-authoring
@@ -131,7 +132,8 @@ of a layer above:
    rules made explicit.
 5. **code-review** — fires without being asked (definition above).
    Verifying against requirements comes first.
-6. **Confirm & close** — Human Audit fires (definition above).
+6. **Confirm & close** — write the lap log (below), then Human Audit fires
+   (definition above).
 
 Subagent delegation: tasks whose goal and context fold into a single
 delegation prompt — stage 2 observation, research, mechanical work — may be
@@ -141,6 +143,35 @@ a planned ticket delegates to this plugin's bundled `implementer` agent —
 its agent definition owns the delegation contract (what the prompt must
 carry). Requirements alignment, planning, and review stay in the main
 conversation.
+
+### Lap log (every lap, lightweight)
+
+An observation is one review finding or one piece of implementation
+rework — the implementer's self-reported rework, or the session's own when
+it implemented directly. Classify each into one of the four classes below
+and append one line per observation to the host's lap log (binding above):
+
+```
+- <YYYY-MM-DD> #<ticket> <class>[<topic-slug>] <the observation, one line> → <disposition>
+```
+
+`<class>` is one of the four literal tokens below; `<topic-slug>` is a
+kebab-case recurrence key — grep past lines and reuse the slug for the same
+phenomenon; `<disposition>` is what was done with it, one phrase (`filed as
+#N`, `recorded`, `settled with the owner`). A host that declares no lap-log
+home is a missing binding — surface it as above, never invent a path. A
+declared file that does not exist yet is created with a one-line header
+pointing here for the format and classes.
+
+- **net-gap** (a defect class no net covers) → file an improvement ticket
+  now, purpose anchored in the developer's rework
+- **net-miss** (a net exists but let it through) → record; second same
+  slug → improvement ticket
+- **judgment** (a design decision) → settle it with the user or ticket it
+  (a dialog lap usually has already; an autonomous lap parks it)
+- **noise** (one-off) → record only
+
+Improvement tickets are proposals, filed for a human to pick up.
 
 ## Business rules (the shared unit of tests and comments)
 

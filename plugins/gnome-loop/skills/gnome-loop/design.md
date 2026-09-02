@@ -24,6 +24,7 @@ prerequisites.
 | Ticket-log appends use a guarded read-modify-write | The tracker's `-d` is a full replace; an empty extraction plus `-d` silently destroys the ticket body (observed 2026-08-14). The skill pins the exact extraction and the non-empty guard. The round-trip disappears entirely when the tracker grows an append operation — filed as a tracker improvement. |
 | The lap ends turns instead of waiting | Long waits (implementation, verification) block the session's turn, which is where merge approvals and user input get processed. Dispatch to background, note the position on the ticket, end the turn; notifications resume the lap. Wakeups are fallbacks, not the primary signal. |
 | Human-facing replies end the turn with no tool call after them | A turn ending with `ScheduleWakeup` shows no text — before the call hidden, after it never produced (2026-08-22, 2026-08-29; anthropics/claude-code #74184) — so both orders are out, 0.3.2's reply-first too. The harness's idle wakeup, its ScheduleWakeup ~20 min after a turn that neither armed nor stopped, carries the lap on (scheduled-tasks docs, 2026-08-29). |
+| Lap-log format and classes live in dev-cycle (since 0.4.0) | The classes name quality nets the cycle owns, and dialog laps write the same log; rationale in the dev-cycle design doc. The loop keeps only what no dialog lap has: the pattern lane's rework equivalence (stops, warnings, expected-vs-actual reds) and the mid-run no-self-rewrite constraint. |
 | English body | Marketplace-wide convention; hosts choose their conversation language in their own CLAUDE.md. |
 
 ## Data Flow
@@ -36,9 +37,9 @@ human (dialog session): file → approve designs / agree values or plan → loop
   -> code-review (loop session, requirements first) → verify skill
   -> observe skill evidence → commit on the branch
   -> awaiting-human report (state class on line 1)
+  -> lap log: classified observations (format: dev-cycle) → improvement tickets
 human: deviation check → "#N merge OK"
   -> merge (ff-only) → verify on main → close → rebase queue
-  -> lap log: net-gap / net-miss / judgment / noise → improvement tickets
 ```
 
 ## Constraints & Tradeoffs
@@ -47,8 +48,9 @@ human: deviation check → "#N merge OK"
   and the checkout is shared; the lease enforces the agreed single-session
   design. Parallelism lives inside the session as worktrees, capped by
   config.
-- **The loop never edits its own procedure mid-run.** Improvements are
-  tickets; stability of the running lap beats immediacy of the fix.
+- **The loop never rewrites its own procedure, templates, or skills
+  mid-run.** Improvements are tickets; stability of the running lap beats
+  immediacy of the fix.
 - **Slot quality bounds loop quality.** A verify skill that misses a net
   or an observe skill that shows the wrong thing degrades every lap; the
   lap log exists to surface exactly that class for freezing.
