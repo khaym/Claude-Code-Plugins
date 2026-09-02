@@ -1,10 +1,8 @@
 #!/bin/bash
-# Hook: SessionEnd — delete the ending session's queue file.
-#
-# Registered in hooks.json with a matcher that excludes `resume`: a resumed
-# session keeps its session_id, so its queue must survive the resume
-# boundary. Sessions that die without this hook firing are caught by the
-# 30-day age fallback in on-session-start.sh.
+# Hook: SessionEnd — delete the ending session's queue file, whatever the end
+# reason (no matcher in hooks.json). A session's items never carry over; the
+# 30-day age fallback in on-session-start.sh catches runs that died without
+# this hook firing (rationale: skills/decision-queue/design.md).
 
 command -v jq >/dev/null 2>&1 || exit 0
 input=$(cat)

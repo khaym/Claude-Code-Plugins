@@ -11,13 +11,17 @@ resident list of "everything waiting on you" (rationale: [design.md](design.md))
 
 ## The queue file
 
-The SessionStart hook injects a context line naming this session's file:
+The plugin's hooks inject a context line naming this session's queue file —
+at session start and again with every prompt:
 
 > decision-queue: this session's pending-decisions file is `<path>` …
 
-Use that exact path. Do not derive the path yourself or touch other sessions'
-files. If the context line is missing, the plugin's hook did not run — tell
-the user instead of guessing a path.
+Use the most recently announced path in this session — it stays valid for
+the whole session. Never infer the session id from any other path or
+identifier available to you, and do not touch other sessions' files. If no
+context line has arrived at all, the plugin's hook did not run — tell the
+user the queue cannot be written instead of guessing a path (rationale:
+[design.md](design.md)).
 
 ## Convention
 
@@ -38,8 +42,9 @@ Rules for the line itself:
 - Session-local judgments only. Anything that must outlive the session
   (a ticket decision, a document review) belongs in the project's tracker or
   docs, not here.
-- `/clear` starts a new session: the old queue is deleted with the old
-  session, so re-add any item that is still genuinely waiting on the user.
+- A session's queue never carries over — not across `/clear`, not across
+  exit and `--resume` / `--continue`. Re-add any item that is still
+  genuinely waiting on the user.
 
 ## Troubleshooting
 

@@ -67,9 +67,11 @@ feeds the same stdin to each:
 ## Cleanup behavior
 
 A session's queue file is deleted when that session ends (`/clear`, logout,
-exit). Resuming a session keeps its session id, so its queue survives
-`--resume` / `--continue`. Files from sessions that died without the
-SessionEnd hook firing are deleted once untouched for over 30 days.
+exit) and again when a session is resumed, so `--resume` / `--continue`
+always starts with an empty queue: Claude re-adds whatever is still waiting
+on you, and items added after the resume show up in the statusline from the
+first prompt on. Files from sessions that died and were never resumed are
+deleted once untouched for over 30 days.
 
 ## Uninstall
 

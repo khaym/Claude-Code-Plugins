@@ -1,15 +1,18 @@
 #!/bin/bash
-# Hook: SessionStart — keep the statusline registration stable and tell the
-# session where its queue lives.
+# Hook: SessionStart — keep the statusline registration stable, start a
+# resumed session from an empty queue, and tell the session where its queue
+# lives.
 #
 #   - refreshes the stable symlink ~/.claude/decision-queue/statusline.sh to
 #     point at the current plugin version; the user's statusLine setting
 #     targets the symlink, so a plugin update heals at the next session start
 #   - deletes queue files not touched for over 30 days — the fallback for
-#     sessions that ended without their SessionEnd hook firing (crash, kill);
-#     normal cleanup happens in on-session-end.sh
-#   - announces this session's queue file path as injected context, so the
-#     model never has to guess its own session id
+#     sessions that ended without their SessionEnd hook firing (crash, kill)
+#   - on source=resume, deletes this session's queue file: a session's items
+#     never carry over into a resumed run, however the previous run ended
+#     (rationale: skills/decision-queue/design.md). compact keeps the file —
+#     the session continues.
+#   - announces this session's queue file path via announce-queue.sh
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -20,15 +23,13 @@ mkdir -p "$dir"
 ln -sfn "$SCRIPT_DIR/statusline.sh" "$dir/statusline.sh"
 find "$dir" -maxdepth 1 -name '*.md' -mtime +30 -delete 2>/dev/null
 
-command -v jq >/dev/null 2>&1 || exit 0
-sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
-case "$sid" in
-  *[!0-9a-fA-F-]*|"") exit 0 ;;
-esac
+if command -v jq >/dev/null 2>&1; then
+  sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
+  source=$(printf '%s' "$input" | jq -r '.source // empty')
+  case "$sid" in
+    *[!0-9a-fA-F-]*|"") ;;
+    *) [ "$source" = "resume" ] && rm -f "$dir/$sid.md" ;;
+  esac
+fi
 
-jq -cn --arg qfile "$dir/$sid.md" '{
-  hookSpecificOutput: {
-    hookEventName: "SessionStart",
-    additionalContext: ("decision-queue: this session'"'"'s pending-decisions file is `\($qfile)` — one item per line; load the decision-queue skill for the update convention.")
-  }
-}'
+printf '%s' "$input" | "$SCRIPT_DIR/announce-queue.sh"

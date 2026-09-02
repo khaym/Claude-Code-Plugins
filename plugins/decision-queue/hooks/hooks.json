@@ -1,5 +1,5 @@
 {
-  "description": "Maintain the decision-queue statusline registration, announce the session's queue file, and clean the queue up when the session ends",
+  "description": "Maintain the decision-queue statusline registration, announce the session's queue file at session start and on every prompt, and delete the queue when the session ends",
   "hooks": {
     "SessionStart": [
       {
@@ -12,9 +12,19 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/announce-queue.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
-        "matcher": "clear|logout|prompt_input_exit|other",
         "hooks": [
           {
             "type": "command",

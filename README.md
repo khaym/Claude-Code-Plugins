@@ -221,9 +221,9 @@ The conversation log is linear — it shows only the latest topic, so when sever
 
 **Features:**
 - Every judgment currently waiting on you, one row each with a count, resident under the input box — an empty queue renders nothing
-- One queue file per session: parallel sessions never see each other's items; the SessionStart hook tells Claude the session's file path via context injection
+- One queue file per session: parallel sessions never see each other's items; the hooks tell Claude the session's file path via context injection at session start and on every prompt
 - Self-healing registration: the hook re-links the stable path `~/.claude/decision-queue/statusline.sh` to the installed plugin version at every session start, so after a plugin update the registration heals at the next session start
-- A session's queue file is deleted when that session ends (`--resume` keeps the same session and its queue); a 30-day fallback catches sessions that died without the hook firing
+- A session's queue file is deleted when that session ends and when it is resumed, so a resumed session starts empty; a 30-day fallback catches files no session ever resumes
 
 **Prerequisites:**
 - `jq` on PATH
