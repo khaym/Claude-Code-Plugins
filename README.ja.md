@@ -14,7 +14,7 @@ TSVファイルとシェルスクリプトによる軽量タスク/チケット�
 - TSV + Markdownによる人間が読める形式（`.tasks/`）
 - スラッシュコマンド: `/task-tracker:add`, `/task-tracker:list`, `/task-tracker:show`, `/task-tracker:update`, `/task-tracker:close`
 - カテゴリ分類: `bug`, `improvement`, `task`
-- 関連カラム（`blocked-by` / `related`）を `list` に表示し、着手判断を一目で把握
+- 関連カラム（`blocked-by` / `related` / `parent`）を `list` に表示し、着手判断と親子関係を一目で把握
 - 開発中に発見した問題をClaudeが自動トラッキングするスキル付き
 
 **使い方:**

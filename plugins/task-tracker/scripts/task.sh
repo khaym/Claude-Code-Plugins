@@ -8,8 +8,8 @@ TASKS_DIR=".tasks"
 TSV_FILE="$TASKS_DIR/tasks.tsv"
 DETAILS_DIR="$TASKS_DIR/details"
 COUNTER_FILE="$TASKS_DIR/.counter"
-TSV_HEADER=$'ID\tSTATUS\tCATEGORY\tSUBJECT\tCREATED\tUPDATED\tBLOCKED_BY\tRELATED'
-NUM_COLS=8
+TSV_HEADER=$'ID\tSTATUS\tCATEGORY\tSUBJECT\tCREATED\tUPDATED\tBLOCKED_BY\tRELATED\tPARENT'
+NUM_COLS=9
 
 # ── Helpers ──────────────────────────────────────────────────
 
@@ -28,16 +28,23 @@ ensure_init() {
   migrate_schema
 }
 
-# Upgrade older TSV files (pre-relations, 6 columns) to the current schema by
-# rewriting the header and padding every row to NUM_COLS fields. Idempotent.
+# Upgrade older TSV files (6 columns pre-relations, 8 pre-PARENT) to the
+# current schema by rewriting the header and padding every row to NUM_COLS
+# fields. Idempotent.
+#
+# The trigger is any short line, header or row — not the header alone: a
+# project can have an older *installed* version of this script running beside
+# this one against the same file, and it keeps appending rows of its own width
+# after this version has already widened the header. Those rows would stay
+# short forever under a header-only check. Blank lines are not rows: they are
+# neither a trigger nor padded, so a stray trailing newline stays inert.
 migrate_schema() {
-  local cols
-  cols=$(head -n1 "$TSV_FILE" | awk -F'\t' '{ print NF }')
-  if [[ "$cols" -lt "$NUM_COLS" ]]; then
-    awk -F'\t' -v OFS='\t' -v header="$TSV_HEADER" -v n="$NUM_COLS" \
-      'NR == 1 { print header; next } { NF = n; print }' "$TSV_FILE" > "$TSV_FILE.tmp"
-    mv "$TSV_FILE.tmp" "$TSV_FILE"
+  if awk -F'\t' -v n="$NUM_COLS" 'NF > 0 && NF < n { exit 1 }' "$TSV_FILE"; then
+    return 0
   fi
+  awk -F'\t' -v OFS='\t' -v header="$TSV_HEADER" -v n="$NUM_COLS" \
+    'NR == 1 { print header; next } NF == 0 { print; next } { NF = n; print }' "$TSV_FILE" > "$TSV_FILE.tmp"
+  mv "$TSV_FILE.tmp" "$TSV_FILE"
 }
 
 next_id() {
@@ -66,6 +73,7 @@ get_field() {
     updated)    col=6 ;;
     blocked_by) col=7 ;;
     related)    col=8 ;;
+    parent)     col=9 ;;
     *) die "Unknown field: $field" ;;
   esac
   awk -F'\t' -v id="$id" -v col="$col" 'NR>1 && $1 == id { print $col }' "$TSV_FILE"
@@ -100,7 +108,7 @@ cmd_init() {
 }
 
 cmd_add() {
-  local subject="" category="task" details="" blocked_by="" related=""
+  local subject="" category="task" details="" blocked_by="" related="" parent=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -s|--subject) subject="$2"; shift 2 ;;
@@ -108,10 +116,11 @@ cmd_add() {
       -d|--details) details="$2"; shift 2 ;;
       -b|--blocked-by) blocked_by="$2"; shift 2 ;;
       -r|--related) related="$2"; shift 2 ;;
+      -p|--parent) parent="$2"; shift 2 ;;
       *) die "Unknown option: $1" ;;
     esac
   done
-  [[ -z "$subject" ]] && die "Subject is required: task.sh add -s \"Subject\""
+  [[ -z "$subject" ]] && die "Subject is required: task.sh add -s \"Subject\" [-p parent]"
 
   ensure_init
   local id
@@ -119,7 +128,7 @@ cmd_add() {
   local ts
   ts=$(now)
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "open" "$category" "$subject" "$ts" "$ts" "$blocked_by" "$related" >> "$TSV_FILE"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$id" "open" "$category" "$subject" "$ts" "$ts" "$blocked_by" "$related" "$parent" >> "$TSV_FILE"
 
   if [[ -n "$details" ]]; then
     mkdir -p "$DETAILS_DIR"
@@ -164,9 +173,9 @@ cmd_list() {
   # Print header and matching rows as a table (relations before the
   # variable-width SUBJECT so columns stay aligned). STATUS is sized for
   # free-form workflow states like "awaiting-human", not just open/closed.
-  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %s\n' "ID" "STATUS" "CATEGORY" "BLOCKED_BY" "RELATED" "SUBJECT"
-  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %s\n' "----" "--------------" "------------" "----------" "--------" "-------"
-  awk -F'\t' "$awk_filter"' { printf "%-4s  %-14s  %-12s  %-10s  %-8s  %s\n", $1, $2, $3, $7, $8, $4 }' "$TSV_FILE"
+  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %-6s  %s\n' "ID" "STATUS" "CATEGORY" "BLOCKED_BY" "RELATED" "PARENT" "SUBJECT"
+  printf '%-4s  %-14s  %-12s  %-10s  %-8s  %-6s  %s\n' "----" "--------------" "------------" "----------" "--------" "------" "-------"
+  awk -F'\t' "$awk_filter"' { printf "%-4s  %-14s  %-12s  %-10s  %-8s  %-6s  %s\n", $1, $2, $3, $7, $8, $9, $4 }' "$TSV_FILE"
   echo ""
   echo "Total: $count task(s)"
 }
@@ -186,6 +195,7 @@ cmd_show() {
   echo "Updated:    $(get_field "$id" updated)"
   echo "Blocked-by: $(get_field "$id" blocked_by)"
   echo "Related:    $(get_field "$id" related)"
+  echo "Parent:     $(get_field "$id" parent)"
 
   if [[ -f "$DETAILS_DIR/$id.md" ]]; then
     echo ""
@@ -196,7 +206,7 @@ cmd_show() {
 
 cmd_update() {
   local id="${1:-}"
-  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]"
+  [[ -z "$id" ]] && die "Usage: task.sh update <id> [-s subject] [-c category] [--status status] [-b blocked-by] [-r related] [-p parent] [-d details] [-a text]"
   shift
 
   ensure_init
@@ -211,6 +221,7 @@ cmd_update() {
       --status) update_field "$line" 2 "$2"; updated=true; shift 2 ;;
       -b|--blocked-by) update_field "$line" 7 "$2"; updated=true; shift 2 ;;
       -r|--related) update_field "$line" 8 "$2"; updated=true; shift 2 ;;
+      -p|--parent) update_field "$line" 9 "$2"; updated=true; shift 2 ;;
       -d|--details)
         mkdir -p "$DETAILS_DIR"
         echo "$2" > "$DETAILS_DIR/$id.md"
@@ -320,14 +331,16 @@ fails if it is missing.
 
 Commands:
   init                          Initialize .tasks/ in the current directory
-  add -s "Subject" [-c cat] [-b blocked-by] [-r related] [-d "Details"]
-                                Add a new task (-b/-r take comma-separated IDs)
+  add -s "Subject" [-c cat] [-b blocked-by] [-r related] [-p parent] [-d "Details"]
+                                Add a new task (-b/-r take comma-separated IDs;
+                                -p/--parent takes the single ID of the parent
+                                task this one belongs to)
   list [--status <status>|active|all] [--category cat]
                                 List tasks (default: active = all but closed;
                                 any other value filters that exact status)
   show <id>                     Show task details
-  update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]
-                                Update task fields (-b/-r replace the field;
+  update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-p parent] [-d details] [-a text]
+                                Update task fields (-b/-r/-p replace the field;
                                 -d replaces the entire details text;
                                 -a/--append-details appends to it instead,
                                 separated by a blank line)

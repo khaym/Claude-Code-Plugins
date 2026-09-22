@@ -24,4 +24,9 @@ If the user mentioned dependencies or related tasks, record them with comma-sepa
 ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh add -s "Subject" -b "1,2" -r "5"
 ```
 
+If the task is part of a larger one, record that parent with `-p`/`--parent` (a single ID, not a list):
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/task.sh add -s "Subject" -p "3"
+```
+
 Show the output to the user after running.

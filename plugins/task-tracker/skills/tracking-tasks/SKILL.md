@@ -18,10 +18,10 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/task.sh <command> [options]
 | Command | Usage | Description |
 |---------|-------|-------------|
 | `init` | `task.sh init` | Initialize `.tasks/` in the current working directory (idempotent; the only command that creates it) |
-| `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-d "Details"]` | Add a new task |
+| `add` | `task.sh add -s "Subject" [-c category] [-b blocked-by] [-r related] [-p parent] [-d "Details"]` | Add a new task |
 | `list` | `task.sh list [--status <status>\|active\|all] [--category cat]` | List tasks (default: active = all but closed; any other value filters that exact status) |
 | `show` | `task.sh show <id>` | Show task metadata + details |
-| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-d details] [-a text]` | Update fields (`-d` replaces the entire details text; `-a`/`--append-details` appends to it, separated by a blank line — use this for progress notes) |
+| `update` | `task.sh update <id> [-s subject] [-c cat] [--status status] [-b blocked-by] [-r related] [-p parent] [-d details] [-a text]` | Update fields (`-d` replaces the entire details text; `-a`/`--append-details` appends to it, separated by a blank line — use this for progress notes) |
 | `close` | `task.sh close <id> [-d "Comment"]` | Close a task |
 | `delete` | `task.sh delete <id>` | Delete a task |
 
@@ -34,12 +34,13 @@ Use standard categories to classify tasks:
 
 ## Relations
 
-Two optional columns let the `list` view convey priority without opening each task:
+Three optional columns let the `list` view convey structure and priority without opening each task:
 
 - `BLOCKED_BY` (`-b`/`--blocked-by`) — IDs of tasks this one is waiting on. Stored in this single direction (not the inverse `blocks`) so a row shows what holds it back at a glance.
-- `RELATED` (`-r`/`--related`) — IDs of loosely related tasks.
+- `RELATED` (`-r`/`--related`) — IDs of loosely related tasks. A pointer between peers: it carries **no** parent/child meaning — use `PARENT` for that.
+- `PARENT` (`-p`/`--parent`) — the single ID of the task this one belongs to (a child ticket split out of a larger story). The parent is read from the child's own row, like `BLOCKED_BY`; a task's children are found by scanning the `PARENT` column of `list`. `show` is a single-ticket view: it prints the ticket's own parent and does not list children.
 
-Both take comma-separated IDs (e.g. `-b "1,2"`). On `update` the value **replaces** the field — pass the full set. References are kept loose: IDs are not validated and dangling references after a `delete` are left as-is (they behave as memo notes, not enforced links).
+`-b`/`-r` take comma-separated IDs (e.g. `-b "1,2"`); `-p` takes one ID. On `update` the value **replaces** the field — pass the full set. References are kept loose: IDs are not validated and dangling references after a `delete` are left as-is (they behave as memo notes, not enforced links).
 
 ## Workflow
 
@@ -86,7 +87,7 @@ No special recovery is needed — read the error message and retry with correcte
 
 Tasks are stored in `.tasks/`, resolved relative to the **current working directory** — run commands from the project root. Only `init` creates the directory; every other command fails when it is missing, so a command run in the wrong directory cannot plant a stray `.tasks/`. The directory holds:
 
-- `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED)
+- `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED, PARENT)
 - `.tasks/details/<id>.md` — Detailed descriptions per task
 
-The TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context. Older 6-column TSV files (created before the relation columns existed) are migrated to 8 columns automatically on the next command.
+The TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context. Older TSV files (6 columns before the relation columns existed, 8 before `PARENT`) are migrated to 9 columns automatically on the next command, with every existing value kept. Rows narrower than the header are widened too, so rows appended by an older installed copy of the script are repaired on the next command.
