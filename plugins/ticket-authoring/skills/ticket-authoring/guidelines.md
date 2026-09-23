@@ -17,7 +17,14 @@ Throughout these rules, the **outside reader** — someone who knows nothing abo
 One ticket = one capability a user gains. Apply the **discrimination test**: can the outside reader tell who gains what? If not, the ticket is cut wrong.
 
 - Implementation steps are never tickets: they have no standalone value, and Done carries the success criteria they serve.
-- Split out a child ticket only when the work behind one criterion has grown enough to need its own PR and review. The child points to its parent via `related` metadata and inherits the parent's purpose — do not restate it.
+- A child ticket closes one of its parent's success criteria. Its value is the parent's, so the discrimination test and the [Value anchor](#value-anchor) are judged on the parent.
+
+  Every rule below applies to a child as written; only what three sections say differs:
+    - Subject — its own outcome, what its Done delivers
+    - Purpose — which parent criterion it closes, identifiable without copying the criterion's wording (copied wording hands the child the whole criterion as scope)
+    - Done — criteria that are a subset or refinement of that criterion
+
+  A parent's Done holds its success criteria only; its children are found through the `parent` each child carries, never listed.
 
 ## Value anchor
 
@@ -35,11 +42,9 @@ One prose sentence stating the change visible to the user, then `- [ ]` items �
 
 Implementation steps are not listed here. An ordering constraint the implementer cannot derive from the criteria is a premise — put it in Background.
 
-Child tickets appear as `- [ ] #N ...`, the end-state being "#N is closed".
-
 ## What the tracker carries
 
-Relations between tickets live in header metadata, not the body: `blocked-by` for prerequisites, `related` for non-dependency references and child→parent links. Do not restate them in prose — a relation written twice drifts.
+Relations between tickets live in header metadata, not the body: `blocked-by` for prerequisites, `parent` for the one ticket a child belongs to, `related` for references that are neither. Do not restate them in prose — a relation written twice drifts.
 
 The reader is carried the same way: the status says who is reading — the implementer, or the owner deciding among Options — so the body declares no reader, and the writing skill's reader- and role-declaration checks are not judged for tickets.
 
