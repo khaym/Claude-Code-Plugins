@@ -15,7 +15,8 @@ description: Carries the development skeleton - Swiss Cheese quality layers, the
 
 The method for carrying one user story from filing to close — an antibody
 against code-anchored development, where solutions, plans, and explanations
-all start from the code while purpose and facts live outside it. The cycle
+all start from the code alone while purpose and the external reality it
+must serve live outside it. The cycle
 is run by any session, dialog-driven or autonomous. Rationale lives in
 [design.md](design.md); this file is the method.
 
@@ -93,7 +94,7 @@ The standard lap from filing to close. Each gate may be collapsed when
 trivial (proportional to task size and speed) — but the collapse threshold
 differs per gate, and **fact observation (2) is in principle never
 collapsed**. Stages 2–3 are the shift-left gates that cut code-anchored
-thinking before code is touched. Each stage is productive work or the firing
+thinking before code is changed. Each stage is productive work or the firing
 of a layer above:
 
 | Stage | Layers fired (kind) |
@@ -111,17 +112,18 @@ of a layer above:
    only patches existing text). Gate: the discrimination test (does the
    value reach the reader?) — ticket-review audits the premises and
    docs-review the readability, each independently.
-2. **Observe facts** — before touching code, observe with the real thing
-   and put in shared form: external reality (the host's immovable facts:
-   data, API output, real behavior) and the scope of the change — what
-   will be touched and what depends on it. Count the scope (a grep, a
+2. **Observe facts** — before choosing means, observe with the real thing
+   and put in shared form, in this order: first the external reality the
+   code cannot change (the host's immovable facts: data, API output, real
+   behavior), then the code as it actually is — the scope of the change,
+   what will be touched and what depends on it. Count the scope (a grep, a
    listing) rather than recall it. Repeat whenever a later stage writes a
    new claim about that scope (a delegation prompt, a rework instruction,
    a report). **Do not skip.** A wrong premise derails everything after
    it. Observation is Claude's strength and the human's load is only
    confirming presented facts — high value, low cost, always on. Gate:
-   does the search for means start from *observed facts*, not from *the
-   current state of the code* as remembered?
+   does the search for means start from *observed facts*, the code counted
+   among them, rather than from *the code alone, as remembered*?
 3. **Plan shape** — drop the implementation into a checklist of success
    criteria (→ register it). Plan depth is proportional to uncertainty: if
    one sentence of the requirements shows the approach / single file /
