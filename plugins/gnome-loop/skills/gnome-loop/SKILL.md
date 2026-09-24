@@ -78,12 +78,19 @@ leaves it open (progress goes to the ticket log) — the pick gate's
 in-flight count and the crash-trace rule (On failure) read these statuses
 literally.
 
+A parent ticket — one that another ticket names as its `parent` — takes
+no loop transition: it is not granted loop-ready (conditions below), and
+closing its last child does not close it. A human closes it in a dialog
+session, after every child is closed.
+
 loop-ready means the judgment work is finished before the loop starts:
 
 - Pattern: a matching lane skill exists, and every pre-filing agreement
   that skill requires (designs, agreed values, conditional policies) is on
   the ticket. The lane skill is the truth source for the full list.
 - Novel: the plan checklist (success criteria) is agreed on the ticket.
+- Parent ticket: never granted (state machine above); each child is
+  granted on its own conditions.
 - Common: all `blocked-by` resolved. A ticket that changes DSL or API
   vocabulary (rename or addition) has grepped the host's `.claude/skills`
   for the old, new, and parent words and names in its body every skill
