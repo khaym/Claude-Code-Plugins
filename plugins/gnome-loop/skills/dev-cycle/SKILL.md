@@ -111,13 +111,17 @@ of a layer above:
    only patches existing text). Gate: the discrimination test (does the
    value reach the reader?) — ticket-review audits the premises and
    docs-review the readability, each independently.
-2. **Observe facts** — before touching code, observe external reality (the
-   host's immovable facts: data, API output, real behavior) with the real
-   thing, and put it in shared form. **Do not skip.** A wrong premise
-   derails everything after it. Observation is Claude's strength and the
-   human's load is only confirming presented facts — high value, low cost,
-   always on. Gate: does the search for means start from *observed facts*,
-   not from *the current state of the code*?
+2. **Observe facts** — before touching code, observe with the real thing
+   and put in shared form: external reality (the host's immovable facts:
+   data, API output, real behavior) and the scope of the change — what
+   will be touched and what depends on it. Count the scope (a grep, a
+   listing) rather than recall it. Repeat whenever a later stage writes a
+   new claim about that scope (a delegation prompt, a rework instruction,
+   a report). **Do not skip.** A wrong premise derails everything after
+   it. Observation is Claude's strength and the human's load is only
+   confirming presented facts — high value, low cost, always on. Gate:
+   does the search for means start from *observed facts*, not from *the
+   current state of the code* as remembered?
 3. **Plan shape** — drop the implementation into a checklist of success
    criteria (→ register it). Plan depth is proportional to uncertainty: if
    one sentence of the requirements shows the approach / single file /
