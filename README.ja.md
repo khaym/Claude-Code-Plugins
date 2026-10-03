@@ -194,6 +194,26 @@ Claude Code のハードニング状況を点検して
 loop-ready にする前に #42 を監査して
 ```
 
+### design-doc-authoring
+
+設計を **3 つの文書**——Design Doc・Data Dictionary・Business Rules——として、1 段ずつ判定を受けながら書きます。ゴールが曖昧なストーリーは、実装が先に走るとその隙間がコードから埋まります。コードは手元で最も読みやすいので、判断がコードの語彙で下され、レビューの往復や「誰も決めていなかった規則 1 本」の手戻りとして遅れて表に出ます。3 文書はその判断をコードの前に移します。要求者が各段を文で判定し、目的から決められないものは埋めずに未決として集め、代表データ 1 件を Design Doc だけで通し、未決索引が空になって初めてチケットに切ります。
+
+**仕組み:**
+- **1 問で全部の記述を仕分ける** — 部品の間を何が渡るかを言っているか（流れ → Data Dictionary / Design Doc）、記録が満たす状態を言っているか（規則 → Business Rules）、部品の中でどうやるかを言っているか（手順 → 書かない。コードとテストの家）
+- **判定を受ける 6 段** — 目的・流れ・記録・規則・決定・代表データ。外側から内側へ、次に制約の強い順。後の段が前の判定を覆すなら、上書きせず未決として戻す
+- **業務ルール＝目的と仕様を結ぶ意図** — 1 文・識別子 1 つ・目的に根拠を持ち・1 か所にだけ書く。実装・テスト・レビューは識別子で引く。この定義の家は本プラグイン
+- **索引 2 つ** — 未決（要求者が 2 案から答える。実装は埋めない）と暫定値（そのまま使い、直す引き金となる観測を添える）
+
+文書の一読性は docs-authoring、チケットの切り出しは ticket-authoring が担い、3 つは合成されます。何をどこに書くかはここ、一読できる文はあちら、閉じるときのユーザーストーリー起票は ticket-authoring。
+
+**使い方:**
+
+```
+カート機能の Design Doc を書いて
+この記述は Design Doc・Data Dictionary・Business Rules のどれに書く？
+業務ルールはどう書く？
+```
+
 ### gnome-loop
 
 開発パイプラインのプラグイン — 開発の方法論と、それを回す機構。**dev-cycle** スキルを入れると、セッションが起票からクローズまで一本の規律で走るようになります: コードに触れる前に事実を実物で観測する、チケットはユーザー価値の単位で切る、実装より先にルールをテストで固定する、コード変更が終わると頼まなくても要件充足からレビューする、あなたの確認なしにはクローズしない。CLAUDE.md に足すのはトリガ行 1 行だけ——方法論そのものは invoke で読み込まれ、plugin の更新でプロジェクト横断に改善されていきます。方法論のドキュメントをプロジェクトごとに書いて維持する必要はありません。
@@ -259,6 +279,7 @@ loop-ready にする前に #42 を監査して
 /plugin install wsl-notify@khaym-claude-plugins
 /plugin install docs-authoring@khaym-claude-plugins
 /plugin install ticket-authoring@khaym-claude-plugins
+/plugin install design-doc-authoring@khaym-claude-plugins
 /plugin install gnome-loop@khaym-claude-plugins
 /plugin install decision-queue@khaym-claude-plugins
 ```

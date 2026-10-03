@@ -194,6 +194,26 @@ Review this ticket   (routes to the ticket-review agent)
 Audit ticket 42 before making it loop-ready
 ```
 
+### design-doc-authoring
+
+Writes the design as **three documents** — Design Doc, Data Dictionary, Business Rules — one judged stage at a time. A story whose goal is still vague gets its gaps filled from the code once implementation starts: the code is the most readable thing in reach, so judgments are made in its vocabulary and surface late, as review round-trips and rework on the one rule nobody decided. The documents move those judgments before the code. The requester judges each stage in prose, what the purpose cannot settle is collected as undecided items instead of being filled in, one representative case is walked through on the Design Doc alone, and only when the undecided index is empty is the design cut into tickets.
+
+**How it works:**
+- **One question sorts every statement** — does it say what passes between components (flow → Data Dictionary / Design Doc), what state a record must satisfy (rule → Business Rules), or how a component does it inside (procedure → not written; code and tests own it)
+- **Six judged stages** — purpose, flow, records, rules, decisions, walkthrough; outside-in first, then by strength of constraint, so a later stage reopens an earlier judgment as an undecided item instead of overwriting it
+- **Business rule = the intent connecting purpose and specification** — one sentence, one identifier, grounded in a purpose, written in exactly one place; implementation, tests and review cite it by identifier. This plugin is the home of that definition
+- **Two indexes** — undecided (the requester answers from two options; implementation never fills them) and provisional (used as is, with the observation that will revise it)
+
+Prose readability stays with docs-authoring and ticket cutting with ticket-authoring — the three compose: what to write and where here, one-pass writing there, user-story tickets at the close.
+
+**Usage:**
+
+```
+Write a design doc for the cart feature
+Where does this statement go — Design Doc, Data Dictionary, or Business Rules?
+How is a business rule written?
+```
+
 ### gnome-loop
 
 Development pipeline plugin — the method, and the machinery that runs it. Install the **dev-cycle** skill and your sessions run one disciplined route from ticket filing to close: facts are observed for real before code is touched, tickets are cut by user value, rules are pinned by tests before implementation, finished changes are reviewed against requirements without being asked, and nothing closes without your confirmation. Your CLAUDE.md gains just a single trigger line — the method itself loads on invoke and improves across projects with plugin updates, so there is no per-project method document to write and maintain.
@@ -259,6 +279,7 @@ Add the release timing question to the decision queue
 /plugin install wsl-notify@khaym-claude-plugins
 /plugin install docs-authoring@khaym-claude-plugins
 /plugin install ticket-authoring@khaym-claude-plugins
+/plugin install design-doc-authoring@khaym-claude-plugins
 /plugin install gnome-loop@khaym-claude-plugins
 /plugin install decision-queue@khaym-claude-plugins
 ```

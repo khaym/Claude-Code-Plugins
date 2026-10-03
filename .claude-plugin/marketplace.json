@@ -120,6 +120,20 @@
       ]
     },
     {
+      "name": "design-doc-authoring",
+      "source": "./plugins/design-doc-authoring",
+      "description": "Guides writing the three design documents (Design Doc, Data Dictionary, Business Rules) from the purpose down to decided rules, one judged stage at a time, so a vague goal is settled in prose before implementation starts",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": [
+        "design-doc",
+        "data-dictionary",
+        "business-rules",
+        "design",
+        "quality"
+      ]
+    },
+    {
       "name": "gnome-loop",
       "source": "./plugins/gnome-loop",
       "description": "Development pipeline plugin. The dev-cycle skill carries the six-stage development method any session follows from ticket filing to close; the gnome-loop skill runs autonomous laps over loop-ready tickets (worktree implementation, review, evidence, merge queue) with a bundled implementer agent for novel-lane work; the onboarding skill wires a new host project in one conversation.",
