@@ -198,11 +198,14 @@ Audit ticket 42 before making it loop-ready
 
 Writes the design as **three documents** — Design Doc, Data Dictionary, Business Rules — one judged stage at a time. A story whose goal is still vague gets its gaps filled from the code once implementation starts: the code is the most readable thing in reach, so judgments are made in its vocabulary and surface late, as review round-trips and rework on the one rule nobody decided. The documents move those judgments before the code. The requester judges each stage in prose, what the purpose cannot settle is collected as undecided items instead of being filled in, one representative case is walked through on the Design Doc alone, and only when the undecided index is empty is the design cut into tickets.
 
+A `design-doc-review` Custom SubAgent reads a written design as its implementer would, in an isolated context that knows only the documents: can the purpose and the intent behind each rule be understood, and the means chosen, without guessing? It returns a read-only findings report whose NGs each cite a check ID from the skill's checklist. It finds the Data Dictionary and Business Rules through the locations in the Design Doc's supplement list, and names a missing list, a missing location, or a supplement not found there.
+
 **How it works:**
 - **One question sorts every statement** — does it say what passes between components (flow → Data Dictionary / Design Doc), what state a record must satisfy (rule → Business Rules), or how a component does it inside (procedure → not written; code and tests own it)
 - **Six judged stages** — purpose, flow, records, rules, decisions, walkthrough; outside-in first, then by strength of constraint, so a later stage reopens an earlier judgment as an undecided item instead of overwriting it
 - **Business rule = the intent connecting purpose and specification** — one sentence, one identifier, grounded in a purpose, written in exactly one place; implementation, tests and review cite it by identifier. This plugin is the home of that definition
 - **Two indexes** — undecided (the requester answers from two options; implementation never fills them) and provisional (used as is, with the observation that will revise it)
+- **Checks (S/D/DD/BR)** — one binary check per rule, each a way a design can leave its implementer guessing, across the document set, the Design Doc, the Data Dictionary, and the Business Rules (scored by the design-doc-review agent; usable by a writer checking a closed design)
 
 Prose readability stays with docs-authoring and ticket cutting with ticket-authoring — the three compose: what to write and where here, one-pass writing there, user-story tickets at the close.
 
@@ -212,6 +215,7 @@ Prose readability stays with docs-authoring and ticket cutting with ticket-autho
 Write a design doc for the cart feature
 Where does this statement go — Design Doc, Data Dictionary, or Business Rules?
 How is a business rule written?
+Review this design doc   (routes to the design-doc-review agent)
 ```
 
 ### gnome-loop

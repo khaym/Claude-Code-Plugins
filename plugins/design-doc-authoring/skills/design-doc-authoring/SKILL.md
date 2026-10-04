@@ -1,6 +1,6 @@
 ---
 name: design-doc-authoring
-description: Guides writing the three design documents — Design Doc, Data Dictionary, Business Rules — from the purpose down to decided rules, one judged stage at a time, so the goal is settled in prose before implementation starts. Use when you hear "write a design doc", "design this story", "Data Dictionary", "Business Rules", "where does this statement go", or "設計書を書きたい".
+description: Guides writing the three design documents — Design Doc, Data Dictionary, Business Rules — from the purpose down to decided rules, one judged stage at a time, so the goal is settled in prose before implementation starts. Use when you hear "write a design doc", "design this story", "Data Dictionary", "Business Rules", "where does this statement go", or "設計書を書きたい". For read-only conformance audits of a written design, the design-doc-review agent is preferred.
 ---
 
 # Design Doc Authoring
@@ -16,6 +16,8 @@ Read [guidelines.md](guidelines.md) for the thinking and the shapes — why a va
 - the two indexes — undecided and provisional
 - what never enters the Design Doc
 
+[checklist.md](checklist.md) holds the binary checks (S/D/DD/BR), one per rule in guidelines.md — each a way a design can leave its implementer guessing. The `design-doc-review` Custom SubAgent scores them in an isolated context — a reader who knows only the documents — and returns a read-only findings report; it preloads this skill via the `skills:` field, so the criteria are shared. See the [audit pass](#audit-pass).
+
 ## Intent detection
 
 | Intent | Example triggers | Action |
@@ -23,10 +25,11 @@ Read [guidelines.md](guidelines.md) for the thinking and the shapes — why a va
 | Write or continue a design | "write a design doc", "design this story", "next stage" | Run the [writing flow](#writing-flow) from the first stage not yet judged |
 | Sort one statement | "where does this go", "is this a rule or a procedure" | Answer with the one question in [guidelines.md](guidelines.md): flow, rule, or procedure, and the home each has |
 | Shape lookup | "what goes in the Data Dictionary", "how is a business rule written" | Answer from [guidelines.md](guidelines.md) |
+| Audit a design | "review this design doc", "design doc conformance check", "設計書をレビューしてほしい" | Run the [audit pass](#audit-pass) |
 
 ## Writing flow
 
-The input is a story ticket with a purpose and a provisional Done. The output is a Design Doc whose undecided index is empty, with its two supplements beside it. A ticket is ready for design when its purpose names who gains what; otherwise send it back to the requester (through the installed filing skill when one is installed) before stage 1.
+The input is a story ticket with a purpose and a provisional Done. The output is a Design Doc whose undecided index is empty, with its two supplements and their locations registered in its supplement list. A ticket is ready for design when its purpose names who gains what; otherwise send it back to the requester (through the installed filing skill when one is installed) before stage 1.
 
 Before drafting:
 
@@ -62,6 +65,15 @@ At every stage:
 2. Judge whether the undecided index is empty. An item still open sends the writer back to the stage it is marked with; repeat the walkthrough once the item is decided.
 3. With the undecided index empty, add to the Design Doc's Boundary which stories the work is cut into and which decisions each implements, then cut the tickets with the installed filing skill (e.g. `ticket-authoring`). Order, dependencies, and work content go to the tracker and the ticket bodies. When no filing skill is installed, hand the Boundary's story list to the requester as the cut and say that the filing checks could not run.
 4. Move verbatim judgments that became decisions out of the Design Doc into the commit message and the story ticket, leaving the decision and its reason.
+
+## Audit pass
+
+The `design-doc-review` agent (when installed via plugin, subagent type `design-doc-authoring:design-doc-review:design-doc-review`) reads the design as its implementer would: can the purpose and the intent behind each rule be understood, and the means chosen, without guessing? Its findings cite checklist.md. Contradictions in content are the walkthrough's to find. Its checks judge a design that has reached its close; on an earlier draft, expect the checks for the walkthrough and the undecided lines to fail.
+
+1. **Invoke the agent** with one Design Doc path. It finds the supplements through the Design Doc's supplement list, so register their locations there first.
+2. **Read the findings report.** Each NG cites a check ID and a direction; each N/A carries its reason. If the agent reports it could not read the Design Doc or its criteria, fix that and re-run — do not act on a partial audit.
+3. **Apply the smallest edit that turns each NG into OK.** A fix that changes a stage's answer goes back to the requester as that stage does in the writing flow.
+4. **Re-run after substantial rewrites**; a wording tweak does not need a second pass.
 
 ## Notes
 

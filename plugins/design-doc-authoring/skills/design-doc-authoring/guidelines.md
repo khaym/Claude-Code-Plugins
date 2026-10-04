@@ -63,9 +63,11 @@ Everything the requester needs in order to judge sits in the Design Doc; what on
 
 The walkthrough test decides what leaves the Design Doc for a supplement: can the walkthrough still be run on the Design Doc alone? If yes, the detail is a supplement's; if no, it is an essential and stays.
 
-References point one way, opposite to the writing order: Business Rules → Data Dictionary → Design Doc. A document written earlier is complete without the later ones. When two disagree, the upstream one is right. The Data Dictionary never cites Business Rules; a rule names the record it binds, so the writer looking for a record's rules searches Business Rules for the record's name. The Design Doc's supplement list registers each supplement by name and the question it answers, and that is the only downstream pointer: it says a supplement exists and never cites its content.
+References point one way, opposite to the writing order: Business Rules → Data Dictionary → Design Doc. A document written earlier is complete without the later ones. When two disagree, the upstream one is right. The Data Dictionary never cites Business Rules; a rule names the record it binds, so the writer looking for a record's rules searches Business Rules for the record's name. The Design Doc's supplement list is the only downstream pointer: it says a supplement exists and never cites its content.
 
-A project may add supplements, with the same test — same lifetime as the system, read by the code side rather than the requester — and each is registered in the Design Doc's supplement list with the question it answers.
+The supplement list registers each supplement by name, the question it answers, and its location (a path from the project root), so the writer, the implementer, and a reviewer reach each supplement from the Design Doc. Without a location the reader cannot find it — the same reason a Data Dictionary entry carries one.
+
+A project may add supplements, with the same test — same lifetime as the system, read by the code side rather than the requester — and each is registered in the supplement list the same way.
 
 ## Design Doc items
 
@@ -82,7 +84,7 @@ The items in the order they appear as headings in the document. The stage that w
 | Decisions | Numbered: the adopted option, its reason, the rejected options and their reasons. Kept separate from the essentials — a decision records why, an essential states what holds — and holding no history |
 | Walkthrough | One representative case passed through the flow using the essentials alone: the steps, the undecided items and contradictions found, and what they changed |
 | Boundary | What this system does not do; the line to neighboring systems; if the work is cut into several stories, which stories and which decisions each implements |
-| Indexes | The undecided and provisional indexes (below), followed by the supplement list: each supplement with the question it answers |
+| Indexes | The undecided and provisional indexes (below), followed by the supplement list ([Three documents](#three-documents)) |
 
 ## Data Dictionary entry
 

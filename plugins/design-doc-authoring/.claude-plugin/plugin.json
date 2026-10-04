@@ -1,5 +1,5 @@
 {
   "name": "design-doc-authoring",
-  "description": "Guides writing the three design documents (Design Doc, Data Dictionary, Business Rules) from the purpose down to decided rules, one judged stage at a time, so a vague goal is settled in prose before implementation starts",
-  "version": "0.1.0"
+  "description": "Guides writing the three design documents (Design Doc, Data Dictionary, Business Rules) from the purpose down to decided rules, one judged stage at a time, so a vague goal is settled in prose before implementation starts, and reviews a written design as its implementer would with a read-only review agent",
+  "version": "0.2.0"
 }
