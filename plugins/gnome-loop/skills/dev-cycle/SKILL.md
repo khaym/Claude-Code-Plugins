@@ -1,6 +1,6 @@
 ---
 name: dev-cycle
-description: Carries the development skeleton - Swiss Cheese quality layers, the six-stage development cycle from filing to close, and the business-rule conventions for tests and comments. Invoke BEFORE starting any work that changes code in a project wired to this plugin, and when filing a ticket or shaping a plan. Use when you hear "dev cycle", "development cycle", "how do we develop here", "開発サイクル", or at the start of any coding task.
+description: Carries the development skeleton - Swiss Cheese quality layers, the six-stage development cycle from filing to close, including when a story gets a design before implementation and which judgments code comments carry. Invoke BEFORE starting any work that changes code in a project wired to this plugin, and when filing a ticket or shaping a plan. Use when you hear "dev cycle", "development cycle", "how do we develop here", "開発サイクル", or at the start of any coding task.
 ---
 
 # Development Cycle (dev-cycle)
@@ -9,7 +9,6 @@ description: Carries the development skeleton - Swiss Cheese quality layers, the
 - [Host bindings](#host-bindings)
 - [Swiss Cheese Model](#swiss-cheese-model)
 - [The development cycle (1 user story = 1 lap)](#the-development-cycle-1-user-story--1-lap)
-- [Business rules (the shared unit of tests and comments)](#business-rules-the-shared-unit-of-tests-and-comments)
 - [Host wiring (install)](#host-wiring-install)
 - [What this skill never owns](#what-this-skill-never-owns)
 
@@ -37,7 +36,7 @@ The frame below is invariant; these project-bound inputs come from the host:
 | Story-list source of truth | Where user stories live and how they are referenced by ID | Host CLAUDE.md task-registration rules |
 | Development log | The file that receives proposals that cannot state user value (filed nowhere else) | Host CLAUDE.md |
 | Lap log | The file that receives each lap's observations, classified per stage 6 below — a separate file from the development log | Host CLAUDE.md, or the loop config's `paths.lap_log` where the gnome loop is wired |
-| Toolchain | Tracker / writing / filing / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), code-review | Host CLAUDE.md |
+| Toolchain | Tracker / writing / filing / design / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), design-doc-authoring, code-review | Host CLAUDE.md |
 
 When a binding or a named sibling tool is missing at the moment its gate
 should fire, surface the gap to the user and name the gate that cannot fire
@@ -70,7 +69,7 @@ layers are domain-specific (host binding above).
     **Verifying the diff against the ticket's success criteria comes first**
     — do not shrink it to bug-hunting (requirements validity → correctness).
     Findings are limited to correctness / requirement gaps / duplicated
-    statements of a business rule (defined below); style is optional
+    statements of one judgment (stage 4); style is optional
     (chasing it is over-engineering). Apply and report before moving on.
     Docs- or ticket-only changes: docs-review above.
   - Human Audit — closing happens only after the user confirms: summarize
@@ -109,9 +108,23 @@ of a layer above:
 1. **File** — file the work as a user story and confirm purpose, success
    criteria, and out-of-scope (load docs-authoring and ticket-authoring
    *before* drafting → register in the tracker; reviewing after drafting
-   only patches existing text). Gate: the discrimination test (does the
-   value reach the reader?) — ticket-review audits the premises and
-   docs-review the readability, each independently.
+   only patches existing text). When the success criteria name a data
+   contract, recommend writing a design (design-doc-authoring) and decide
+   with the user whether to write one. A data contract is any of:
+   - what a record holds
+   - where it lives and the keys that name it
+   - how long it lives
+   - the contract document that writes these promises down
+
+   When the user agrees to one, file the design as a child ticket of the
+   story. The story's success criteria stay provisional until the design
+   finishes design-doc-authoring's closing and its design-doc-review audit
+   — the child closes only then. Finalize the story's success criteria from
+   the design before implementation starts.
+
+   Gate: the discrimination test (does the value reach the reader?) —
+   ticket-review audits the premises and docs-review the readability, each
+   independently.
 2. **Observe facts** — before choosing means, observe with the real thing
    and put in shared form, in this order: first the external reality the
    code cannot change (the host's immovable facts: data, API output, real
@@ -125,19 +138,38 @@ of a layer above:
    does the search for means start from *observed facts*, the code counted
    among them, rather than from *the code alone, as remembered*?
 3. **Plan shape** — drop the implementation into a checklist of success
-   criteria (→ register it). Plan depth is proportional to uncertainty: if
-   one sentence of the requirements shows the approach / single file /
+   criteria (→ register it). The plan's input is the child design's
+   decisions when the story has one, otherwise the success criteria
+   confirmed at stage 1. Plan depth is proportional to uncertainty:
+   if one sentence of the requirements shows the approach / single file /
    known code, agree on the goal and implement; if not — multiple files,
-   unfamiliar code — harden the plan first (plan mode). If skipping this
-   stage repeatedly produces requirement-level findings in code-review, the
-   collapse threshold is too loose. Gate: are steps and tickets cut by
-   value, not by means? On the observed facts, do the chosen means serve
-   the purpose?
-4. **TDD implementation** — write the test that expresses the business rule
-   first, then the code. The test's purpose is changeability: business
-   rules made explicit.
+   unfamiliar code — harden the checklist with the user before
+   implementing. If skipping this stage repeatedly produces
+   requirement-level findings in code-review, the collapse threshold is
+   too loose. Gate: are steps and tickets cut by value, not by means? On
+   the observed facts, do the chosen means serve the purpose?
+4. **TDD implementation** — pin the behavior with a test first, then
+   write the code. The test's purpose is changeability: the behavior the
+   story needs, made explicit. When the story has a design, its business
+   rules are the unit of the tests (design-doc-authoring defines what a
+   business rule is). Comments, design or not:
+   - Write only the judgments the next maintainer could not reconstruct
+     from code and tests — e.g., a spec choice that exploits an
+     asymmetric-change-cost structure (save formats, frozen compatibility
+     boundaries), or a rejected alternative and its reason.
+   - Write each judgment in exactly one place that owns it (the
+     parameter's, function's, or type's home) and never restate it
+     elsewhere. Duplicated statements produce full-sweep rewrites and
+     missed-copy drift. grep is an impact-analysis signal only when it hits
+     the home.
 5. **code-review** — fires without being asked (definition above).
-   Verifying against requirements comes first.
+   Verifying against requirements comes first. Reviewing comments is
+   refactoring, same as code: duplicated statements of one judgment that
+   the change touches are consolidated into its home, and a comment the
+   change touches that only restates the code is removed. Consolidating
+   beyond the change is a separate batch, done when the need is observed —
+   staleness survives longest in untouched homes, so change-triggered
+   cleanup alone cannot catch it.
 6. **Confirm & close** — write the lap log (below), then Human Audit fires
    (definition above).
 
@@ -178,31 +210,6 @@ pointing here for the format and classes.
 - **noise** (one-off) → record only
 
 Improvement tickets are proposals, filed for a human to pick up.
-
-## Business rules (the shared unit of tests and comments)
-
-A business rule is the intent connecting purpose and specification — "given
-this purpose, why this spec". Tests pin the behavior; comments carry only
-the "why" that cannot be reconstructed from code and tests. Consistency
-(one simple solution per system rule) is kept by writing the chosen
-solution down in this form.
-
-- Discrimination test: if the next maintainer could reconstruct the same
-  judgment from code and tests after the comment is deleted, it is
-  redundant — do not write it. If they could not, it is a business rule
-  (e.g., a spec choice that exploits an asymmetric-change-cost structure
-  [save formats, frozen compatibility boundaries], or a rejected
-  alternative and its reason).
-- Single home (the same principle as information placement): a business
-  rule is written in exactly one place that owns it (the parameter's,
-  function's, or type's home) and never restated elsewhere. Duplicated
-  statements produce full-sweep rewrites and missed-copy drift — grep is an
-  impact-analysis signal only when it hits the home.
-- Reviewing comments is refactoring, same as code: consolidating duplicated
-  statements of one rule may be done in a batch when the need is observed —
-  staleness survives longest in untouched homes, so change-triggered
-  cleanup alone cannot catch it. Simple redundancy is trimmed
-  directionally when a change touches it.
 
 ## Host wiring (install)
 

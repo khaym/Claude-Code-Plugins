@@ -9,7 +9,7 @@ skills: dev-cycle
 
 Stage 4 (TDD implementation) of the development cycle. The `dev-cycle`
 skill is preloaded via the `skills:` field — the method (the cycle, TDD,
-the business-rule conventions) arrives in your context at startup. If the
+which judgments comments carry) arrives in your context at startup. If the
 dev-cycle SKILL.md is not present in your context at startup, stop and
 report that instead of implementing — a failed `skills:` declaration only
 logs a debug warning, and implementation without the method must not
