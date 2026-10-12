@@ -9,14 +9,16 @@ plugin because the loop's novel lane depends on it; usable by any dialog
 session delegating a planned ticket.
 
 Method rationale is not restated here: the cycle and TDD discipline come
-from the preloaded dev-cycle skill (see its design.md); the preload-guard
-pattern's rationale lives in the gnome-loop skill's design.md.
+from the preloaded dev-cycle skill and the code-side discipline from the
+preloaded coding-guideline skill (see their design.md files); the
+preload-guard pattern's rationale lives in the gnome-loop skill's design.md.
 
 ## Design Decisions
 
 | Decision | Rationale |
 |----------|-----------|
 | `model: opus` as the frontmatter default | Novel-lane work is the plugin's hardest implementation class; the default favors quality. Delegators downgrade or upgrade per ticket at invocation (`model` parameter) — the loop skill names this override explicitly. Note: a `CLAUDE_CODE_SUBAGENT_MODEL` env var silently overrides both. |
+| Preloads coding-guideline beside dev-cycle, and a missing guideline is reported, not a stop (since gnome-loop 0.7.0) | The guideline is a sibling plugin, so a host may run the loop without it. Observed 2026-10-12 with throwaway agents: a `skills:` list preloads a sibling plugin's skill by bare name, and a missing entry only logs a debug warning while the other entries still arrive. So the agent checks its context for both. Without dev-cycle it stops — the method is the whole contract. Without the guideline it implements and names the absence in its report: the gate degrades, and dev-cycle's host-bindings rule has the delegator tell the user which gate did not fire. |
 | Tools unrestricted | Stage 4 legitimately needs the full toolset (edit, run, search, background verification). Scope is bounded by the delegation contract (the tree, the checklist), not by tool denial. |
 | Delegation contract in the agent body | The agent has two consumer classes — the loop's novel lane and ad-hoc dialog delegation. The loop skill's step 5 lists prompt requirements for its own laps, but dialog sessions never read that skill, so the agent itself names the minimum contract and asks for missing pieces instead of guessing. |
 | An honest red is a valid completion | "Green before you report" alone pressures toward weakened expectations at an unattended gate. The stuck-exit (report red with observed facts, never weaken a net) keeps goal integrity when green is unreachable. |

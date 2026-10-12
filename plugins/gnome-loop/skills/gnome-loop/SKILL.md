@@ -57,7 +57,7 @@ never proceed as if a gate had fired:
   code-review and merges; it never reviews its own novel-lane
   implementation (that is the implementer's), and lane-generator output is
   reviewed against the ticket, not regenerated to taste.
-- Humans own both ends: before filing (ideas, design approvals, agreed
+- Humans own both ends: before loop-ready (ideas, design approvals, agreed
   values, granting loop-ready) and after the lap (deviation check, merge
   approval). The loop carries only the middle.
 
@@ -85,9 +85,9 @@ session, after every child is closed.
 
 loop-ready means the judgment work is finished before the loop starts:
 
-- Pattern: a matching lane skill exists, and every pre-filing agreement
-  that skill requires (designs, agreed values, conditional policies) is on
-  the ticket. The lane skill is the truth source for the full list.
+- Pattern: a matching lane skill exists, and every agreement that skill
+  requires (designs, agreed values, conditional policies) is on the
+  ticket. The lane skill is the truth source for the full list.
 - Novel: the plan checklist (success criteria) is agreed on the ticket.
 - Parent ticket: never granted (state machine above); each child is
   granted on its own conditions.
@@ -198,8 +198,9 @@ The agent's own delegation contract governs scope, commits, and the report
 fields; the loop-specific pieces of the prompt are:
 
 - the worktree path as the working tree, and the ticket's plan checklist
-  pasted in full (the worktree has no tracker access — never have the
-  agent run task.sh)
+  pasted in full, with the story's input for the coding guideline — the
+  paths of its design documents, or the ticket text when it has none
+  (the worktree has no tracker access — never have the agent run task.sh)
 - shared assets, if any: exactly the untracked assets the ticket names
   (step 4's rule)
 - run the observe skill's evidence capture to completion inside the
@@ -232,7 +233,8 @@ requirements first, correctness second:
   written on the ticket; rerun the verify skill in the worktree. Defects
   in generated artifacts are generator defects — never hand-patch; blocked
   plus an improvement ticket.
-- **Novel**: review against the ticket's plan checklist; rerun the verify
+- **Novel**: review against the ticket's plan checklist, then run the
+  coding guideline's reviewer's pass (dev-cycle stage 5); rerun the verify
   skill; return findings to the same implementer agent via SendMessage
   (keeps the delegation context; re-delegate if the agent is gone). Not
   converged after two round trips → blocked. The round-trip count is one

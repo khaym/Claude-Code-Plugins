@@ -1,29 +1,22 @@
 ---
 name: dev-cycle
-description: Carries the development skeleton - Swiss Cheese quality layers, the six-stage development cycle from filing to close, including when a story gets a design before implementation and which judgments code comments carry. Invoke BEFORE starting any work that changes code in a project wired to this plugin, and when filing a ticket or shaping a plan. Use when you hear "dev cycle", "development cycle", "how do we develop here", "開発サイクル", or at the start of any coding task.
+description: Carries the development skeleton - the quality layers (Swiss Cheese) and the six-stage development cycle from filing to close, including when a story gets a design before implementation and where the code-side discipline is read. Invoke BEFORE starting any work that changes code in a project wired to this plugin, and when filing a ticket or shaping a plan. Use when you hear "dev cycle", "development cycle", "how do we develop here", "開発サイクル", or at the start of any coding task.
 ---
 
 # Development Cycle (dev-cycle)
 
-- [When to invoke](#when-to-invoke)
 - [Host bindings](#host-bindings)
-- [Swiss Cheese Model](#swiss-cheese-model)
+- [Quality layers (Swiss Cheese)](#quality-layers-swiss-cheese)
 - [The development cycle (1 user story = 1 lap)](#the-development-cycle-1-user-story--1-lap)
-- [Host wiring (install)](#host-wiring-install)
+  - [Who runs which stage](#who-runs-which-stage)
+  - [Lap log (every lap, lightweight)](#lap-log-every-lap-lightweight)
 - [What this skill never owns](#what-this-skill-never-owns)
 
-The method for carrying one user story from filing to close — an antibody
-against code-anchored development, where solutions, plans, and explanations
-all start from the code alone while purpose and the external reality it
-must serve live outside it. The cycle
-is run by any session, dialog-driven or autonomous. Rationale lives in
-[design.md](design.md); this file is the method.
-
-## When to invoke
-
-Before starting any work that will change code, and when filing a ticket or
-shaping a plan. Invoking after implementation has started defeats the
-shift-left gates — stages 1–3 are where this skill earns its cost.
+The method for carrying one user story from filing to close. It is the
+antibody against code-anchored development, where solutions, plans, and
+explanations start from the code alone. Any session runs it, dialog-driven
+or autonomous. Invoked after implementation has started, it can no longer
+fire the gates of stages 2–3. Rationale lives in [design.md](design.md).
 
 ## Host bindings
 
@@ -32,198 +25,156 @@ The frame below is invariant; these project-bound inputs come from the host:
 | Binding | What the host declares | Home |
 |---|---|---|
 | Immovable facts | The external realities that cannot be negotiated (data formats, API output, real rendering behavior) — stage 2 observes these | Host CLAUDE.md |
-| Domain quality nets | Project-specific automated layers (snapshot regressions, invariant suites) added to the automated layer below | Host CLAUDE.md, or the project's `verify` skill where the gnome loop is wired (its contract lives in the gnome-loop skill) |
+| Domain quality nets | Project-specific automated layers (snapshot regressions, invariant suites) | Host CLAUDE.md, or the project's `verify` skill where the gnome loop is wired (its contract lives in the gnome-loop skill) |
 | Story-list source of truth | Where user stories live and how they are referenced by ID | Host CLAUDE.md task-registration rules |
-| Development log | The file that receives proposals that cannot state user value (filed nowhere else) | Host CLAUDE.md |
+| Development log | The file that receives proposals that cannot state user value | Host CLAUDE.md |
 | Lap log | The file that receives each lap's observations, classified per stage 6 below — a separate file from the development log | Host CLAUDE.md, or the loop config's `paths.lap_log` where the gnome loop is wired |
-| Toolchain | Tracker / writing / filing / design / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), design-doc-authoring, code-review | Host CLAUDE.md |
+| Toolchain | Tracker / writing / filing / design / coding / review stack. Defaults: task-tracker, docs-authoring, ticket-authoring (with ticket-review), design-doc-authoring (with design-doc-review), coding-guideline, code-review | Host CLAUDE.md |
 
 When a binding or a named sibling tool is missing at the moment its gate
-should fire, surface the gap to the user and name the gate that cannot fire
-— never skip silently and proceed as if it had fired. A missing tracker,
-review agent, or domain-net declaration degrades one gate; an unreported
-skip breaks the lap's promise.
+should fire, surface the gap to the user and name the gate that cannot
+fire, rather than proceeding as if it had fired. (Wiring a host — the
+trigger line and its wording — is this plugin's onboarding skill.)
 
-## Swiss Cheese Model
+## Quality layers (Swiss Cheese)
 
-The model's value is that when a problem class recurs, a permanent net can be
-inserted into a layer **afterwards**. Defenses are split into layers so
-quality rises while the system keeps changing. The frame is invariant; the
-layers are domain-specific (host binding above).
+When each layer fires is the stage table's last column.
 
-- Automated layer: linter / hooks / unit tests / E2E tests, plus the host's
-  domain nets
-- Non-automated layers:
-  - docs-authoring — applied when filing tickets and writing documents (skip
-    conditions live in that skill).
-  - ticket-review — fires immediately before filing a new ticket and before
-    handing a ticket to an autonomous pipeline (ticket-authoring plugin).
-    Audits premise validity — user-anchored purpose, outcome vocabulary for
-    decisions — as a reader with no project knowledge, in an isolated
-    context (one-pass readability belongs to docs-review).
-  - docs-review — audits one-pass readability in an isolated context
-    (docs-authoring plugin). Fires alongside ticket-review at filing — a
-    premise audit is no substitute for readability — and stands in for
-    code-review on docs- or ticket-only changes.
-  - code-review — runs without being asked once a code change is complete.
-    **Verifying the diff against the ticket's success criteria comes first**
-    — do not shrink it to bug-hunting (requirements validity → correctness).
-    Findings are limited to correctness / requirement gaps / duplicated
-    statements of one judgment (stage 4); style is optional
-    (chasing it is over-engineering). Apply and report before moving on.
-    Docs- or ticket-only changes: docs-review above.
-  - Human Audit — closing happens only after the user confirms: summarize
-    the outcome → get agreement → close. Even under "just wrap it up", keep
-    that order. The authority behind this gate stays in the host CLAUDE.md
-    (see [What this skill never owns](#what-this-skill-never-owns)).
+| Layer | What it judges | Home |
+|---|---|---|
+| Automated nets — linter, hooks, unit tests, E2E tests, the host's domain nets | What a machine can check | Host |
+| docs-authoring | One-pass readability, applied while writing (skip conditions live in the skill) | docs-authoring plugin |
+| ticket-review | Premise validity — a user-anchored purpose, outcome vocabulary for decisions — read with no project knowledge, in an isolated context | ticket-authoring plugin |
+| docs-review | One-pass readability, read in an isolated context | docs-authoring plugin |
+| design-doc-review | Whether the design lets its implementer understand the purpose and the intent behind each rule without guessing | design-doc-authoring plugin |
+| coding-guideline | Whether tests, code, and comments are built from what the design or the ticket decided and stay changeable | coding-guideline plugin |
+| code-review | The diff against the success criteria first, then correctness; style is optional | Toolchain binding (default: Claude Code's built-in skill) |
+| Human Audit | Whether the user confirms the outcome | Host CLAUDE.md |
 
-Place gates as early in the spine as possible (**shift-left**). code-review
-is a late net at the code stage: if code-anchored thinking is the root, much
-of what it catches is the symptom of *picking means before observing facts*
-— catch that earlier and cheaper with the fact-stage and plan-stage gates
-(cycle stages 2–3).
-
-These layers, fired along one user story's timeline, form the development
-cycle below (Swiss Cheese viewed on a time axis). Layers are the concept;
-the cycle is their firing order.
+The `[shift-left]` tag in the stage table marks the gates that catch what
+would otherwise reach code-review.
 
 ## The development cycle (1 user story = 1 lap)
 
-The standard lap from filing to close. Each gate may be collapsed when
-trivial (proportional to task size and speed) — but the collapse threshold
-differs per gate, and **fact observation (2) is in principle never
-collapsed**. Stages 2–3 are the shift-left gates that cut code-anchored
-thinking before code is changed. Each stage is productive work or the firing
-of a layer above:
+Each stage is productive work closed by a gate, the question answered
+before the next stage opens.
 
-| Stage | Layers fired (kind) |
-|---|---|
-| 1 File | docs-authoring, ticket-review, docs-review (non-automated) |
-| 2 Observe facts [shift-left] | fact-observation gate (the most upstream layer) |
-| 3 Plan shape [shift-left] | plan-shape gate (cut by value?) |
-| 4 TDD implementation | linter/hooks, unit tests (automated) |
-| 5 code-review | code-review (non-automated), E2E (automated) |
-| 6 Confirm & close | lap log (below), Human Audit (non-automated) |
+A gate may be skipped or shortened when the task is trivial, with one
+exception: stage 2 is never skipped. When a shortened gate repeatedly lets
+requirement-level findings reach code-review, it is being shortened too
+often.
 
-1. **File** — file the work as a user story and confirm purpose, success
-   criteria, and out-of-scope (load docs-authoring and ticket-authoring
-   *before* drafting → register in the tracker; reviewing after drafting
-   only patches existing text). When the success criteria name a data
-   contract, recommend writing a design (design-doc-authoring) and decide
-   with the user whether to write one. A data contract is any of:
+| Stage | Work | Gate | Layers fired |
+|---|---|---|---|
+| 1 File | The story filed; a design recommended when the success criteria name a data contract, and agreed or declined | Does the value reach a reader with no project knowledge? | docs-authoring, ticket-review, docs-review |
+| 2 Observe facts [shift-left] | The external reality observed first, then the code as it is | Does the search for means start from observed facts, the code counted among them — not from the code alone, as remembered? | — |
+| 3 Plan shape [shift-left] | The success criteria dropped into a checklist on the ticket; with an agreed design, the design written first and the criteria finalized at the design child's closing | On the observed facts, do the steps — cut by value, not by means — serve the purpose? | design-doc-review before the design child closes |
+| 4 TDD implementation | The change written through the author's pass, tests before code | Did the author's pass finish without a stop (its halt on a defective input), with the automated nets green and none weakened? | coding-guideline (author's pass), automated nets |
+| 5 code-review | The diff reviewed | Did the reviewer's pass finish without a stop, with the findings applied and reported? | code-review; coding-guideline (reviewer's pass, run by the session that runs code-review); automated nets; docs-review in place of code-review on a docs- or ticket-only change |
+| 6 Confirm & close | The lap log written; the outcome summarized for the user | Has the user confirmed? | Human Audit |
+
+1. File — load docs-authoring and ticket-authoring before drafting.
+   Register the story in the tracker and confirm with the user:
+   - its purpose
+   - its success criteria
+   - its out-of-scope
+
+   The design recommendation fires when the success criteria, or a
+   document they cite, state a data contract — any of:
    - what a record holds
    - where it lives and the keys that name it
    - how long it lives
-   - the contract document that writes these promises down
 
-   When the user agrees to one, file the design as a child ticket of the
-   story. The story's success criteria stay provisional until the design
-   finishes design-doc-authoring's closing and its design-doc-review audit
-   — the child closes only then. Finalize the story's success criteria from
-   the design before implementation starts.
+   When the user agrees to a design, open a child ticket of the story,
+   the design child, to hold it. The story's success criteria stay
+   provisional until the design child closes at stage 3.
+2. Observe facts — before choosing means, observe with the real thing
+   and put the result in shared form. The external reality is the host's
+   immovable facts. The code as it is means the scope of the change: what
+   will be touched and what depends on it, counted (a grep, a listing)
+   rather than recalled. Repeat whenever a later stage writes a new claim
+   about that scope — a delegation prompt, a rework instruction, a
+   report.
+3. Plan shape — plan depth is proportional to uncertainty, on one
+   scale:
+   - the approach fits in one sentence of the requirements (a single
+     file, known code): agree on the goal and implement
+   - it needs more (multiple files, unfamiliar code): harden the
+     checklist with the user before implementing
+   - the approach needs the design agreed at stage 1 (a data contract):
+     write it with design-doc-authoring from stage 2's facts, under the
+     design child
 
-   Gate: the discrimination test (does the value reach the reader?) —
-   ticket-review audits the premises and docs-review the readability, each
-   independently.
-2. **Observe facts** — before choosing means, observe with the real thing
-   and put in shared form, in this order: first the external reality the
-   code cannot change (the host's immovable facts: data, API output, real
-   behavior), then the code as it actually is — the scope of the change,
-   what will be touched and what depends on it. Count the scope (a grep, a
-   listing) rather than recall it. Repeat whenever a later stage writes a
-   new claim about that scope (a delegation prompt, a rework instruction,
-   a report). **Do not skip.** A wrong premise derails everything after
-   it. Observation is Claude's strength and the human's load is only
-   confirming presented facts — high value, low cost, always on. Gate:
-   does the search for means start from *observed facts*, the code counted
-   among them, rather than from *the code alone, as remembered*?
-3. **Plan shape** — drop the implementation into a checklist of success
-   criteria (→ register it). The plan's input is the child design's
-   decisions when the story has one, otherwise the success criteria
-   confirmed at stage 1. Plan depth is proportional to uncertainty:
-   if one sentence of the requirements shows the approach / single file /
-   known code, agree on the goal and implement; if not — multiple files,
-   unfamiliar code — harden the checklist with the user before
-   implementing. If skipping this stage repeatedly produces
-   requirement-level findings in code-review, the collapse threshold is
-   too loose. Gate: are steps and tickets cut by value, not by means? On
-   the observed facts, do the chosen means serve the purpose?
-4. **TDD implementation** — pin the behavior with a test first, then
-   write the code. The test's purpose is changeability: the behavior the
-   story needs, made explicit. When the story has a design, its business
-   rules are the unit of the tests (design-doc-authoring defines what a
-   business rule is). Comments, design or not:
-   - Write only the judgments the next maintainer could not reconstruct
-     from code and tests — e.g., a spec choice that exploits an
-     asymmetric-change-cost structure (save formats, frozen compatibility
-     boundaries), or a rejected alternative and its reason.
-   - Write each judgment in exactly one place that owns it (the
-     parameter's, function's, or type's home) and never restate it
-     elsewhere. Duplicated statements produce full-sweep rewrites and
-     missed-copy drift. grep is an impact-analysis signal only when it hits
-     the home.
-5. **code-review** — fires without being asked (definition above).
-   Verifying against requirements comes first. Reviewing comments is
-   refactoring, same as code: duplicated statements of one judgment that
-   the change touches are consolidated into its home, and a comment the
-   change touches that only restates the code is removed. Consolidating
-   beyond the change is a separate batch, done when the need is observed —
-   staleness survives longest in untouched homes, so change-triggered
-   cleanup alone cannot catch it.
-6. **Confirm & close** — write the lap log (below), then Human Audit fires
-   (definition above).
+   The design child closes after the design's close (its undecided index
+   empty) and the design child's design-doc-review audit. The success
+   criteria are final when it closes. When the design's close cuts the
+   implementation into child tickets of the story, each child runs the
+   cycle from its own stage 3 with its own checklist; otherwise the story
+   carries the checklist itself (whether a parent ticket can enter the
+   gnome loop is the gnome-loop skill's rule).
+4. TDD implementation — a stop in the author's pass returns the story
+   to the stage that settled the defective input: stage 1 for the ticket,
+   stage 3 for the design.
+5. code-review — fires without being asked once the change is
+   complete. A stop in the reviewer's pass returns the story as a stop in
+   stage 4 does.
+   A gap outside the change, found by either pass, is not fixed in this
+   lap: file it as a ticket when it can state user value, otherwise record
+   it in the development log.
+6. Confirm & close — the lap log's format and classes are below.
 
-Subagent delegation: tasks whose goal and context fold into a single
-delegation prompt — stage 2 observation, research, mechanical work — may be
-delegated to a cheaper-model subagent (general-purpose). Judge by "does the
-context fold into one prompt", not by task kind. Stage 4 implementation of
-a planned ticket delegates to this plugin's bundled `implementer` agent —
-its agent definition owns the delegation contract (what the prompt must
-carry). Requirements alignment, planning, and review stay in the main
-conversation.
+### Who runs which stage
+
+Requirements alignment (1), planning (3), and review (5) stay in the main
+conversation. Work whose goal and context fold into a single delegation
+prompt (e.g. stage 2 observation, research, mechanical work) may be
+delegated to a cheaper-model subagent (general-purpose). Stage 4 of a
+ticket past stage 3 delegates to this plugin's bundled `implementer`
+agent, whose definition owns the delegation contract — what the prompt
+must carry; the method and the guideline are not among it, the agent
+preloads them.
 
 ### Lap log (every lap, lightweight)
 
 An observation is one review finding or one piece of implementation
 rework — the implementer's self-reported rework, or the session's own when
 it implemented directly. Classify each into one of the four classes below
-and append one line per observation to the host's lap log (binding above):
+and append one line per observation to the host's lap log (binding
+above). Never invent a path for it (a missing binding, above). A declared
+file that does not exist yet is created with a one-line header pointing
+here for the format and classes.
 
 ```
 - <YYYY-MM-DD> #<ticket> <class>[<topic-slug>] <the observation, one line> → <disposition>
 ```
 
-`<class>` is one of the four literal tokens below; `<topic-slug>` is a
-kebab-case recurrence key — grep past lines and reuse the slug for the same
-phenomenon; `<disposition>` is what was done with it, one phrase (`filed as
-#N`, `recorded`, `settled with the owner`). A host that declares no lap-log
-home is a missing binding — surface it as above, never invent a path. A
-declared file that does not exist yet is created with a one-line header
-pointing here for the format and classes.
+- `<class>` — the class token
+- `<topic-slug>` — a kebab-case recurrence key; grep past lines and reuse
+  the slug for the same phenomenon
+- `<disposition>` — what was done with it, one phrase: `filed as #N`,
+  `recorded`, `settled with the user`
 
-- **net-gap** (a defect class no net covers) → file an improvement ticket
-  now, purpose anchored in the developer's rework
-- **net-miss** (a net exists but let it through) → record; second same
-  slug → improvement ticket
-- **judgment** (a design decision) → settle it with the user or ticket it
-  (a dialog lap usually has already; an autonomous lap parks it)
-- **noise** (one-off) → record only
+Classes:
 
-Improvement tickets are proposals, filed for a human to pick up.
+- `net-gap` (a defect class no net covers) → file an improvement ticket
+  now, its purpose anchored in the observed rework
+- `net-miss` (a net exists but let it through) → record; the second same
+  slug → file an improvement ticket
+- `judgment` (a design decision) → settle it with the user, or file it (a
+  dialog lap usually has already; an autonomous lap leaves it for the
+  user in the tracker)
+- `noise` (one-off) → record
 
-## Host wiring (install)
-
-The install procedure and the MUST-form trigger line's canonical wording
-live in this plugin's onboarding skill; the host side stays that one line
-plus the host bindings above and the authority rules below.
+Improvement tickets are proposals, filed for the user to pick up.
 
 ## What this skill never owns
 
-Authority rules — grants of human authority, not procedure — stay resident
-in the host CLAUDE.md and never depend on this skill being invoked:
+These rules stay resident in the host CLAUDE.md and never depend on this
+skill being invoked:
 
-- Committing, pushing, or opening PRs (typical host rules: no commits
+- who may commit, push, or open a PR (typical host rules: no commits
   without an explicit request; confirm before push/PR)
-- Closing without the user's confirmation (the authority behind Human Audit)
-- The host's purpose statement, spine (purpose → facts → means), and
-  language rules — the resident layer from which this skill is invoked
+- who may close, and in what order (the authority behind Human Audit:
+  summarize, get agreement, then close)
+- the host's purpose statement, its order of thought (purpose → facts →
+  means), and its language rules
