@@ -1,5 +1,5 @@
 {
   "name": "coding-guideline",
   "description": "Keeps a story's implementation on its purpose and changeable: tests, code, and comments built from what the design documents or the ticket decided, by correspondence rules that keep the purpose, structure rules that keep changeability, and a Data-Oriented Programming method that builds the structure, with the means left to the author",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

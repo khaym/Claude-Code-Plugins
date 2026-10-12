@@ -30,14 +30,14 @@ The input is the story's design documents or, when the story has no design, its 
 
 ## Reviewer's pass
 
-The input is the change and the story's input: the design documents, or the ticket and the author's written decisions. The output is findings — a rule broken within what the change touches — and observations — a gap outside what the change touches. A choice of means the rules allow is neither.
+The input is the change and the story's input: the design documents, or the ticket and the author's written decisions. The output is the rules broken, named by where each lies: a finding within what the change touches, a gap outside it. A choice of means the rules allow is neither.
 
 1. Read the story's input in full, starting from the purpose. The stops of the author's pass apply here too: a stopped review reports which stop was hit and that the story goes back to the requester, and returns no findings. Missing written decisions are a finding, not something to fill in from the code.
 2. Read Input, output, freedom in [guidelines.md](guidelines.md): the terms, and the scope of duty.
 3. Check the change against the correspondence rules. A change that claims no Business Rule or success criterion is itself a finding under "Unit from the input".
 4. Check it against the structure rules. Each rule's "Rules out" column is what to look for.
 5. Check each comment against Comments.
-6. Sort what was found into findings and observations by the scope of duty; record observations where that section says.
+6. Sort what was found into findings and gaps; record the gaps where Scope of duty in [guidelines.md](guidelines.md) says.
 
 A finding names the rule, the location, and what was found against what holds.
 

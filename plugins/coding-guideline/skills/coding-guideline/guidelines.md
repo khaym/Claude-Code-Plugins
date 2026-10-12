@@ -24,7 +24,7 @@ For the author and the reviewer. Who they are, and when each reads which part: S
 | Freedom | The rules say what holds, not how to build. Modules, functions, types, and algorithms are the author's, chosen for the purpose. The shape of data and the placement of state change follow [the method](#the-method) by default; an author who departs from it still meets the structure rules, and the reviewer judges by the rules, not by the method |
 | Input against the purpose | A Business Rule that contradicts the purpose it is grounded in, or a criterion that cannot serve the purpose, goes back to the requester. It is neither transcribed nor worked around |
 | Existing code | A premise, not an input: read for where the records already have homes and what the change touches. Where it disagrees with the input, the purpose as the input states it wins and the code changes |
-| Scope of duty | What the change touches. Outside it, the rules are the standard a gap is judged against. Such a gap is an observation: recorded where the project keeps them, otherwise in the review report or the change's description. The development cycle decides when it is fixed |
+| Scope of duty | What the change touches. Outside it, the rules are the standard a gap is judged against. Such gaps are recorded where the project keeps them, otherwise in the review report or the change's description. The development cycle decides when they are fixed |
 
 Terms from the design documents, used unchanged:
 
