@@ -260,6 +260,28 @@ The conversation log is linear — it shows only the latest topic, so when sever
 Add the release timing question to the decision queue
 ```
 
+### coding-guideline
+
+Keeps a story's implementation on its purpose and changeable. The input — the three design documents when the story has a design, the ticket's purpose and success criteria otherwise — is what has been decided toward the purpose, not a specification to transcribe; the guideline's rules say what must hold, and the means (modules, functions, types, algorithms) stay the author's. An implementation written with LLM assistance leaves the purpose in two ways that review keeps catching late: terms, rules, identity checks, and fixtures are taken from the code at hand instead of from what the input decided, and nothing says where data and behavior go, so a Business Rule is enforced in every caller and a record is written from several modules.
+
+**How it works:**
+- **Correspondence rules keep the purpose** — each test pins one Business Rule or one success criterion; terms are the input's; Business Rules are cited, not restated; identity compares every field the reuse condition names; fixtures satisfy the record's invariants
+- **Structure rules keep changeability** — one truth, one point of change (a record has one home and changes state at its exit only); one derivation; the Business Rule beside its mechanism; failure judged by origin; check, then write; rules in positive form
+- **Data-Oriented Programming builds the structure** — the four principles of DOP v1.1 (Inside Java), in language-neutral terms: records as immutable types, operations as pure functions, side effects at the homes' exits. One required step before writing: find each record's and Business Rule's existing home, by name and by location. A table says what each design element corresponds to in code; granularity is the author's
+- **An input that works against the purpose goes back to the requester** — neither transcribed nor worked around; without a design, the author designs for the purpose and writes the decisions down where the reviewer reads them
+- **Comments carry only what nothing committed says** — a rejected alternative, an external constraint absent from the input, why seemingly unnecessary code stays; never a restatement of a function's inputs and outputs or a Business Rule's text
+
+The definition of a business rule stays with design-doc-authoring, test-design techniques with designing-test-cases, and when the guideline is read with the development cycle (gnome-loop) — the four compose.
+
+**Usage:**
+
+```
+/coding-guideline:coding-guideline   (before writing or reviewing code for a story)
+Implement this design
+Where does this rule go in the code?
+What should this comment say?
+```
+
 ## Installation
 
 ### Add the marketplace
@@ -286,6 +308,7 @@ Add the release timing question to the decision queue
 /plugin install design-doc-authoring@khaym-claude-plugins
 /plugin install gnome-loop@khaym-claude-plugins
 /plugin install decision-queue@khaym-claude-plugins
+/plugin install coding-guideline@khaym-claude-plugins
 ```
 
 ### Update
