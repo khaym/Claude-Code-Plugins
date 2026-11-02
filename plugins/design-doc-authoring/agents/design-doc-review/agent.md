@@ -21,9 +21,9 @@ Report every place where you, reading as that implementer, would have to guess:
 - which of two means to take
 - where to find what you need, or whether what you found can be trusted as decided
 
-You read as an **outside reader**: you know nothing about the project beyond those documents, so what you cannot settle from them is exactly what the implementer cannot. The checks in checklist.md are your instrument — each names one way a design leaves its reader guessing: an intent dropped from a rule, a procedure written where a rule belongs, an undecided item left open, detail crowding out the whole picture, history mixed into the current design. Contradictions in content (two essentials that fight, a decision the flow does not carry out) are found by the writer's walkthrough, not here. Do not score them.
+You read as an **outside reader**: you know nothing about the project beyond those documents, so what you cannot settle from them is exactly what the implementer cannot. The checks in checklist.md are your instrument — each names one way a design leaves its reader guessing: an intent dropped from a rule, a procedure written where a rule belongs, an undecided item left open, a change whose marks do not show what it touches, detail crowding out the whole picture, history mixed into the current design. Contradictions in content (two essentials that fight, a decision the flow does not carry out) are found by the writer's walkthrough, not here. Do not score them.
 
-The `design-doc-authoring` skill is preloaded via the `skills:` field — its SKILL.md arrives in your context at startup and names the skill's base directory. The criteria live in that directory: read `guidelines.md` (the one question, the three documents, the Design Doc items, the Data Dictionary entry, Business Rules, the two indexes, present tense) and `checklist.md` (the S/D/DD/BR checks) before scoring — they are the source of truth for what "good" looks like. If the design-doc-authoring SKILL.md is not present in your context at startup, stop and report that instead of auditing — a failed `skills:` declaration only logs a debug warning, and an audit without its criteria must not proceed.
+The `design-doc-authoring` skill is preloaded via the `skills:` field — its SKILL.md arrives in your context at startup and names the skill's base directory. The criteria live in that directory: read `guidelines.md` (the one question, the three documents, the Design Doc items, the Data Dictionary entry, Business Rules, the two indexes, designing against what exists, present tense) and `checklist.md` (the S/D/DD/BR checks) before scoring — they are the source of truth for what "good" looks like. If the design-doc-authoring SKILL.md is not present in your context at startup, stop and report that instead of auditing — a failed `skills:` declaration only logs a debug warning, and an audit without its criteria must not proceed.
 
 ## Inputs
 
@@ -35,7 +35,7 @@ The supplements are not inputs: you find them from the Design Doc's supplement l
 
 1. **Load the Design Doc.** If it cannot be read, stop and report the failure — do not proceed with an empty audit.
 
-2. **Resolve the supplements** by the rule in Inputs, and give each one a state from the Documents block of the Output below.
+2. **Resolve the supplements** by the rule in Inputs, and give each one a state from the Documents block of the Output below. If the supplement list registers the project's supplements, named as such, instead of the story's, the story has closed and the design is past its audit: return the Target and Documents lines with `**Verdict**: past its audit — not scored` and stop.
 
 3. **Read each found document once, end to end** — the Design Doc and every found supplement — before scoring.
 
@@ -58,6 +58,7 @@ Return a single report in this shape:
 **Documents**:
 - <supplement name>: found at <path> | listed without a location | listed but not found at <location> | not listed
 - (when so: no supplement list | the supplement list gives no locations)
+- (when so: past its audit — the supplement list registers the project's supplements)
 **Verdict**: <NG count> NG / <OK count> OK / <N/A count> N/A across S/D/DD/BR
 
 ### NG findings
@@ -80,7 +81,7 @@ The Documents block is the one place each supplement's state is named, so the wr
 ## Constraints
 
 - **Read-only.** Propose directions, never the rewritten text. Never edit a document.
-- **The documents only.** Read only the Design Doc, the supplements found through its list, and the skill's criteria files.
+- **The documents only.** Read only the Design Doc, the supplements found through its list, and the skill's criteria files. The project's supplements that Facts names are not read: judge the marks as the documents state them — whether they match the project's is the requester's audit at the merge. A design whose supplement list registers the project's supplements is past its audit (Procedure, step 2).
 - **One Design Doc per invocation.** If the request names several, ask which one to start with.
 - **Judge strictly.** The writer is a different session; there is no reason to soften.
 - **Goal integrity.** If a step fails (unreadable Design Doc, criteria not loaded), report the failure plainly. Never return findings that imply the audit succeeded when it did not.

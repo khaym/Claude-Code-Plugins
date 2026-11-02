@@ -1,15 +1,15 @@
 # Design Doc Format Checklist
 
-Binary checks of whether a design lets its implementer understand the purpose and the intent behind each rule, and choose the means without guessing. Scored by the `design-doc-review` agent, and usable by a writer checking a closed design.
+Binary checks of whether a design lets its implementer understand the purpose and the intent behind each rule, and choose the means without guessing. Scored by the `design-doc-review` agent, and usable by a writer checking a design at its audit point.
 Rate each item as **OK / NG / N/A**, judging from the three documents alone. For each NG, consult the matching section in [guidelines.md](guidelines.md) — the Section column names it.
 
 Each check restates one rule of guidelines.md as a yes/no question about the documents; a check adds no rule of its own. Contradictions in content — two essentials that fight, a decision the flow does not carry out — are not judged here: the walkthrough is where they are found.
 
-Three checks follow the chain from purpose to means across the documents — BR7, BR5, D7: each rule's intent connects a purpose to its specification, its grounds lead to a purpose, decision, and fact the Design Doc holds, and each essential's intent leads back to a listed purpose. They judge whether the chain is closed within the documents, not whether the purpose is the right one; that judgment is the requester's.
+Three checks follow the chain from purpose to means across the documents — BR7, BR5, D7: each rule's intent connects a purpose to its specification, its grounds lead to a purpose, decision, and fact the Design Doc holds (for a rule not marked unchanged or retired), and each essential's intent leads back to a listed purpose. They judge whether the chain is closed within the documents, not whether the purpose is the right one; that judgment is the requester's.
 
 A statement that fails S1 is sometimes a rule that dropped its intent: with the intent restored, it states what a record must satisfy or an order the system must impose. The direction for such a statement is to restore the intent and write it in Business Rules, not to delete it — a specification without the intent is a copy of the code ([Business Rules](guidelines.md#business-rules)).
 
-The checks judge a design that has reached its close — walkthrough done, undecided items given their options. Run over an earlier draft, D9 and D11 are expected to fail until those stages are written.
+The checks judge a design at its audit point (SKILL.md, Closing step 5) — walkthrough done, undecided index empty, Boundary's story list written — before the story's supplements are merged into the project's. Run over an earlier draft, D9 and D11 are expected to fail until those stages are written.
 
 Four layers, one per scope:
 
@@ -27,9 +27,11 @@ The supplements are the ones the Design Doc's supplement list names, at the loca
 | # | Check item | Section |
 |---|-----------|---------|
 | S1 | No document states how a component does its work inside — branches, internal ordering, how a write is made atomic, how a directory is created, how a hash is computed, the order a cleanup walks; the documents hold flow and rules only | The one question; The documents hold the flow and the rules; code holds the procedure |
-| S2 | References point one way — Business Rules → Data Dictionary → Design Doc: the Data Dictionary cites no Business Rule, and the Design Doc's only pointer to a supplement is its supplement list, which never cites a supplement's content | Three documents |
+| S2 | References point one way — Business Rules → Data Dictionary → Design Doc: the Data Dictionary cites no Business Rule, and the Design Doc's only pointer to a supplement is its supplement list, which never cites a supplement's content (Facts naming the project's supplements as where a change was observed is a fact's source, not such a pointer) | Three documents |
 | S3 | Every rule statement lives in Business Rules and nowhere else: the Design Doc carries essentials, not rule statements, and Data Dictionary entries point at records, not rules (when or how often a record is written, or the condition under which it must not be deleted, is not in its entry) | Business Rules; Data Dictionary entry |
 | S4 | The supplement list registers every supplement — the two and any the project added — with the question it answers and its location, and each listed supplement exists at that location | Three documents; Design Doc items (Indexes) |
+| S5 | Facts states what the story is designed against — the project's supplements, the real code, or both, each with its location, or that nothing exists yet; silence is NG. When anything exists, every step in Flow and every record in Records carries one of the four marks — unchanged, changed, new, retired — beside its name | Designing against what exists; Design Doc items (Facts, Flow, Records) |
+| S6 | When the project's supplements exist, every Data Dictionary entry and every rule carries one of the four marks beside its record name or identifier, so the reader sees which items the story leaves unchanged, changes, adds as new, or retires; retired items are still listed | Designing against what exists; Data Dictionary entry; Business Rules |
 
 ## D: Design Doc
 
@@ -39,7 +41,7 @@ The supplements are the ones the Design Doc's supplement list names, at the loca
 | D2 | Purpose names who gains what and who is deliberately not served, and nothing else — no means | Design Doc items (Purpose) |
 | D3 | Facts give each premise with its source (observation record, real data, real code), marked apart from decisions; a provisional premise is marked as such | Design Doc items (Facts); Design derives rules from the purpose |
 | D4 | Flow shows, from the user's side, how the components line up and which records pass between them | Design Doc items (Flow) |
-| D5 | Records lists every record the system manages — including records written outside the system that it only reads — with its role, where it lives, and its lifetime; Keys states which fields join which records | Design Doc items (Records, Keys) |
+| D5 | Records lists every record the system manages (for an existing system, every record of the affected flow) — including records written outside the system that it only reads — with its role, where it lives, and its lifetime; Keys states which fields join which records | Design Doc items (Records, Keys) |
 | D6 | Detail the walkthrough does not need sits in a supplement, not in the Design Doc — e.g. a record's field definitions belong to its Data Dictionary entry | Three documents (the walkthrough test) |
 | D7 | Essentials give, for each purpose the Purpose item names, purpose → intent → the states records must satisfy, in present tense; each intent says what that purpose's gainer gets, and each state follows from its intent — each states what holds, not why it was decided | Design Doc items (Essentials, Decisions); Design derives rules from the purpose |
 | D8 | Each decision is numbered and holds the adopted option, its reason, and the rejected options with their reasons, kept separate from the essentials | Design Doc items (Decisions) |
@@ -64,7 +66,7 @@ The supplements are the ones the Design Doc's supplement list names, at the loca
 | BR1 | Each rule has the four items: identifier, statement, bound record, grounds | Business Rules |
 | BR2 | Each identifier is lowercase letters, digits, and hyphens — two to four words naming the state the rule establishes or the order it imposes, with no chapter numbers | Business Rules |
 | BR3 | Each statement is one sentence of the form "so that <who> can <what>, <this state holds / this order is kept>", with no separate reason line | Business Rules |
-| BR4 | Each rule names the record (or document) it binds, by its name in the Data Dictionary | Business Rules |
-| BR5 | Grounds are the purpose served, the decision rested on, and the fact behind it — never another rule and never an undecided item; the purpose is one the Design Doc lists, the decision one its Decisions item holds, and the fact one its Facts item gives | Business Rules |
-| BR6 | Rules are grouped by the purpose they serve, in the order the Design Doc lists its purposes | Business Rules |
+| BR4 | Each rule names the records (or documents) it binds, by their names in the Data Dictionary, or every record for a general rule | Business Rules |
+| BR5 | Grounds are the purpose served, the decision rested on, and the fact behind it — never another rule and never an undecided item; for each rule not marked unchanged or retired, the purpose is one the Design Doc lists, the decision one its Decisions item holds, and the fact one its Facts item gives; a rule marked unchanged or retired carries the project's grounds as written, not a pointer to them | Business Rules; Designing against what exists |
+| BR6 | Rules are grouped by the purpose they serve, in the order the Design Doc lists its purposes; rules marked unchanged or retired come after them, together in one group | Business Rules; Designing against what exists |
 | BR7 | Each rule is the intent connecting purpose and specification: given the purpose in its grounds, its intent says why this specification (the state that holds or the order kept) — no specification stands without an intent that explains it (a copy of the code), and no intent stands without a specification (a wish) | Business Rules; Design derives rules from the purpose |

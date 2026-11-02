@@ -11,6 +11,7 @@ This is the thinking behind the three design documents — Design Doc, Data Dict
 - [Data Dictionary entry](#data-dictionary-entry) — six items per record
 - [Business Rules](#business-rules) — the unit handed to implementation
 - [Two indexes](#two-indexes) — undecided and provisional
+- [Designing against what exists](#designing-against-what-exists) — the affected flow, four marks, and the merge into the project's supplements
 - [Present tense only](#present-tense-only) — decisions, facts, and what leaves the document
 
 ## Why design before code
@@ -53,7 +54,7 @@ The question is asked per statement, not per topic: "lifetime" yields a flow sta
 
 ## Three documents
 
-Everything the requester needs in order to judge sits in the Design Doc; what only the implementation side reads goes to two supplements beside it.
+Everything the requester needs in order to judge sits in the Design Doc; what only the implementation side reads goes to two supplements beside it. The story's supplements last until the story closes; their content lives on in the project's supplements ([Designing against what exists](#designing-against-what-exists)).
 
 | Document | Holds | Read by |
 |---|---|---|
@@ -63,11 +64,11 @@ Everything the requester needs in order to judge sits in the Design Doc; what on
 
 The walkthrough test decides what leaves the Design Doc for a supplement: can the walkthrough still be run on the Design Doc alone? If yes, the detail is a supplement's; if no, it is an essential and stays.
 
-References point one way, opposite to the writing order: Business Rules → Data Dictionary → Design Doc. A document written earlier is complete without the later ones. When two disagree, the upstream one is right. The Data Dictionary never cites Business Rules; a rule names the record it binds, so the writer looking for a record's rules searches Business Rules for the record's name. The Design Doc's supplement list is the only downstream pointer: it says a supplement exists and never cites its content.
+References point one way, opposite to the writing order: Business Rules → Data Dictionary → Design Doc. A document written earlier is complete without the later ones. When two disagree, the upstream one is right. The Data Dictionary never cites Business Rules; a rule names the record it binds, so the writer looking for a record's rules searches Business Rules for the record's name. The Design Doc's supplement list is the only downstream pointer: it says a supplement exists and never cites its content. Facts naming the project's supplements is not such a pointer: it names what the design is designed against, as any fact names its source.
 
-The supplement list registers each supplement by name, the question it answers, and its location (a path from the project root), so the writer, the implementer, and a reviewer reach each supplement from the Design Doc. Without a location the reader cannot find it — the same reason a Data Dictionary entry carries one.
+The supplement list registers each supplement by name, the question it answers, and its location (a path from the project root), so the writer, the implementer, and a reviewer reach each supplement from the Design Doc. Without a location the reader cannot find it — the same reason a Data Dictionary entry carries one. When the story closes, the list registers the project's supplements instead, named as such.
 
-A project may add supplements, with the same test — same lifetime as the system, read by the code side rather than the requester — and each is registered in the supplement list the same way.
+A project may add supplements, with the same test — read by the code side rather than the requester — and each is registered in the supplement list and merged the same way.
 
 ## Design Doc items
 
@@ -76,9 +77,9 @@ The items in the order they appear as headings in the document. The stage that w
 | Item | What it answers |
 |---|---|
 | Purpose | Who gains what, and who is deliberately not served. Nothing else — the means come later |
-| Facts | The premises that cannot be moved, summarized here with their source (observation record, real data, real code). Marked apart from decisions; a provisional premise is marked as such |
-| Flow | How the components line up and which records pass between them, seen from the user's side |
-| Records | Every record the system manages, with its role, where it lives, and its lifetime — including records written outside this system that it only reads, since the walkthrough cannot run without them |
+| Facts | The premises that cannot be moved, summarized here with their source (observation record, real data, real code). Marked apart from decisions; a provisional premise is marked as such. Includes what the story is designed against ([Designing against what exists](#designing-against-what-exists)) |
+| Flow | How the components line up and which records pass between them, seen from the user's side. For an existing system, the whole affected flow ([Designing against what exists](#designing-against-what-exists)) |
+| Records | Every record the system manages — for an existing system, every record of the affected flow — with its role, where it lives, and its lifetime, including records written outside this system that it only reads, since the walkthrough cannot run without them |
 | Keys | Which fields join which records |
 | Essentials | For each purpose: purpose → intent → the states records must satisfy, in present tense. The intent is what the requester approves or rejects; the walkthrough runs on these |
 | Decisions | Numbered: the adopted option, its reason, the rejected options and their reasons. Kept separate from the essentials — a decision records why, an essential states what holds — and holding no history |
@@ -111,12 +112,12 @@ One rule has four items:
 |---|---|
 | Identifier | Lowercase letters, digits, hyphens; two to four words naming the state the rule establishes or the order it imposes; no chapter numbers, so the identifier survives restructuring |
 | Statement | One sentence: "so that <who> can <what>, <this state holds / this order is kept>". The intent is inside the sentence; there is no separate reason line |
-| Bound record | The record (or document) the rule constrains, by its name in the Data Dictionary |
-| Grounds | The purpose it serves, the decision it rests on, and the fact behind it. Never another rule, and never an undecided item: a rule grounded in a rule leads nowhere, and an undecided item cannot ground anything |
+| Bound record | The records (or documents) the rule constrains, by their names in the Data Dictionary — or every record, for a general rule |
+| Grounds | The purpose it serves, the decision it rests on, and the fact behind it. Never another rule, and never an undecided item: a rule grounded in a rule leads nowhere, and an undecided item cannot ground anything. In the project's Business Rules, the grounds also name their Design Doc ([Designing against what exists](#designing-against-what-exists)) |
 
 The statement is written once, in Business Rules, and nowhere else in the documents. The Design Doc holds the essentials — the same intent at the level the walkthrough needs — and the Data Dictionary points at records, not at rules. A rule restated in two places drifts, and the drift is where contradictions enter.
 
-Rules are grouped by the purpose they serve, in the order the Design Doc lists its purposes, so the reader of a purpose finds its rules together.
+Rules are grouped by the purpose they serve, in the order the Design Doc lists its purposes, so the reader of a purpose finds its rules together. The project's Business Rules group them by the Design Doc their grounds name, then by its purposes.
 
 ## Two indexes
 
@@ -130,6 +131,44 @@ Both live in the Design Doc, because whoever meets a line takes a different acti
 An item waiting on an observation is provisional, not undecided: the implementer proceeds with the current form, and the index does not block ticketing. The undecided index keeps only questions the requester can answer now, from two options.
 
 Whether the undecided index is empty is judged after the walkthrough, because the walkthrough is where the last items surface.
+
+## Designing against what exists
+
+A story is designed against what exists, and its supplements are merged into the project's supplements before implementation. A design that writes only the story's delta hides the steps around the change, and keeps its rules apart from the project's until implementation, where overlaps and contradictions surface.
+
+### Terms
+
+- What exists — stated in Facts, always: the project's supplements, the real code, or both, each with its location; or that nothing exists yet (a new system).
+- The project's supplements — the project's one Data Dictionary and Business Rules, which every story's supplements are merged into. A project without them gets them from its first merge, at a location it chooses; later designs name them in Facts.
+- Affected flow — the user-side sequence the change belongs to (cart redesign → the purchase flow), not the whole system. Another flow enters only when the story's purpose spans it.
+- Marks — unchanged, changed, new, retired, written beside the step, record name, or identifier. An item is marked against what exists for it: its entry or rule in the project's supplements, otherwise the real code.
+
+### What is marked and copied in
+
+Flow and Records cover the whole affected flow, the unchanged steps and records included.
+
+| Item | Marked when | The story's documents hold |
+|---|---|---|
+| Flow steps, records in Records | Anything exists | Every step and record of the affected flow |
+| Data Dictionary entries | The project's supplements exist | An entry for every record of the affected flow: copied from the project's supplements, or written from the code as facts where they hold none |
+| Business Rules | The project's supplements exist | Every project rule bound to a record of the affected flow or to every record, copied with the project's grounds; and the story's own. Never a rule read off the code: it describes the code, it is not a decision |
+
+### Marking conventions
+
+- New record — stage 3 asks which of the project's rules also bind it; a general rule binds without naming it. Such a rule is copied in unchanged, or changed when its bound records must name the new one.
+- Grounds — a rule marked new or changed traces to this Design Doc's purposes, decisions, and facts. One marked unchanged or retired keeps the project's grounds and sits after the story's purpose groups, in one group.
+- Retired — a retired entry or rule stays in the story's supplements, marked, so the implementer knows which code and tests to remove. A retired record with no project entry gets no entry; its mark in Records says it goes.
+- After close — the Design Doc keeps its marks: they are its design, not its history.
+
+### The merge
+
+Before implementation, so contradictions are decided before code. The requester audits the difference from the project's supplements, by record name and identifier.
+
+| When | The project's supplements | The story's supplements |
+|---|---|---|
+| At the merge | New added, changed replaced, retired removed, unchanged left. An added or changed rule's grounds name this Design Doc by location. No marks — they state the system as designed | Merged, then kept |
+| During implementation | Hold the text; code and tests cite identifiers | Read only — the list of what the story changes. A change reopens the design and is merged again |
+| When the story closes | Registered in the supplement list, named as the project's supplements | Deleted; the merge's commit (SKILL.md, Closing step 6) records what changed |
 
 ## Present tense only
 

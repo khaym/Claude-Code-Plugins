@@ -22,7 +22,7 @@ The input is the story's design documents or, when the story has no design, its 
 
 1. Read the input in full, starting from the purpose, before the code. An input that cannot be built from (guidelines.md, Input that cannot be built from) stops the pass: the author writes nothing, reports which stop was hit, and the story goes back to the requester.
 2. Read [guidelines.md](guidelines.md) in the order it is written. Without a design, make and write down the decisions its Without a design section names before coding.
-3. Answer the method's questions in order (guidelines.md, From the contract to the code) and build toward the purpose from the answers, pinning each Business Rule or success criterion with tests as the correspondence rules say. Comments last.
+3. Answer the method's questions in order (guidelines.md, From the contract to the code) and build toward the purpose from the answers, pinning each Business Rule in the story's scope or success criterion with tests as the correspondence rules say. Comments last.
 
 ## Reviewer's pass
 

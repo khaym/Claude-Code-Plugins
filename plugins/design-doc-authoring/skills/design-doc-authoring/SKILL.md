@@ -14,9 +14,10 @@ Read [guidelines.md](guidelines.md) for the thinking and the shapes — why a va
 - the three documents, their items, and which way references point
 - what a business rule is and the form one takes
 - the two indexes — undecided and provisional
+- designing against what exists — the affected flow, four marks, and the merge into the project's supplements
 - what never enters the Design Doc
 
-[checklist.md](checklist.md) holds the binary checks (S/D/DD/BR), one per rule in guidelines.md — each a way a design can leave its implementer guessing. The `design-doc-review` Custom SubAgent scores them in an isolated context — a reader who knows only the documents — and returns a read-only findings report; it preloads this skill via the `skills:` field, so the criteria are shared. See the [audit pass](#audit-pass).
+[checklist.md](checklist.md) holds the binary checks (S/D/DD/BR) that the `design-doc-review` agent scores in the [audit pass](#audit-pass).
 
 ## Intent detection
 
@@ -29,7 +30,7 @@ Read [guidelines.md](guidelines.md) for the thinking and the shapes — why a va
 
 ## Writing flow
 
-The input is a story ticket with a purpose and a provisional Done. The output is a Design Doc whose undecided index is empty, with its two supplements and their locations registered in its supplement list. A ticket is ready for design when its purpose names who gains what; otherwise send it back to the requester (through the installed filing skill when one is installed) before stage 1.
+The input is a story ticket with a purpose and a provisional Done. The output is a Design Doc whose undecided index is empty, with its two supplements registered in its supplement list and merged into the project's supplements. A ticket is ready for design when its purpose names who gains what; otherwise send it back to the requester (through the installed filing skill when one is installed) before stage 1.
 
 Before drafting:
 
@@ -40,16 +41,16 @@ Then write the six stages in order. Each stage ends with the requester's judgmen
 
 | Stage | The question it answers | Written in | Raise as undecided when |
 |---|---|---|---|
-| 1 Purpose | Who gains what, and who is deliberately not served? What premises cannot be moved? | Design Doc: Purpose, Facts | The purpose cannot name who gains, or a premise is only assumed |
-| 2 Flow | Seen from the user's side, how do the components line up and what passes between them? Where is the line to neighboring systems? | Design Doc: Flow, Boundary (what this system does not do, the line to its neighbors) | Two orderings of the components serve the purpose equally |
-| 3 Records | What records pass between components, what keys join them, what is each one's lifetime? | Design Doc: Records, Keys; one Data Dictionary entry per record | A record's writer, location, or lifetime cannot be derived from the purpose |
-| 4 Rules | For each purpose, what state must each record satisfy, what order must the system keep? | Design Doc: Essentials (purpose → intent → states); Business Rules (full text, one identifier each) | A rule's intent cannot be traced to a purpose, or two candidate rules serve it equally |
+| 1 Purpose | Who gains what, and who is deliberately not served? What premises cannot be moved? What is the story designed against — the project's supplements, the real code, or nothing yet? | Design Doc: Purpose, Facts (what exists, with its location, stated even when nothing does) | The purpose cannot name who gains, or a premise is only assumed |
+| 2 Flow | Seen from the user's side, how do the components line up and what passes between them? Where is the line to neighboring systems? For an existing system, how does the change sit in the whole affected flow? | Design Doc: Flow (for an existing system, the whole affected flow, each step marked), Boundary (what this system does not do, the line to its neighbors) | Two orderings of the components serve the purpose equally |
+| 3 Records | What records pass between components, what keys join them, what is each one's lifetime? | Design Doc: Records (for an existing system, each record marked), Keys; one Data Dictionary entry per record (with project supplements, their entries for the affected flow copied in, each marked) | A record's writer, location, or lifetime cannot be derived from the purpose |
+| 4 Rules | For each purpose, what state must each record satisfy, what order must the system keep? | Design Doc: Essentials (purpose → intent → states); Business Rules (full text, one identifier each; with project supplements, their rules binding the affected flow copied in with their grounds, each marked) | A rule's intent cannot be traced to a purpose, or two candidate rules serve it equally |
 | 5 Decisions | For each undecided item raised so far, which two options are there, which is recommended, and why? Which items are waiting on an observation? | Design Doc: Indexes (each undecided line completed with its options; observation-waiting items moved to provisional); Decisions (adopted, reason, rejected) for what the requester settles here | — |
 | 6 Walkthrough | Does one representative case pass through the flow on the Design Doc alone? | Design Doc: Walkthrough | A step needs a supplement to proceed (an essential is missing), or two essentials fight |
 
 The undecided index exists from stage 1: each item is added at the stage where it appears, with that stage noted. Stage 5 completes the lines with options and a recommendation. An item raised in stage 6 gets its options the same way, as part of closing.
 
-Within stage 3, decide in this order: which records exist and what role each plays, then the keys that join them, then each record's fields. Within stage 4, write the essentials in the Design Doc first and the full rules second; a rule with no essential behind it is a signal that the Design Doc is missing one.
+Within stage 3, decide in this order: which records exist and what role each plays, then the keys that join them, then each record's fields. For each new record, ask which of the project's rules also bind it, and carry those rules into stage 4. What is copied in and how it is marked is in [guidelines.md](guidelines.md#designing-against-what-exists). Within stage 4, write the essentials in the Design Doc first and the full rules second; a rule with no essential behind it is a signal that the Design Doc is missing one.
 
 At every stage:
 
@@ -63,12 +64,17 @@ At every stage:
 
 1. Give each undecided item raised in the walkthrough its two options and a recommendation, put them to the requester, and record what the requester settles in Decisions (adopted, reason, rejected), as stage 5 does. Move items waiting on an observation to the provisional index with the value in use and the observation that will revise it.
 2. Judge whether the undecided index is empty. An item still open sends the writer back to the stage it is marked with; repeat the walkthrough once the item is decided.
-3. With the undecided index empty, add to the Design Doc's Boundary which stories the work is cut into and which decisions each implements, then cut the tickets with the installed filing skill (e.g. `ticket-authoring`). Order, dependencies, and work content go to the tracker and the ticket bodies. When no filing skill is installed, hand the Boundary's story list to the requester as the cut and say that the filing checks could not run.
+3. Add to the Design Doc's Boundary which stories the work is cut into and which decisions each implements.
 4. Move verbatim judgments that became decisions out of the Design Doc into the commit message and the story ticket, leaving the decision and its reason.
+5. Run the [audit pass](#audit-pass).
+6. Merge the story's supplements into the project's, as [guidelines.md](guidelines.md#the-merge) describes, and have the requester audit the difference from the project's supplements, by record name and identifier. A difference the requester rejects, or a contradiction the merge brings out, goes to the undecided index at the stage it belongs to: the writer returns to that stage, runs the walkthrough again, and comes back through steps 1–6. Commit the merge once the requester accepts it.
+7. Cut the tickets with the installed filing skill (e.g. `ticket-authoring`), following the Boundary's story list; when no filing skill is installed, hand the Boundary's story list to the requester as the cut and say that the filing checks could not run. Order, dependencies, and work content go to the tracker and the ticket bodies. Add to the story ticket's Done that the story's supplements are deleted and the supplement list points at the project's; it is done when the story closes, after all of its implementation.
+
+A change found during implementation reopens the design the same way: the defective item goes to the undecided index at its stage, and the design comes back through the walkthrough and steps 1–6 before implementation resumes.
 
 ## Audit pass
 
-The `design-doc-review` agent (when installed via plugin, subagent type `design-doc-authoring:design-doc-review:design-doc-review`) reads the design as its implementer would: can the purpose and the intent behind each rule be understood, and the means chosen, without guessing? Its findings cite checklist.md. Contradictions in content are the walkthrough's to find. Its checks judge a design that has reached its close; on an earlier draft, expect the checks for the walkthrough and the undecided lines to fail.
+The `design-doc-review` agent (when installed via plugin, subagent type `design-doc-authoring:design-doc-review:design-doc-review`) reads the design as its implementer would: can the purpose and the intent behind each rule be understood, and the means chosen, without guessing? Its findings cite checklist.md. Contradictions in content are the walkthrough's to find. Its checks judge a design at Closing step 5, before the merge; on an earlier draft, expect the checks for the walkthrough and the undecided lines to fail. Once the story closes and its supplement list registers the project's supplements, the design is past its audit, and the agent says so instead of scoring.
 
 1. **Invoke the agent** with one Design Doc path. It finds the supplements through the Design Doc's supplement list, so register their locations there first.
 2. **Read the findings report.** Each NG cites a check ID and a direction; each N/A carries its reason. If the agent reports it could not read the Design Doc or its criteria, fix that and re-run — do not act on a partial audit.
