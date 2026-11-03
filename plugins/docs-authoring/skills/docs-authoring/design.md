@@ -34,6 +34,7 @@ LLM-generated and human-written engineering prose tends to fail in recurring way
 | F3 | Broken logical thread | Must re-read prior sections to follow the current one |
 | F4 | Missing decision-relevant facts | Reads cleanly but does not tell the reader what they need to decide |
 | F5 | Bold-saturated surface | Everything is highlighted, so nothing is — no resting place, no priority |
+| F6 | Narrative surface | Must follow an argument to reach the point; sentences only lead on |
 
 ## Design Decisions
 
@@ -57,6 +58,7 @@ LLM-generated and human-written engineering prose tends to fail in recurring way
 | Markdown is the only supported output format at v0.1 | Jira / Confluence / Notion-specific shapes are deferred. The principles apply regardless; only templates would differ. |
 | Principle definitions are language-independent; English-specific tactics demoted to realizations | Two definitions encoded an English syntactic feature as the rule itself: P1/T1 said the apex is "verb-first" (impossible in SOV languages like Japanese; in SVO Chinese the verb isn't fronted either), and P0/V2 keyed viewpoint to the "grammatical subject" (routinely elided in pro-drop languages — Japanese, Chinese, Spanish). Both let the means (English grammar) hijack the end (assert the action / hold one stance). Reworded to the language-independent intent — apex *names the action or outcome, not the topic*; viewpoint keeps *the stance's subject* consistent — since the skill triggers on non-English authoring ("読みやすくしたい"). Illustrative examples (English filler, abstract-verb list in P3) were left as-is: examples illustrate, they don't define, and abstracting them would cost the concreteness that makes them useful. |
 | Sentence/paragraph granularity absorbed into P1/P2/P3; bold demoted to a symptom (F5) | The model covered document (P0/P1), list (P2), word (P3), and scope (P4) granularity, but nothing between word and section. Cybozu's "テクニカルライティングの基本 2023" (Steps 3–4) fills the gap: one topic per paragraph with the claim first (P1/T6), parallel form for parallel content (P2/S5–S6), one claim per sentence and positive form (P3/W5–W6). Bold overuse is treated as the *symptom* that appears when these structural rules are violated — so detection (strip test W7, bold budget W8, F5) points back to P1/P2/P3, not to a styling rule. "One claim per sentence" replaces "keep sentences short" because claim count is binary-checkable while length is only a symptom (the source deck itself notes length ≠ clarity). No new P5, respecting the five-principle cap. |
+| Engineering documents are technical writing, not narrative (Core Concept, P1 Paragraphs, P3 Sentence role, T6/W4/W9, F6) | Observed 2026-11-02: a narrative-toned section of design-doc-authoring's guidelines.md passed docs-review twice; the owner rewrote it as terms, a table, and labeled lists. Gap: W5 asked whether a sentence joins two claims and W4 whether every word carries meaning; no check asked whether a whole sentence states a new claim. Reasons: narrative lengthens the document for every reader, and every Claude session that loads it spends context; it hides the point, so readers misread it. Each defect has one home in the guidelines — order inside a paragraph in P1 (T6), sentences stating no new claim in P3 Sentence role (W9), words inside a sentence in P3 Filler (W4); checklist rows stay one-line predicates that name it. A restatement is defined by function (adding no fact), not sentence count, so a needed reason keeps one sentence per fact — W5 and "relocate, don't delete" hold. The default covers every engineering document, so the writer judges no document type; sentences stay the form, tables and lists carry parallel facts (P2). Rejected: facts only as definitions, tables, and lists, with sentences reserved for reasoning chains (shuts sentences out; the writer judges each exception); skills and specs only (the writer judges the document type); build-up as a W9 form (its sentences carry facts; moving, not cutting, is the fix). Folded into P3 per the five-principle cap. |
 | Self-review pass is cost-gated, not blanket-mandatory | The writing workflow chains into docs-review **for substantive output** (design docs, RFCs, postmortems, multi-paragraph tickets) and skips it for trivial cases (one-line subjects, comments, few-line fixes). Reason: the agent's load (guidelines.md + checklist.md + draft in isolated context) only pays off when the writing model has surface to bite on. A blanket "always run" would impose SubAgent dispatch cost on outputs where the full checklist sweep yields little. The criteria live in SKILL.md; this design decision records the principle (cost proportional to value). |
 
 ## Data Flow
@@ -94,17 +96,18 @@ Phase B — Principles (properties of readable prose):
 P0. Hold one viewpoint throughout      (Foundational — subject stance, abstraction level,
                                         role declaration, argument frame)
 P1. Build top-down                     (apex first; support, premises, examples below;
-                                        one topic per paragraph, claim first)
+                                        one topic per paragraph, point first, no build-up)
 P2. Keep sibling items independent     (MECE, same abstraction, no inter-item
                                         dependencies, parallel form)
 P3. Use concrete words, only the         (substitution test + reader-side translation cost
     ones that carry the claim              + cut filler + split test — fewer words,
-                                           not fewer facts; bold is a last resort)
+                                           not fewer facts; every sentence states a fact,
+                                           rule, or decision; bold is a last resort)
 P4. Mark the boundary                  (out-of-scope; rejected alternatives;
                                         skip when scope is already obvious)
 ```
 
-Failure patterns F1–F5 are surface symptoms; each maps back to a missed step or principle, giving reviewers a path from "feels off" to "fix here". F4 (missing decision-relevant facts) is the symptom that motivated Phase A's introduction; F1 (repetition / verbosity) maps to both P2 (list-level redundancy) and P3 (prose-level padding); F5 (bold-saturated surface) appears when paragraph-head claims (P1) or parallel form (P2) are missing and typography compensates.
+Failure patterns F1–F6 are surface symptoms; each maps back to a missed step or principle, giving reviewers a path from "feels off" to "fix here". F4 (missing decision-relevant facts) is the symptom that motivated Phase A's introduction; F1 (repetition / verbosity) maps to both P2 (list-level redundancy) and P3 (prose-level padding); F5 (bold-saturated surface) appears when paragraph-head claims (P1) or parallel form (P2) are missing and typography compensates; F6 (narrative surface) appears when sentences lead to the point instead of stating it (P3 sentence role) and the point lands last (P1).
 
 ## Constraints & Tradeoffs
 

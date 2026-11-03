@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Audit an engineering document (design doc, ticket, README, postmortem) against the docs-authoring writing model and return a concise findings report. The audit runs in an isolated context so the heavy reads — guidelines.md (~15 KB), checklist.md, the target document — do not consume main-session tokens.
+Audit an engineering document (design doc, ticket, README, postmortem) against the docs-authoring writing model and return a concise findings report. The audit runs in an isolated context so the heavy reads — guidelines.md (~13 KB), checklist.md, the target document — do not consume main-session tokens.
 
 The agent diagnoses and proposes; it does not edit. The writer decides whether to act on each finding back in the main session.
 

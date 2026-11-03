@@ -6,10 +6,10 @@ This is the shared writing model for the reader loading this skill to write or r
 
 ## Table of Contents
 
-- [Core Concept](#core-concept) — fewer words, not fewer facts
+- [Core Concept](#core-concept) — fewer words, not fewer facts; technical writing, not narrative
 - [Process — Phase A](#process--phase-a-content-identification) — name the reader, list the anchors, select by usefulness
 - [Principles — Phase B](#principles--phase-b-properties-of-readable-prose) — P0 viewpoint / P1 top-down / P2 siblings / P3 words / P4 boundary
-- [Common Failure Patterns](#common-failure-patterns) — symptoms F1–F5 mapped back to the missed step
+- [Common Failure Patterns](#common-failure-patterns) — symptoms F1–F6 mapped back to the missed step
 - [How to Apply](#how-to-apply) — writing and reviewing workflows
 
 ---
@@ -24,6 +24,8 @@ Writing has two phases. Phase A decides *what* to convey — the questions or de
 - **Facts** — keep every fact the reader needs; when it doesn't fit the structure, **relocate, don't delete**. Cutting a needed fact for cleanness is the failure this model exists to prevent.
 
 So: *fewer words, not fewer facts.* When the two pull against each other, shorten the sentence, not the substance.
+
+Engineering documents are technical writing, not narrative — prose that leads the reader toward a point instead of stating it. P1 puts each paragraph's point first. P3 (Sentence role) cuts the sentences that state no new claim.
 
 When writing, identify before structuring. When reviewing, check content completeness (Phase A) and path shortness (Phase B) as separate passes.
 
@@ -70,7 +72,7 @@ A reader who reads only the apex should know what the document is for. Below it,
 - **Apex**: one sentence naming the action or outcome the document delivers, not its topic — the title for short docs (tickets, comments); the first sentence after the title for long ones.
 - **Premises**: place them above what depends on them — inline if short, a Background section before Goal if long.
 - **Sections**: each is an apex or support for an earlier apex; a section that is neither doesn't belong in the chain.
-- **Paragraphs**: one topic each, with the claim as the first sentence. A reader who reads only paragraph heads should still trace the section's argument — a claim at the paragraph head is findable with no styling at all (see the strip test, P3).
+- **Paragraphs**: one topic each, with its point — the claim the paragraph exists to make — as the first sentence. A build-up — sentences leading from problem through consequence to the point — moves below the point. A reader who reads only paragraph heads should still trace the section's argument — a point at the paragraph head is findable with no styling at all (see the strip test, P3).
 
 ### P2. Keep sibling items independent
 
@@ -87,13 +89,20 @@ A list of N items claims N independent points sharing one axis. If items restate
 
 ### P3. Use concrete words — and only the words that carry the claim
 
-Prose goes empty two ways: abstract verbs ("process", "manage", "handle", "apply") that give a sentence shape without content, and padding (throat-clearing, hedging, restated context) that adds length without meaning. Author-side terms add a third cost — the reader translates from your side to theirs.
+Prose goes empty three ways:
+
+- Abstract verbs ("process", "manage", "handle", "apply") — a sentence's shape without content
+- Padding (throat-clearing, hedging, restated context) — words inside a sentence that add length without meaning
+- Narrative (lead-in, restatement) — whole sentences that state no new claim
+
+Author-side terms add a separate cost: the reader translates from your side to theirs.
 
 - **Substitution test**: swap the apex's main noun and verb for another domain. If the sentence still reads, it was empty.
 - **Filler**: delete any word the sentence survives without. "In order to" → "to"; "it is important to note that" → nothing.
 - **Translation cost**: for each load-bearing term, does the reader know it from their own side, or only from yours? Gloss or replace the latter.
 - **Vocabulary consistency**: success criteria and evidence speak the goal's vocabulary; reserve implementation-side terms for background.
 - **Split test**: a sentence joining two claims that could each stand alone splits at the conjunction. One sentence, one claim — length is the symptom, claim count is the test.
+- **Sentence role**: every sentence states a claim — a fact, a rule, or a decision. Cut a lead-in: a sentence whose only role is to lead to the next (a transition, a preamble). A sentence naming a list's shared axis states a claim (P2). Cut a restatement: a sentence that re-argues or restates an earlier claim or reason without adding a fact — an expanded reason is the common case. A needed reason stays, one sentence per fact, after its claim.
 - **Positive form**: state claims affirmatively; reserve negation for prohibitions and warnings, and never stack negations.
 - **Emphasis**: bold marks what placement failed to do — it is a substitute for position. Before bolding, move the claim to where the reader already looks — the paragraph head (P1), the heading, the table cell. To set off a term, quoting marks (「」/ backticks) come before bold. What remains for bold: first use of a defined term or a warning — a handful per document, not per section, with no exception for scan-type documents (runbooks, facilitation scripts).
 - **Strip test**: remove every bold from the document. If each claim is still findable in one pass (one glance, for scan-type documents), the bold was decoration — cut it. If not, the structure is leaning on typography; fix the structure (P1 paragraph heads, P2 parallel form), not the styling.
@@ -119,6 +128,7 @@ Symptoms a reviewer catches first; each maps back to the missed step or principl
 | F3 | Broken logical thread | "I had to scroll back to follow this" | P0, P1, P3 |
 | F4 | Missing decision-relevant facts | "Reads cleanly, but doesn't tell me what to decide" | A2, A3 |
 | F5 | Bold-saturated surface | "everything is highlighted, so nothing is" — the eye has no resting place and no priority | P1, P2, P3 |
+| F6 | Narrative surface | "I read an argument to reach the point" / "this sentence only leads on" | P1, P3 |
 
 ---
 
@@ -138,5 +148,5 @@ Phase A then Phase B. Top-down (P1) is the target shape, not the drafting order 
 1. Run the [checklist](checklist.md) as a full sweep — mark each OK / NG / N/A.
 2. A (Process) NG may mean missing content; ask what reader anchors the writer identified. Structural edits alone won't fix Phase A failures.
 3. V/T/S/W/B NG: consult the matching principle. If any V (P0) item is NG, fix viewpoint first — local edits leak when it slides.
-4. Still feels off? Scan symptoms F1–F5 and trace to the missed step via the table.
+4. Still feels off? Scan symptoms F1–F6 and trace to the missed step via the table.
 5. Propose the smallest edit that turns NG to OK; confirm with the writer before applying. The skill diagnoses; the writer decides.
