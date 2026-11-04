@@ -5,41 +5,42 @@ description: Guides writing and tightening engineering documents (design docs, t
 
 # Docs Authoring
 
-Write and tighten engineering documents so a reader understands them in one pass. Apply principles, not output templates.
+Write and tighten engineering documents so a reader understands them in one pass.
 
-Read [guidelines.md](guidelines.md) for the writing model — core concept, content-identification process (A1–A3), five principles (P0–P4), failure-pattern mapping, and how-to-apply workflows. [checklist.md](checklist.md) holds the binary checks (A + V/T/S/W/B) used during the self-review pass below.
+This file tells you, the session that loaded the skill, what to read and when to self-review:
 
-For read-only audits ("review this document", "audit this doc"), the `docs-review` Custom SubAgent runs in an isolated context and returns a findings report. It preloads this skill via the `skills:` field, so the writing model is shared — no duplication.
+| File | Holds | Read by |
+|---|---|---|
+| [guidelines.md](guidelines.md) | The writing model: core concept, content identification (A1–A3), six principles (P0–P5), how to apply | You, before writing or tightening; the docs-review agent, when it audits |
+| [checklist.md](checklist.md) | The binary checks (A + V/T/S/W/C/B) | The docs-review agent, during the self-review below |
 
-## Self-review pass after writing or tightening
+Apply the principles, not output templates. Markdown is the only supported output format. Jira / Confluence / Notion-specific shapes are out of scope.
 
-For substantive output, run the `docs-review` agent on what was just written or revised before handing back. **Skip for trivial cases** — the agent's load (guidelines.md + checklist.md + the full draft, in an isolated context) only pays off when the writing model has surface to bite on.
+You write and tighten in the main session, where the user reacts to each edit. The self-review is the only writing step you delegate. The agent returns only its verdicts. Your context stays on the edits.
 
-**Run** when:
+For read-only audits ("review this document", "audit this doc"), the `docs-review` agent audits the document in an isolated context. It preloads this skill. It judges by the same writing model.
 
-- The document is substantive: design doc, RFC, postmortem, README section, multi-paragraph ticket body
-- Multiple readers or decision-loaded content (where reader-anchor drift hurts)
-- AI-generated draft, or a heavy rewrite of an existing doc
+## Self-review after writing or tightening
 
-**Skip** when:
+Run the `docs-review` agent on substantive output before handing back. The agent's load — guidelines.md, checklist.md, and the full draft, in an isolated context — pays off only there.
 
-- Short output: one-line ticket subject, comment, a fix of a few lines
-- The user asked for a quick draft or said review isn't needed
+Run it on:
+
+- **Long-form documents**: design docs, RFCs, postmortems, README sections, multi-paragraph ticket bodies
+- Documents with several reader types, or content that asks the reader to decide
+- A draft you wrote from scratch, and a heavy rewrite of an existing doc
+
+Skip it on:
+
+- **Short output**: a one-line ticket subject, a comment, a fix of a few lines
+- A quick draft the user asked for, or output the user waived review for
 - A minor follow-up edit on a doc that was just reviewed
 
-When unclear, ask one short question — *"Self-review this with docs-review?"* — and proceed with the answer.
+When unclear, ask the user one short question: *"Self-review this with docs-review?"*
 
-When you do run it:
+When you run it:
 
-1. **Invoke `docs-review`** on the document (path if it was written to a file, otherwise pasted content).
-2. **Read the returned findings report.** The report names NG checks with one-line rationales and proposed directions.
-3. **Apply the smallest edit that turns each NG into OK.** For non-trivial changes, confirm with the user before applying.
-4. **Surface unresolvable NGs explicitly.** If a finding requires information the user has not given (e.g., A1 NG because the reader was never named), ask the user rather than silently dropping it.
-
-The self-review keeps the heavy reads (guidelines.md, checklist.md, the full draft) out of the main session — the agent returns only the verdicts, and the main session focuses on the edits.
-
-## Notes
-
-- Writing and tightening run in the main session (iterative); the optional self-review pass is the only step delegated to a SubAgent
-- The skill diagnoses and proposes; the writer decides whether to accept each suggestion
-- Markdown is the only supported output format at v0.1. Jira / Confluence / Notion-specific shapes are out of scope
+1. Invoke `docs-review` on the document: its path if it was written to a file, otherwise its text in the prompt.
+2. Read the report's NG checks, each with a one-line rationale and a proposed direction.
+3. Apply the smallest edit that turns each NG into OK, where the report gives what the edit needs. Confirm a non-trivial change with the user before applying it.
+4. Ask the user about an NG that needs information only they can supply (e.g., A1 NG when the draft names no reader).

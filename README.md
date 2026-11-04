@@ -160,7 +160,7 @@ A `docs-review` Custom SubAgent audits a finished document in an isolated contex
 
 **How it works (the writing model):**
 - **Two phases** — first pin down *what* a specifically-named reader came for (their questions / decisions), then structure it into the shortest one-pass path
-- **Five principles** — hold one viewpoint throughout, build top-down (claim before evidence), keep list items independent, use concrete words from the reader's vocabulary, mark the scope boundary
+- **Six principles** — hold one viewpoint throughout, build top-down (claim before evidence), keep list items independent, use concrete words from the reader's vocabulary, use technical writing, not narrative (one claim per sentence), mark the scope boundary
 - **Fewer words, not fewer facts** — empty phrasing and restated context get cut; a fact that doesn't fit gets relocated, never deleted
 - **Self-review** — a binary OK/NG checklist (shared with the docs-review agent) catches verbosity, viewpoint drift, and missing decision-relevant facts before the doc ships
 

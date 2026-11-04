@@ -1,134 +1,164 @@
 # Docs Authoring Guidelines
 
-Identify what the reader came for, then choose the shortest path to it.
+Write an engineering document with every fact its named reader needs, only the words that carry meaning, in an order the reader follows in one pass.
 
-This is the shared writing model for the reader loading this skill to write or review an engineering document.
+This file is the writing model shared by two readers: the writer who loads this skill to write or tighten an engineering document, and the reviewer (the docs-review agent or a person) who loads it to review one.
 
-## Table of Contents
-
-- [Core Concept](#core-concept) — fewer words, not fewer facts; technical writing, not narrative
-- [Process — Phase A](#process--phase-a-content-identification) — name the reader, list the anchors, select by usefulness
-- [Principles — Phase B](#principles--phase-b-properties-of-readable-prose) — P0 viewpoint / P1 top-down / P2 siblings / P3 words / P4 boundary
-- [Common Failure Patterns](#common-failure-patterns) — symptoms F1–F6 mapped back to the missed step
-- [How to Apply](#how-to-apply) — writing and reviewing workflows
+- [Core Concept](#core-concept)
+- [Process — Phase A](#process--phase-a-content-identification)
+- [Principles — Phase B](#principles--phase-b-properties-of-readable-prose)
+- [How to Apply](#how-to-apply)
 
 ---
 
 ## Core Concept
 
-Writing has two phases. Phase A decides *what* to convey — the questions or decisions the named reader uses this document for. Phase B structures that content into a path readable in one pass.
+Writing runs in two phases:
 
-"Less, but better" (Dieter Rams) cuts in two directions, and confusing them is the central error:
+- **Phase A — content identification**: decides what to convey, the questions or decisions the named reader uses this document for.
+- **Phase B — readable prose**: decides the path that carries that content in one pass.
 
-- **Words** — cut every word that doesn't carry meaning. Throat-clearing, hedging, and restated context are detours.
-- **Facts** — keep every fact the reader needs; when it doesn't fit the structure, **relocate, don't delete**. Cutting a needed fact for cleanness is the failure this model exists to prevent.
+The model keeps fewer words, not fewer facts. "Less, but better" (Dieter Rams) cuts the two in opposite directions:
 
-So: *fewer words, not fewer facts.* When the two pull against each other, shorten the sentence, not the substance.
+| Target | Rule | Home |
+|---|---|---|
+| Words | Cut every word that carries no meaning | P3 |
+| Facts | Keep every fact the reader needs | A3 |
 
-Engineering documents are technical writing, not narrative — prose that leads the reader toward a point instead of stating it. P1 puts each paragraph's point first. P3 (Sentence role) cuts the sentences that state no new claim.
+This model exists to prevent one error: confusing the two directions, that is, cutting a needed fact for cleanness. When the two pull against each other, shorten the sentence, not the substance.
 
-When writing, identify before structuring. When reviewing, check content completeness (Phase A) and path shortness (Phase B) as separate passes.
+Engineering documents are technical writing, not narrative. Narrative is prose that leads the reader toward a point instead of stating it. P1 places each paragraph's point first. P4 cuts the sentences that only lead on or restate.
 
 ---
 
 ## Process — Phase A (content identification)
 
-Phase B assumes Phase A is done; skip it and you get a structurally clean document missing what the reader came for.
+Run Phase A before Phase B. Phase B alone yields a structurally clean document missing what the reader came for.
 
 ### A1. Name the reader specifically
 
-Not "the team" but "the on-call SRE during an incident"; not "engineers" but "a backend engineer evaluating libraries for adoption". Specific naming forces you to know who you write for. If the document serves multiple reader types, name each — every segment has its own anchors (A2).
+Name the reader specifically, not as a group: "the on-call SRE during an incident", not "the team"; "a backend engineer evaluating libraries for adoption", not "engineers". Specific naming forces you to know who you write for.
+
+A document serving several reader types names each. Each type has its own questions (A2).
 
 ### A2. List what the reader came for
 
-The questions or decisions they use this document to answer or decide ("What does this do?" "How much integration cost?" "Adopt it?") — each is an *anchor*, the unit completeness is checked against. Write the list down before drafting the body. This list is the contract: every fact either serves an item on it or supports one that does — otherwise it is a detour. When the requester's intent is unclear, ask; a guess that misses the anchor fails silently, producing a clean document about the wrong question.
+Before drafting the body, write down the questions or decisions the reader uses this document to answer or decide ("What does this do?" "How much integration cost?" "Adopt it?"). Each item is an *anchor*, the unit completeness is checked against.
+
+Every fact serves an anchor or supports a fact that does. The list is the contract. Any other fact is a *detour* — text the reader passes through without gaining what they came for.
+
+When the requester's intent is unclear, ask. A guess that misses the anchor fails silently, as a clean document about the wrong question.
 
 ### A3. Select by usefulness, not cleanness
 
-If a fact serves an anchor but doesn't fit the chosen structure, relocate it (another section, footnote, parenthesis) — don't delete it. Two tells that A2 was skipped: ordering items by their *type* ("Language → Backend → License") instead of reader-relevance, and dropping a fact because it "doesn't fit the section". Check A2 first — usually the fact serves an anchor and stays.
+A fact that serves an anchor stays even when it falls outside the chosen structure. Relocate it to another section, a footnote, or a parenthesis; never delete it for cleanness.
+
+Two tells show that A2 was skipped:
+
+- items ordered by their type ("Language → Backend → License") instead of reader relevance
+- a fact dropped because it "doesn't fit the section"
+
+On either tell, check A2 first. Usually the fact serves an anchor.
 
 ---
 
 ## Principles — Phase B (properties of readable prose)
 
-P0 is foundational — the other four assume it holds. Binary checks for each live in [checklist.md](checklist.md). Detour/Direct examples appear only for the easy-to-misread principles (P0, P2).
+Six principles define readable prose. Each one's binary checks form one layer of [checklist.md](checklist.md):
+
+| Principle | Checks |
+|---|---|
+| P0. Hold one viewpoint throughout | V |
+| P1. Build top-down | T |
+| P2. Keep sibling items independent | S |
+| P3. Use concrete words | W |
+| P4. Use technical writing, not narrative | C |
+| P5. Mark the boundary | B |
+
+The other five principles assume P0 holds.
+
+The easy-to-misread principles (P0, P2) carry an example pair: a *Detour* shape and its *Direct* rewrite.
 
 ### P0. Hold one viewpoint throughout (foundational)
 
-Every shift in viewpoint forces the reader to rebuild "whose stance am I reading from now?" — a cost that compounds across the whole document and can't be patched section by section.
+Pin the viewpoint with a *role declaration*: one sentence near the top stating the stance ("This document is the shape of the library"; "This ticket commissions an investigation, not an implementation").
 
-Pin the viewpoint with a **role declaration**: one sentence near the top stating the stance ("This document is the shape of the library"; "This ticket commissions an investigation, not an implementation"). Once pinned, the right vocabulary (P3) largely follows. Let it slide, and word choices drift even when each is individually defensible. Three dimensions to hold steady:
+Fix a viewpoint shift for the whole document. Patching section by section leaves it in place. Each shift makes the reader rebuild "whose stance am I reading from now?". That cost compounds across the document.
 
-- **Subject stance** (most important): keep the stance's subject consistent across sections — user, system, we, the function, the investigator. If the natural subject changes by section, the viewpoint has slid.
-- **Abstraction level**: don't move strategy → implementation → strategy between sections.
-- **Argument frame**: keep "the problem being solved" constant; mark any change explicitly.
+A pinned viewpoint largely fixes the vocabulary (P3). A sliding one lets word choices drift even when each is individually defensible.
 
-*Detour*: a ticket whose Purpose, Investigation, and Success sections each speak from a different person's view — the reader switches stance three times in thirty lines. *Direct*: every section frames its output as "what this investigation produces for the implementer of #10"; the analyst and investigator views become supporting context, not load-bearing stances.
+Hold three dimensions steady:
+
+| Dimension | Holds steady across sections | Sign it slid |
+|---|---|---|
+| Subject stance (most important) | The stance's subject — user, system, we, the function, the investigator | The natural subject changes by section |
+| Abstraction level | One level | The sections move strategy → implementation → strategy |
+| Argument frame | "The problem being solved" | The frame changes without an explicit mark |
+
+*Detour*: a ticket whose Purpose, Investigation, and Success sections each speak from a different person's view. The reader switches stance three times in thirty lines. *Direct*: every section frames its output as "what this investigation produces for the implementer of #10". The analyst and investigator views become supporting context, not load-bearing stances.
 
 ### P1. Build top-down
 
-A reader who reads only the apex should know what the document is for. Below it, claims precede their evidence, premises precede the sections that use them, examples sit under the claims they illustrate. A broken chain forces the reader to backtrack.
+Each unit sits below what it depends on and above what supports it. A broken chain forces the reader to backtrack.
 
-- **Apex**: one sentence naming the action or outcome the document delivers, not its topic — the title for short docs (tickets, comments); the first sentence after the title for long ones.
-- **Premises**: place them above what depends on them — inline if short, a Background section before Goal if long.
-- **Sections**: each is an apex or support for an earlier apex; a section that is neither doesn't belong in the chain.
-- **Paragraphs**: one topic each, with its point — the claim the paragraph exists to make — as the first sentence. A build-up — sentences leading from problem through consequence to the point — moves below the point. A reader who reads only paragraph heads should still trace the section's argument — a point at the paragraph head is findable with no styling at all (see the strip test, P3).
+- **Apex**: the apex names the action or outcome the document delivers, not its topic. It is one sentence. A reader of the apex alone knows what the document is for. A short document (ticket, comment) puts it in the title. A long one puts it in the first sentence after the title.
+- **Premises**: premises sit above what depends on them. A short premise sits inline. A long one sits in a Background section above the sections that use it.
+- **Evidence and examples**: they sit below the claim they serve.
+- **Sections**: each section is the apex or support for an earlier apex.
+- **Paragraphs**: each paragraph holds one topic. Its first sentence, the *paragraph head*, states the point — the claim the paragraph exists to make. A build-up (sentences leading from problem through consequence to the point) moves below the point. Reading only the paragraph heads traces the section's argument.
+
+Bold is kept for the first use of a defined term or a warning. Its budget is five per document at most, not per section, scan-type documents (runbooks, facilitation scripts) included. A document with more defined terms moves them into a table or a terms section. A list item's label (`- **Label**: text`) takes bold as well and falls outside this budget and the strip test. An unbolded label blurs into its text. Bold marks what placement failed to do: before bolding, move the point to where the reader already looks — the paragraph head, the heading, the table cell. To set off a term, quoting marks (「」/ backticks) come before bold.
+
+The strip test judges the result: remove every bold. When each point is still findable in one pass (one glance, for scan-type documents), the bold was decoration. Cut it. When a point is lost, the structure leans on typography. Fix the structure (paragraph heads, P2 parallel form), not the styling.
 
 ### P2. Keep sibling items independent
 
-A list of N items claims N independent points sharing one axis. If items restate each other, sit at different abstraction levels, or chain (one's output is another's input), the reader must reverse-engineer the list before reading it — a top source of "hard to follow" even when every sentence is clear.
+A list of N items claims N independent points sharing one axis. A list that breaks this makes the reader reverse-engineer it before reading it. It is a top source of "hard to follow" even when every sentence is clear.
 
-- Name the shared axis before listing (outcomes, candidates, options, criteria); test each item against it.
-- Merge restatements into the wording closest to the document's purpose.
-- Pull an umbrella item up a level — into the intro, the parent heading, or a separate sibling section.
-- Lift a dependency out of the parallel list — nest it under what it depends on, merge the two, or move the shared outcome elsewhere.
-- Give parallel content parallel form — the same grammatical shape, the same element order — so position predicts content. When forms diverge, the reader re-parses each item from scratch, and scan-type documents reach for highlighting to compensate.
-- Break three or more parallel items out of a sentence into a list; the sibling checks then apply to it.
+A numbered list declares an order. The chain rule applies to unnumbered lists only. The axis and form rules apply to numbered lists and table rows as well.
 
-*Detour*: a "Done" list of (a) classify the pattern, (b) catalogue the axes, (c) extract parameters from (b), (d) write up the above — a→b→c is a pipeline and d covers them all; none are siblings. *Direct*: "Done" lists two independent end-states; the deliverable and the implicit pipeline live in their own sections.
+Each defect below has its fix:
 
-### P3. Use concrete words — and only the words that carry the claim
+- **A missing axis**: name the axis before listing (outcomes, candidates, options, criteria). Choose the axis that serves the reader's purpose (A2), not the one that decomposes most cleanly. Test each item against it.
+- **Restating items**: merge them into the wording closest to the document's purpose.
+- **An umbrella item, at a different abstraction level from its siblings**: pull it up a level, into the intro, the parent heading, or a separate sibling section.
+- **A chained dependency (one item's output is another's input)**: lift it out of the parallel list. Nest it under what it depends on, merge the two, move the shared outcome elsewhere, or write the chain as a numbered procedure.
+- **Diverging forms**: give parallel content parallel form, the same grammatical shape and the same element order. Diverging forms make the reader re-parse each item from scratch. Scan-type documents then reach for highlighting to compensate.
+- **Three or more parallel clauses in one sentence**: break them out into a list. The sibling checks then apply to it. A series of noun examples stays inline.
+- **The wrong form for the items**: a table holds items that share two or more attributes, every cell filled. A label with its text is a list item. A table whose cells hold paragraphs, or whose columns stay mostly empty, is a list forced into a grid.
 
-Prose goes empty three ways:
+*Detour*: a "Done" list of (a) classify the pattern, (b) catalogue the axes, (c) extract parameters from (b), (d) write up the above. a→b→c is a pipeline. d covers them all. *Direct*: "Done" lists two independent end-states. The deliverable and the implicit pipeline live in their own sections.
 
-- Abstract verbs ("process", "manage", "handle", "apply") — a sentence's shape without content
-- Padding (throat-clearing, hedging, restated context) — words inside a sentence that add length without meaning
-- Narrative (lead-in, restatement) — whole sentences that state no new claim
+### P3. Use concrete words
 
-Author-side terms add a separate cost: the reader translates from your side to theirs.
+Every word carries meaning. Every load-bearing term — a term the claim depends on — comes from the reader's side.
 
-- **Substitution test**: swap the apex's main noun and verb for another domain. If the sentence still reads, it was empty.
-- **Filler**: delete any word the sentence survives without. "In order to" → "to"; "it is important to note that" → nothing.
-- **Translation cost**: for each load-bearing term, does the reader know it from their own side, or only from yours? Gloss or replace the latter.
-- **Vocabulary consistency**: success criteria and evidence speak the goal's vocabulary; reserve implementation-side terms for background.
-- **Split test**: a sentence joining two claims that could each stand alone splits at the conjunction. One sentence, one claim — length is the symptom, claim count is the test.
-- **Sentence role**: every sentence states a claim — a fact, a rule, or a decision. Cut a lead-in: a sentence whose only role is to lead to the next (a transition, a preamble). A sentence naming a list's shared axis states a claim (P2). Cut a restatement: a sentence that re-argues or restates an earlier claim or reason without adding a fact — an expanded reason is the common case. A needed reason stays, one sentence per fact, after its claim.
-- **Positive form**: state claims affirmatively; reserve negation for prohibitions and warnings, and never stack negations.
-- **Emphasis**: bold marks what placement failed to do — it is a substitute for position. Before bolding, move the claim to where the reader already looks — the paragraph head (P1), the heading, the table cell. To set off a term, quoting marks (「」/ backticks) come before bold. What remains for bold: first use of a defined term or a warning — a handful per document, not per section, with no exception for scan-type documents (runbooks, facilitation scripts).
-- **Strip test**: remove every bold from the document. If each claim is still findable in one pass (one glance, for scan-type documents), the bold was decoration — cut it. If not, the structure is leaning on typography; fix the structure (P1 paragraph heads, P2 parallel form), not the styling.
+- Name domain-specific actions. Abstract verbs ("process", "manage", "handle", "apply") give a sentence its shape without content. The substitution test finds them: swap the apex's main noun and verb for another domain. If the sentence still reads, it was empty.
+- Use load-bearing terms the reader knows from their own side. Gloss or replace a term they know only from yours. Such a term makes the reader translate from your side to theirs.
+- Speak the goal's vocabulary in success criteria, evidence, and support. Keep implementation-side terms in background.
+- Cut every word the sentence survives without. Padding — throat-clearing, hedging, restated context — is a detour inside the sentence: length without meaning ("in order to" → "to"; "it is important to note that" → nothing).
 
-### P4. Mark the boundary
+### P4. Use technical writing, not narrative
 
-An unbounded claim is harder to verify and easier to misread. Naming what a section excludes prevents the reader from speculating about scope and tightens the claim itself.
+Every sentence states a new claim: a fact, a rule, or a decision. Narrative sentences, the two kinds below, only lead on or restate. Cut them. A build-up's sentences carry facts. P1 moves them below the point.
 
-- Add a one-line "Out of scope" where scope ambiguity is likely; for tickets, treat it as a standard field.
-- Name the rejected alternative — it marks a decision's boundary by contrast.
-- Skip it when scope is obvious from title + apex — a boundary statement that adds nothing is itself a detour.
+| Narrative kind | What it is | Kept instead |
+|---|---|---|
+| Lead-in | A sentence whose only role is to lead to the next (a transition, a preamble) | A sentence naming a list's shared axis: it states a claim (P2) |
+| Restatement | A sentence that re-argues or restates an earlier claim or reason without adding a fact. An expanded reason is the common case. | A needed reason, one sentence per fact, after its claim |
 
----
+Each claim also gets its own sentence, stated affirmatively:
 
-## Common Failure Patterns
+- A sentence joining two claims that could each stand alone splits at the conjunction. A claim and its reason are two claims, each in its own sentence. The test counts claims, not length.
+- A claim is stated in positive form ("state claims affirmatively" over "avoid negation"). Negation stays in prohibitions, warnings, and contrasts naming the rejected alternative ("fewer words, not fewer facts"). Such a contrast keeps the claim unambiguous. Negations are never stacked ("not unlikely").
 
-Symptoms a reviewer catches first; each maps back to the missed step or principle, whose [checklist.md](checklist.md) items guide the fix.
+### P5. Mark the boundary
 
-| # | Failure | Reader's experience | Missed |
-|---|---------|---------------------|--------|
-| F1 | Repetition / verbosity | "I read this point already" / "every sentence carries padding" | P2, P3 |
-| F2 | Flat surface, no point of issue | "I can't tell which sentence carries the claim" | P1, P3 |
-| F3 | Broken logical thread | "I had to scroll back to follow this" | P0, P1, P3 |
-| F4 | Missing decision-relevant facts | "Reads cleanly, but doesn't tell me what to decide" | A2, A3 |
-| F5 | Bold-saturated surface | "everything is highlighted, so nothing is" — the eye has no resting place and no priority | P1, P2, P3 |
-| F6 | Narrative surface | "I read an argument to reach the point" / "this sentence only leads on" | P1, P3 |
+Name what a document or section excludes where its scope is ambiguous. The reader then stops speculating about scope. The claim also becomes easier to verify.
+
+- Add a one-line "Out of scope" where scope ambiguity is likely. Tickets carry it as a standard field.
+- Name the rejected alternative. It marks a decision's boundary by contrast.
+- Skip the boundary statement when the title and apex make the scope obvious. Such a statement is a detour.
 
 ---
 
@@ -136,17 +166,18 @@ Symptoms a reviewer catches first; each maps back to the missed step or principl
 
 ### When writing
 
-Phase A then Phase B. Top-down (P1) is the target shape, not the drafting order — Phase B iterates between bottom-up exploration and top-down restructuring.
+Top-down (P1) is the target shape, not the drafting order. Phase B iterates between bottom-up exploration and top-down restructuring.
 
-1. A1–A3: name the reader, list what they came for, select facts by usefulness.
-2. Pin the viewpoint (P0) in one sentence, then apply P1–P4 in order. These iterate — the first apex is usually wrong, and sharpening it sharpens the body. If no single sentence covers the content, it isn't one document yet: split or narrow.
-3. Re-read for viewpoint drift (P0) once the body has grown.
-4. Self-review with docs-review when the output is substantive (run/skip criteria in SKILL.md). Apply the smallest edit that turns each NG to OK before handing back.
+1. Run A1–A3.
+2. Pin the viewpoint (P0) in one sentence.
+3. Write the apex: one sentence covering the content. Content that needs more holds more than one document. Split or narrow it.
+4. Apply P1–P5 in order, iterating. The first apex is usually wrong. Sharpening it sharpens the body.
+5. Re-read for viewpoint drift (P0) once the body has grown.
+6. Self-review with docs-review when the output is substantive (run/skip criteria in SKILL.md). Before handing back, apply the smallest edit that turns each NG to OK.
 
 ### When reviewing
 
-1. Run the [checklist](checklist.md) as a full sweep — mark each OK / NG / N/A.
-2. A (Process) NG may mean missing content; ask what reader anchors the writer identified. Structural edits alone won't fix Phase A failures.
-3. V/T/S/W/B NG: consult the matching principle. If any V (P0) item is NG, fix viewpoint first — local edits leak when it slides.
-4. Still feels off? Scan symptoms F1–F6 and trace to the missed step via the table.
-5. Propose the smallest edit that turns NG to OK; confirm with the writer before applying. The skill diagnoses; the writer decides.
+1. Rate the [checklist](checklist.md) rows in the order it sets.
+2. On an A NG, ask the writer which reader anchors they identified. The NG may mean missing content (Phase A).
+3. Propose V (P0) fixes before the other layers' fixes.
+4. Propose the smallest edit that turns each NG to OK. Apply an edit only after the writer confirms it.

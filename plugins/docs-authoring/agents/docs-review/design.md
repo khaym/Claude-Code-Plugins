@@ -11,7 +11,7 @@ The agent diagnoses and proposes; it does not edit. The writer decides whether t
 In scope:
 
 - Read-only audit of a Markdown document the user has named (path or pasted content)
-- Phase A process checks (A1–A3) and Phase B principle checks (V/T/S/W/B)
+- Phase A process checks (A1–A3) and Phase B principle checks (V/T/S/W/C/B)
 - Return: per-item OK/NG/N/A verdicts plus short rationale and proposed direction for each NG
 
 Out of scope:
@@ -30,7 +30,7 @@ Out of scope:
 | Tools restricted to Read / Grep / Glob / Bash | Audit must not mutate the document. Edit/Write are explicitly excluded. Bash is allowed for read-only inspection (wc, head, etc.) but the procedure does not depend on shell-state assumptions. |
 | `model: opus` | Before the pin the agent ran on the session's inherited model, which in the situation that prompted the pin was Fable 5. Principle application needs context understanding (P0 viewpoint, P3 substitution test). Opus holds that judgment regardless of the session's model. Sonnet was the cheaper alternative, rejected because a gate audit whose judgment degrades stops working as a defense layer. The cost lands where an organization's `availableModels` allowlist blocks opus: the agent runs on the inherited model there. An interactive session warns in that case, naming the requested and the substituted model. |
 | Trigger phrases narrowed to audit intent | "review this document", "audit this doc", "ドキュメントをレビュー" route here. Ambiguous phrases like "tighten" / "make this clearer" / "読みやすくしたい" imply iterative rewrite and stay with main-session docs-authoring. The parent skill's frontmatter is adjusted to match (no overlap). |
-| Report format: per-check verdict + short rationale, NG-only details | A full V1–B3 table would re-encode checklist.md in the output. The user already has the checklist; what the audit adds is per-item verdicts and the rationale for the NGs. OK items get a one-line acknowledgement, not a re-explanation. |
+| Report format: per-check verdict + short rationale, NG-only details | A full A1–B3 table would re-encode checklist.md in the output. The user already has the checklist; what the audit adds is per-item verdicts and the rationale for the NGs. OK items get a one-line acknowledgement, not a re-explanation. |
 | Goal integrity: failure to read the document must not yield findings | If the document can't be read, the agent reports the failure explicitly rather than producing an "all clear" or fabricated findings. Same rule as the parent skill's "data fetch failure → report failure, not stale results". |
 
 ## Data Flow
@@ -42,13 +42,13 @@ User intent: "review this document" (path or pasted content)
 docs-review agent (isolated context)
    │
    ├── Preloaded at startup (via skills: docs-authoring)
-   │     ├── guidelines.md   (concept + Process A + Principles P0–P4)
-   │     └── checklist.md    (A + V/T/S/W/B binary checks)
+   │     ├── guidelines.md   (concept + Process A + Principles P0–P5)
+   │     └── checklist.md    (A + V/T/S/W/C/B binary checks)
    │
    ├── Read target document
    │
    ├── Phase A audit (A1–A3)         ── for each item: OK / NG / N/A
-   ├── Phase B audit (V/T/S/W/B)     ── for each item: OK / NG / N/A
+   ├── Phase B audit (V/T/S/W/C/B)   ── for each item: OK / NG / N/A
    │
    └── Compose findings report
             │

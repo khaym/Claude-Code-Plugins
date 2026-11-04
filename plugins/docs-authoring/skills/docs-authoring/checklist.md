@@ -1,24 +1,22 @@
 # Docs Authoring Checklist
 
-Evaluation criteria used during both writing and reviewing.
-Rate each item as **OK / NG / N/A**.
+The reviewer — the docs-review agent or a person — rates every row OK / NG / N/A: layer A (Phase A) first, then the prose layers (Phase B).
 
-Two layers:
+A row whose object is absent from the document — bold, a list, a list's axis — is N/A.
 
-- **A** verifies the content-identification process (Phase A — what to convey).
-- **V / T / S / W / B** verify the structural principles (Phase B — properties of readable prose).
-
-Run as a full sweep on the document. For each NG, consult the matching section in [guidelines.md](guidelines.md).
+[guidelines.md](guidelines.md) defines the terms. For each NG, consult the section the layer heading names there.
 
 ---
 
 ## A: Process (Phase A)
 
+When A1 is NG, A2 is N/A. A2 is rated against the reader A1 names.
+
 | # | Check item |
 |---|-----------|
-| A1 | The role declaration names a specific reader (not a generic group like "developers" or "the team") |
-| A2 | The body addresses the questions or decisions a reader of the named role would have |
-| A3 | Facts that serve the reader but don't fit the main structure are relocated (background section, footnote, parenthesis), not deleted |
+| A1 | The document names a specific reader, not a generic group ("developers", "the team") |
+| A2 | The body addresses the questions or decisions the named reader has |
+| A3 | Facts that serve the reader but fall outside the main structure are relocated (background section, footnote, parenthesis), not deleted |
 
 ---
 
@@ -26,51 +24,64 @@ Run as a full sweep on the document. For each NG, consult the matching section i
 
 | # | Check item |
 |---|-----------|
-| V1 | A one-line role declaration appears near the top (who the reader is, what the document does) |
+| V1 | A one-line role declaration near the top states the document's stance |
 | V2 | The stance's subject is consistent across sections, or any shift is signposted |
-| V3 | Abstraction level does not move up and down between sections |
-| V4 | The argument frame (problem being solved) stays constant; any change is marked explicitly |
+| V3 | The abstraction level stays the same across sections |
+| V4 | The argument frame (the problem being solved) stays constant across sections, or any change is signposted |
 
 ## T: Top-down (P1)
 
-| # | Check item |
-|---|-----------|
-| T1 | The apex is one sentence naming the action or outcome the document delivers (not its topic) — the title for short docs, the first sentence after the title for long docs |
-| T2 | A reader who reads only the apex can answer "what is this document for?" |
-| T3 | Premises sit above the sections that depend on them (inline if short, in a Background section if long) |
-| T4 | Every example or piece of evidence is placed below the claim it serves, not beside it |
-| T5 | Each section is identifiable as either an apex or part of support for an earlier apex — no floating sections |
-| T6 | Reading only the first sentence of each paragraph reconstructs the section's argument (one topic per paragraph, point first) |
-
-## S: Sibling Independence (P2)
+Bold list-item labels (`- **Label**: text`) fall outside T10–T12.
 
 | # | Check item |
 |---|-----------|
-| S1 | For each list, one shared axis of comparison is named or obvious from context — and the axis serves the reader's purpose (A2), not whatever decomposes most cleanly |
-| S2 | No list item summarizes, contains, or restates another (no umbrella sibling) |
-| S3 | No list item's output is another item's input (no chained dependency presented as siblings) |
-| S4 | Restated items are merged into the wording closest to the document's purpose |
-| S5 | Sibling items share one surface form — same grammatical shape, same element order — so position predicts content |
-| S6 | No sentence enumerates three or more parallel items in prose — they are broken out into a list |
+| T1 | The apex names the action or outcome the document delivers, not its topic |
+| T2 | The apex is one sentence |
+| T3 | The apex is the title in a short document, the first sentence after the title in a long one |
+| T4 | Premises sit above the sections that depend on them |
+| T5 | A short premise sits inline, a long one in a Background section |
+| T6 | Every example or piece of evidence sits below the claim it serves, not beside it |
+| T7 | Each section is the apex or support for an earlier apex |
+| T8 | Each paragraph holds one topic |
+| T9 | Each paragraph's first sentence states its point (reading only first sentences reconstructs the section's argument) |
+| T10 | Each point stays findable in one pass with all bold removed, one glance for scan-type documents (strip test) |
+| T11 | Bold marks only first-use definitions or warnings |
+| T12 | Bold appears five times per document at most |
+
+## S: Sibling independence (P2)
+
+| # | Check item |
+|---|-----------|
+| S1 | Each list has one shared axis, named or obvious from context |
+| S2 | Each list's axis serves the reader's purpose (A2), not whatever decomposes most cleanly |
+| S3 | No list item summarizes, contains, or restates another |
+| S4 | No item of an unnumbered list takes another item's output as input |
+| S5 | Sibling items share one surface form — the same grammatical shape, the same element order |
+| S6 | No sentence enumerates three or more parallel clauses in prose |
+| S7 | Each table's rows share two or more attributes, with every cell filled |
 
 ## W: Words (P3)
 
 | # | Check item |
 |---|-----------|
-| W1 | The apex verb names a domain-specific action — swapping its noun and verb for another domain breaks the sentence (substitution test) |
-| W2 | Load-bearing terms come from the reader's vocabulary; author-side terms are glossed or replaced |
-| W3 | Success criteria, evidence, and support speak in the same vocabulary as the goal |
-| W4 | No filler inside a sentence — every word carries meaning; throat-clearing, hedging, and restated context are cut (fewer words, not fewer facts) |
-| W5 | No sentence joins two claims that could each stand alone (split test) |
-| W6 | Claims are stated in positive form; negation appears only in prohibitions or warnings, and is never doubled |
-| W7 | The document passes the strip test: with all bold removed, each claim is still findable in one pass (one glance for scan-type documents) |
-| W8 | Remaining bold marks only first-use definitions or warnings — a handful per document, not per section |
-| W9 | Every sentence states a new claim — no lead-in or restatement (sentence role) |
+| W1 | The apex verb names a domain-specific action (substitution test) |
+| W2 | Every load-bearing term is one the reader knows from their own side, or is glossed |
+| W3 | Success criteria, evidence, and support speak the goal's vocabulary |
+| W4 | Every word inside a sentence carries meaning (no throat-clearing, hedging, or restated context) |
 
-## B: Boundary (P4)
+## C: Claims — technical writing (P4)
 
 | # | Check item |
 |---|-----------|
-| B1 | Scope boundary is stated, or clearly inferable from title + apex |
-| B2 | Where ambiguity is plausible, out-of-scope items or rejected alternatives are named explicitly |
-| B3 | No boundary statement is added that the title + apex already make obvious (such a statement would itself be a detour) |
+| C1 | No sentence joins two claims that could each stand alone, a claim and its reason included |
+| C2 | Every sentence states a new claim — no lead-in or restatement |
+| C3 | Each claim is stated in positive form, except prohibitions, warnings, and contrasts naming the rejected alternative ("X, not Y") |
+| C4 | No negations are stacked |
+
+## B: Boundary (P5)
+
+| # | Check item |
+|---|-----------|
+| B1 | The scope boundary is stated, or clearly inferable from the title and apex |
+| B2 | Out-of-scope items or rejected alternatives are named where ambiguity is plausible |
+| B3 | No boundary statement repeats what the title and apex already make obvious |
