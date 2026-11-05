@@ -10,8 +10,8 @@
     {
       "name": "task-tracker",
       "source": "./plugins/task-tracker",
-      "description": "Lightweight task/ticket tracker using TSV files and shell scripts",
-      "version": "1.5.0",
+      "description": "Lightweight task/ticket tracker using TSV files and shell scripts, with a guard-rail hook against Claude sessions hand-editing the index",
+      "version": "1.6.0",
       "category": "productivity",
       "tags": [
         "task",

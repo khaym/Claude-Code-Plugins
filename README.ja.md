@@ -8,7 +8,7 @@
 
 ### task-tracker
 
-TSVファイルとシェルスクリプトによる軽量タスク/チケットトラッカー。Claude Codeの[組み込みTask List](https://code.claude.com/docs/en/interactive-mode#task-list)がClaude内部で作業ステップを自動管理するのに対し、task-trackerはTSVとMarkdownで人間が直接読み書きできる形式でタスクを管理します。
+TSVファイルとシェルスクリプトによる軽量タスク/チケットトラッカー。Claude Codeの[組み込みTask List](https://code.claude.com/docs/en/interactive-mode#task-list)がClaude内部で作業ステップを自動管理するのに対し、task-trackerはTSVとMarkdownで人間が直接読める形式でタスクを管理します。
 
 **特徴:**
 - TSV + Markdownによる人間が読める形式（`.tasks/`）
@@ -16,6 +16,8 @@ TSVファイルとシェルスクリプトによる軽量タスク/チケット�
 - カテゴリ分類: `bug`, `improvement`, `task`
 - 関連カラム（`blocked-by` / `related` / `parent`）を `list` に表示し、着手判断と親子関係を一目で把握
 - 開発中に発見した問題をClaudeが自動トラッキングするスキル付き
+- 索引とカウンター（`.tasks/tasks.tsv`、`.tasks/.counter`）は直接読めるが、書き換えは `task.sh` だけで行うため、新しいチケットには既存と重ならない ID が振られる。本文（`.tasks/details/<id>.md`）は手で編集してよい
+- 同梱の PreToolUse hook が、Claude セッションによる索引とカウンターの手編集を止める。止めるのはよくある書き込みの形（Bash のリダイレクト、`tee`、`sed -i`、`mv`・`cp` の宛先、Edit・Write ツール）に限るガードレールで、錠ではない。それ以外の書き込みは通り、取り残されたカウンターは次の `add` が検知して、行を足さずに直すためのコマンドを示す
 
 **使い方:**
 

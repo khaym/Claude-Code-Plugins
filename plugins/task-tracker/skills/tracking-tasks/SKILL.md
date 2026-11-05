@@ -72,22 +72,28 @@ Three optional columns let the `list` view convey structure and priority without
 - Filter by category: `task.sh list --category bug`
 - Update a task: `task.sh update 3 -s "Updated subject" -c improvement`
 
+## Writing the tracker files
+
+- Change the index (`tasks.tsv`) and the counter (`.counter`) only through `task.sh` — `add`, `update`, `close`, `delete`. Reading the index directly with `grep` or `awk` is fine.
+- Edit the details (`details/<id>.md`) by hand when that is easier than `update -d` or `-a`.
+- The bundled hook refuses a Claude session's hand writes to the index and the counter, and names the `task.sh` subcommand to use instead. It is a guard rail, not a lock: it covers the common write shapes — Bash redirection, `tee`, `sed -i`, the `mv`/`cp` destination, and the Edit and Write tools. Other writers pass, and the next `add` catches a counter they leave behind.
+
 ## Error Handling
 
-All commands exit with non-zero status and print an error message on failure. Common cases:
+All commands exit with non-zero status and print an error message naming the cause on failure: correct the arguments, or follow the recovery it prints, and retry. Common cases:
 
 - **Not initialized**: every command except `init` fails if `.tasks/` is missing under the current working directory — `cd` to the project root and retry (or run `task.sh init` for a new project)
 - **Task not found**: `show`, `update`, `close`, `delete` fail if the ID does not exist
 - **Missing required arguments**: `add` requires `-s`; `show`/`update`/`close`/`delete` require an ID
 - **Already closed**: `close` fails if the task is already closed
-
-No special recovery is needed — read the error message and retry with corrected arguments.
+- **Counter behind the index, missing, or not a number**: `add` fails, adds nothing, and prints an `echo <id> > <project>/.tasks/.counter` command (absolute path), with a note on deleted IDs when the counter is missing or not a number. Show the command and the note to the user, who runs it in their own terminal; then retry the `add`
 
 ## Data Storage
 
 Tasks are stored in `.tasks/`, resolved relative to the **current working directory** — run commands from the project root. Only `init` creates the directory; every other command fails when it is missing, so a command run in the wrong directory cannot plant a stray `.tasks/`. The directory holds:
 
-- `.tasks/tasks.tsv` — Tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED, PARENT)
-- `.tasks/details/<id>.md` — Detailed descriptions per task
+- `.tasks/tasks.tsv` — the index: tab-separated metadata (ID, STATUS, CATEGORY, SUBJECT, CREATED, UPDATED, BLOCKED_BY, RELATED, PARENT)
+- `.tasks/.counter` — the counter: the last ID handed out; `add` takes the next number
+- `.tasks/details/<id>.md` — the details: the description of each task
 
-The TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context. Older TSV files (6 columns before the relation columns existed, 8 before `PARENT`) are migrated to 9 columns automatically on the next command, with every existing value kept. Rows narrower than the header are widened too, so rows appended by an older installed copy of the script are repaired on the next command.
+The index's TSV format allows efficient filtering with standard tools (`grep`, `awk`) without reading the entire file into context. Older TSV files (6 columns before the relation columns existed, 8 before `PARENT`) are migrated to 9 columns automatically on the next command, with every existing value kept. Rows narrower than the header are widened too, so rows appended by an older installed copy of the script are repaired on the next command.

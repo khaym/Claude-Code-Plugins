@@ -8,7 +8,7 @@ A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) pl
 
 ### task-tracker
 
-Lightweight task/ticket tracker using TSV files and shell scripts. While Claude Code's [built-in Task List](https://code.claude.com/docs/en/interactive-mode#task-list) automatically manages work steps internally, task-tracker stores tasks in TSV and Markdown files that humans can read and edit directly.
+Lightweight task/ticket tracker using TSV files and shell scripts. While Claude Code's [built-in Task List](https://code.claude.com/docs/en/interactive-mode#task-list) automatically manages work steps internally, task-tracker stores tasks in TSV and Markdown files that humans can read directly.
 
 **Features:**
 - Human-readable TSV + Markdown format (`.tasks/`)
@@ -16,6 +16,8 @@ Lightweight task/ticket tracker using TSV files and shell scripts. While Claude 
 - Categories: `bug`, `improvement`, `task`
 - Relation columns (`blocked-by`, `related`, `parent`) surfaced in `list` to convey priority and parent/child structure at a glance
 - Includes a skill for Claude to automatically track issues found during development
+- The index and counter (`.tasks/tasks.tsv`, `.tasks/.counter`) are readable directly but changed only through `task.sh`, so every new ticket gets an unused ID; the details (`.tasks/details/<id>.md`) can be edited by hand
+- A bundled PreToolUse hook stops Claude sessions from hand-editing the index and counter. It is a guard rail for the common write shapes (Bash redirection, `tee`, `sed -i`, the `mv`/`cp` destination, the Edit and Write tools), not a lock: other writers pass, and the next `add` catches a counter left behind, adding nothing and printing the command that fixes it
 
 **Usage:**
 

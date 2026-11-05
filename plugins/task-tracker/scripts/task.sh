@@ -47,10 +47,44 @@ migrate_schema() {
   mv "$TSV_FILE.tmp" "$TSV_FILE"
 }
 
+# The counter is trusted for numbering, so the check sits before it is written:
+# a counter behind the rows means rows were added outside task.sh, and the next
+# ID would duplicate one. The fix is left to a human (the plugin's hook keeps a
+# Claude session from writing .counter), so the error prints their command.
 next_id() {
+  local max_id
+  max_id=$(awk -F'\t' 'NR > 1 { id = $1; sub(/\r$/, "", id) } NR > 1 && id ~ /^[0-9]+$/ && id + 0 > m { m = id + 0 } END { print m + 0 }' "$TSV_FILE")
+  local counter_path recovery
+  printf -v counter_path '%q' "$PWD/$COUNTER_FILE"
+  recovery="To recover, a human runs this in their terminal, then retries the add:
+  echo $max_id > $counter_path"
+  # Without a readable counter, the highest ID in the index is only a lower
+  # bound for the last ID handed out: tickets above it may have been deleted.
+  local guess_hint="If tickets above $max_id were deleted, use the last ID handed out instead, so deleted IDs are not reused."
+
   local current=0
   if [[ -f "$COUNTER_FILE" ]]; then
-    current=$(cat "$COUNTER_FILE")
+    # Read like the index's ID column: a CR or spaces around the number
+    # are not part of it ([:space:] covers the CR).
+    current=$(< "$COUNTER_FILE")
+    current="${current#"${current%%[![:space:]]*}"}"
+    current="${current%"${current##*[![:space:]]}"}"
+    # Bash arithmetic would evaluate the file's text as an expression, so
+    # anything but digits is reported rather than computed with.
+    if [[ ! "$current" =~ ^[0-9]+$ ]]; then
+      die "$COUNTER_FILE holds '$current', not a non-negative integer, so no ID can be taken from it. No task was added.
+$recovery
+$guess_hint"
+    fi
+    current=$((10#$current))
+  elif (( max_id > 0 )); then
+    die "$COUNTER_FILE is missing while $TSV_FILE has rows, so no ID can be taken from it. No task was added.
+$recovery
+$guess_hint"
+  fi
+  if (( current < max_id )); then
+    die "$COUNTER_FILE ($current) is behind the highest ID in $TSV_FILE ($max_id): rows were added outside task.sh, so the next ID would duplicate an existing ticket. No task was added.
+$recovery"
   fi
   local next=$((current + 1))
   echo "$next" > "$COUNTER_FILE"
