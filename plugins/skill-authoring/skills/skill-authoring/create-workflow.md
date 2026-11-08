@@ -172,11 +172,10 @@ Implement according to the design decisions from Step 3. Script roles vary by sk
 
 ## 7. Quality Check
 
-Run the `skill-review` Custom SubAgent on the newly created skill directory (pass the MEMORY.md path if memory integrity should be checked). It evaluates all items in [checklist.md](checklist.md) in an isolated context and returns a findings report.
+Write the draft to disk first — the agent reads the skill from its files. Run the `skill-review` Custom SubAgent on the newly created skill directory (pass the MEMORY.md path if memory integrity should be checked). It evaluates all items in [checklist.md](checklist.md) in an isolated context and returns a findings report.
 
-- Fix all NG items before proceeding to the next step, then re-run the agent to confirm they rate OK
+- Fix the blocking findings before proceeding to the next step, and re-review as in step 5 of the Review Flow in [SKILL.md](SKILL.md) — it says when the review stops
 - Consult the user if a finding is unclear
-- If the draft has not been written to disk yet, evaluate checklist.md directly in the main session instead
 
 ## 8. Test & Report
 

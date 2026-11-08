@@ -16,6 +16,8 @@ Standardize skill quality by providing structured workflows for both creation an
 | Standard rules vs. recommended practices separated | Distinguishes mandatory requirements from optional practices; makes the skill portable across projects |
 | Checklist with category grouping | Standard rules and recommended practices grouped by letter code ensure coverage while making applicability clear |
 | plugin-structure.md added | Plugin packaging is a natural next step after skill/agent creation; guides standalone-to-plugin conversion and marketplace distribution |
+| Review findings judged blocking or a note against a review goal, per finding | The review ends when nothing blocks the goal, so only blocking findings extend it. The same check can block the goal in one place and be trivial in another, so the judgment is per finding, not per check ID. The agent does not know which findings the user judged not blocking and may report them again, so the main session keeps those judgments across rounds |
+| Stopping rule as Workflow Design principle (G7) | Every loop the guidelines recommend needs a stop, or it runs as long as rounds surface new findings; one general rule leaves each skill only its application, and G7 catches a loop without one |
 | Interface clarity as Workflow Design principle | Ambiguous boundary values (SubAgent params, script args, return values) are a frequent failure source; explicit format/type specification prevents miscommunication |
 | Memory Integrity as Recommended Practice | Skills must be self-contained — not rely on user auto-memory for correct execution; reconciliation workflow prevents silent coupling between skills and memory |
 
@@ -33,9 +35,14 @@ guidelines.md (load shared rules)
 Execute workflow                    skill-review agent (isolated context)
   ↓                                   │  guidelines comparison + checklist.md evaluation
 skill-review agent quality check      ↓
-  ↓                                 Findings report
-Output (new skill)                    ↓
-                                    Improvements (main session)
+  │  (same Re-review loop →)        Findings report
+  ↓                                   ↓
+Output (new skill)                  Improvements (main session)
+                                      ↓
+                                    Re-review ── blocking left → back to the agent
+                                      │          (three rounds max, then report to the user)
+                                      ↓ nothing blocks the review goal
+                                    Done
 ```
 
 ## Constraints & Tradeoffs

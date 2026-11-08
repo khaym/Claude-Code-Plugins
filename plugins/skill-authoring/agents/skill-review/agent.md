@@ -30,13 +30,7 @@ When the input is ambiguous (e.g., a path without a `SKILL.md`, or multiple cand
 
 3. **Evaluate checklist.md.** Rate every item `OK` / `NG` / `N/A` across the G / S / F / C / D / A / M layers. For G2, walk the selection flow in order and record the arrow-path trace. Rate the A layer N/A for skills without scripts or external integrations; rate the M layer N/A when no MEMORY.md path was provided.
 
-4. **Prioritize and propose.** For each NG, assign a priority and draft a one-line rationale plus a one-line proposed *direction* — the move, not the rewritten text (e.g., "split the workflow file", "add a TOC", "move the credential to `~/.foo_token`").
-
-   | Priority | Criteria | Examples |
-   |----------|----------|----------|
-   | **Critical** | Affects functionality or security | Credential exposure, exceeds 500 lines, missing frontmatter |
-   | **Recommended** | Improves quality or maintainability | Missing design.md, inconsistent terminology, no TOC |
-   | **Minor** | Nice-to-have improvements | Wording tweaks, formatting consistency |
+4. **Judge each NG against the review goal and propose.** The review goal and the blocking / note test are in the preloaded skill-authoring SKILL.md (Review Flow). Apply the test to each finding, and for each blocking finding write the sentence that states how the goal breaks. For every finding, draft a one-line rationale plus a one-line proposed *direction* — the move, not the rewritten text (e.g., "split the workflow file", "add a TOC", "move the credential to `~/.foo_token`").
 
 5. **Compose the report in the Output shape below and return it.** Stop. The main session decides what to act on.
 
@@ -48,19 +42,19 @@ Return a single report in this shape:
 ## skill-review findings
 
 **Target**: <skill directory path>
-**Verdict**: <NG count> NG / <OK count> OK / <N/A count> N/A across the G/S/F/C/D/A/M checks
+**Verdict**: <blocking count> blocking / <note count> notes — <"nothing blocks the review goal; the review may end" | "blocking findings remain; the review continues — after the third round, stop and report to the user">
+**Checks**: <NG count> NG / <OK count> OK / <N/A count> N/A across the G/S/F/C/D/A/M checks
 **G2 path**: <selection-flow trace, e.g. "1.No → 2.No → 3.Yes → Custom SubAgent. Current: Main session → NG">
 
-### NG findings
+### Blocking findings
 
-#### Critical
+- **<check id> @ <location>** [Critical] — <one-line rationale> · *Blocks*: <one sentence: how the goal breaks> · *Proposed*: <one-line direction>
+
+Omit `[Critical]` on findings it does not mark. List Critical findings first.
+
+### Notes
+
 - **<check id> @ <location>** — <one-line rationale> · *Proposed*: <one-line direction>
-
-#### Recommended
-- (same shape)
-
-#### Minor
-- (same shape)
 
 ### OK summary
 

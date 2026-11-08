@@ -23,6 +23,7 @@ Rate each item as **OK / NG / N/A**.
 | G4 | No unnecessary data is wasting context during processing |
 | G5 | Output to the main session is concisely controlled |
 | G6 | On step failure, the skill does not act contrary to its purpose (e.g., reporting "all clear" with stale data) |
+| G7 | Every repeated procedure states its goal, its viewpoint, its exit (nothing blocks the goal), and its round limit with what happens when it does not converge |
 
 **G2**: apply the selection flow in [guidelines.md](guidelines.md) step by step and note the path with arrows in remarks — e.g. `"1.No → 2.No → 3.Yes → Custom SubAgent. Current: Built-in → NG"`
 
