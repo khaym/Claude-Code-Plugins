@@ -29,13 +29,16 @@ Return a single report in this shape:
 ## docs-review findings
 
 **Target**: <path or "pasted content">
-**Verdict**: <NG count> NG / <OK count> OK / <N/A count> N/A across the A + V/T/S/W/C/B checks
+**Verdict**: <blocking count> blocking / <note count> notes — <"no blocking finding; the review may end" | "blocking findings remain; the review continues — after the third round, stop and report to the user">
+**Checks**: <NG count> NG / <OK count> OK / <N/A count> N/A across the A + V/T/S/W/C/B checks
 
-### NG findings
+### Blocking findings
+
+- **<check id> @ <location>** — <one-line rationale> · *Blocks*: <one sentence: how it keeps the reader from understanding the document in one pass> · *Proposed*: <one-line direction>
+
+### Notes
 
 - **<check id> @ <location>** — <one-line rationale> · *Proposed*: <one-line direction>
-
-(repeat per NG)
 
 ### OK summary
 
@@ -59,7 +62,7 @@ Keep the report tight. The full principle text is in guidelines.md; the report's
 
 4. **Run the Phase B checks** (the V / T / S / W / C / B layers in checklist.md). Same OK/NG/N/A scoring.
 
-5. **For each NG, draft a one-line rationale and a one-line proposed *direction*** — the move, not the new text (e.g., "relocate to Background", "name the rejected alternative").
+5. **Judge each NG blocking or a note and propose.** The test is in the preloaded docs-authoring SKILL.md (Self-review after writing or tightening); for each blocking finding, write its one sentence. For every finding, draft a one-line rationale and a one-line proposed *direction* — the move, not the new text (e.g., "relocate to Background", "name the rejected alternative").
 
 6. **Compose the report in the Output shape above and return it.** Stop. The main session decides what to act on.
 

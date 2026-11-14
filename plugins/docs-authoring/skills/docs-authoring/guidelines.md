@@ -173,11 +173,11 @@ Top-down (P1) is the target shape, not the drafting order. Phase B iterates betw
 3. Write the apex: one sentence covering the content. Content that needs more holds more than one document. Split or narrow it.
 4. Apply P1–P5 in order, iterating. The first apex is usually wrong. Sharpening it sharpens the body.
 5. Re-read for viewpoint drift (P0) once the body has grown.
-6. Self-review with docs-review when the output is substantive (run/skip criteria in SKILL.md). Before handing back, apply the smallest edit that turns each NG to OK.
+6. Self-review with docs-review when the output is substantive. Before handing back, apply the smallest edit that clears each blocking finding. SKILL.md holds the run/skip criteria and when the review stops.
 
 ### When reviewing
 
 1. Rate the [checklist](checklist.md) rows in the order it sets.
 2. On an A NG, ask the writer which reader anchors they identified. The NG may mean missing content (Phase A).
 3. Propose V (P0) fixes before the other layers' fixes.
-4. Propose the smallest edit that turns each NG to OK. Apply an edit only after the writer confirms it.
+4. Judge each NG blocking or a note by the test in SKILL.md. Propose the smallest edit that turns a blocking NG to OK, and a direction for a note. Apply an edit only after the writer confirms it.

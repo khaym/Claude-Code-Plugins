@@ -12,7 +12,7 @@ In scope:
 
 - Read-only audit of one skill directory (standalone `.claude/skills/` or `<plugin-root>/skills/`)
 - All checklist layers: G (context design), S/F/C (standard rules), D/A/M (recommended practices)
-- Return: per-item OK/NG/N/A verdicts; each NG judged blocking or a note against the review goal, with short rationale and proposed direction, and a one-sentence account of how a blocking finding breaks the goal
+- Return: per-item OK/NG/N/A verdicts; each NG judged blocking (with one sentence on how a session goes wrong) or a note, with short rationale and proposed direction
 
 Out of scope:
 
@@ -29,9 +29,9 @@ Out of scope:
 | Preload skill-authoring via `skills:` (DI) | guidelines.md and checklist.md are the source of truth. Duplicating them into agent.md would create drift; cross-referencing headings would couple the agent to the skill's structure. DI injects the SKILL.md body at startup; referenced files are read on demand. A missing skill fails silent (debug-log warning only), so agent.md carries a fail-loud startup check. |
 | Tools restricted to Read / Grep / Glob / Bash | The audit must not mutate the target. Edit/Write are excluded. Bash is allowed for read-only inspection (wc, find, etc.). |
 | `model: opus` | Before the pin the agent ran on the session's inherited model, which in the situation that prompted the pin was Fable 5. Checklist judgments like C7–C9 (emphasis imbalance, duplication, accretion) need whole-document reading comprehension. Opus holds that judgment regardless of the session's model. Sonnet was the cheaper alternative, rejected because a gate audit whose judgment degrades stops working as a defense layer. The cost lands where an organization's `availableModels` allowlist blocks opus: the agent runs on the inherited model there. An interactive session warns in that case, naming the requested and the substituted model. |
-| Blocking / note judged by the agent, per finding, against the review goal | The review must be able to end. Under the former Critical/Recommended/Minor triage every NG stayed open, and each round surfaced new findings on rewritten text and borderline cases, so the review did not converge. The verdict now counts only findings that block the goal, and zero means the review may end. The judgment is per finding, not per check ID: the same check can block in one place and be trivial in another. A blocking finding must carry one sentence on how the goal breaks, and a finding that cannot is a note — the sentence keeps borderline cases from flipping between rounds and lets the author check the judgment. Critical survives as a mark inside blocking (fails to load or run, credential exposure) so the worst findings still lead. The goal sentence and the blocking / note test live in the skill's Review Flow, which both the agent and the main-session loop read. |
+| Blocking / note judged by the agent | The review must be able to end. Under the former Critical/Recommended/Minor triage every NG stayed open and each round surfaced new findings, so the review did not converge. The verdict now counts only blocking findings, and zero means the review may end. The test lives in the skill's Review Flow, read by both the agent and the main session |
 | M checks parameterized by an optional MEMORY.md path | Auto-memory location is user- and project-specific; the agent cannot discover it reliably from an isolated context. Explicit input keeps the interface unambiguous (C10); omission degrades to N/A, never to a guessed path. |
-| Report format mirrors docs-review | Same shape (NG findings / OK summary / N/A) across the two review agents lowers the reading cost for a user who consumes both. |
+| Report format mirrors docs-review | Same shape (verdict counting blocking findings and notes, then Blocking findings / Notes / OK summary / N/A) across the two review agents lowers the reading cost for a user who consumes both. |
 
 ## Data Flow
 
@@ -50,12 +50,12 @@ skill-review agent (isolated context)
    ├── S/F/C audit (standard rules)                     ── OK / NG / N/A
    ├── D/A/M audit (recommended practices)              ── OK / NG / N/A
    │
-   └── Compose findings report (each NG judged blocking / note against the review goal)
+   └── Compose findings report (each NG judged blocking / note)
             │
             ▼
    Return to main session:
      - Verdict line (blocking / notes) + checks line + G2 path
-     - Blocking findings: { check id, location, Critical mark, rationale, how the goal breaks, proposed direction }
+     - Blocking findings: { check id, location, rationale, how a session goes wrong, proposed direction }
      - Notes: { check id, location, rationale, proposed direction }
      - OK summary / N/A list
 ```

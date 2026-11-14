@@ -12,7 +12,7 @@ In scope:
 
 - Read-only audit of a Markdown document the user has named (path or pasted content)
 - Phase A process checks (A1–A3) and Phase B principle checks (V/T/S/W/C/B)
-- Return: per-item OK/NG/N/A verdicts plus short rationale and proposed direction for each NG
+- Return: per-item OK/NG/N/A verdicts; each NG judged blocking (with one sentence on how it keeps the reader from understanding the document in one pass) or a note, with short rationale and proposed direction
 
 Out of scope:
 
@@ -31,6 +31,7 @@ Out of scope:
 | `model: opus` | Before the pin the agent ran on the session's inherited model, which in the situation that prompted the pin was Fable 5. Principle application needs context understanding (P0 viewpoint, P3 substitution test). Opus holds that judgment regardless of the session's model. Sonnet was the cheaper alternative, rejected because a gate audit whose judgment degrades stops working as a defense layer. The cost lands where an organization's `availableModels` allowlist blocks opus: the agent runs on the inherited model there. An interactive session warns in that case, naming the requested and the substituted model. |
 | Trigger phrases narrowed to audit intent | "review this document", "audit this doc", "ドキュメントをレビュー" route here. Ambiguous phrases like "tighten" / "make this clearer" / "読みやすくしたい" imply iterative rewrite and stay with main-session docs-authoring. The parent skill's frontmatter is adjusted to match (no overlap). |
 | Report format: per-check verdict + short rationale, NG-only details | A full A1–B3 table would re-encode checklist.md in the output. The user already has the checklist; what the audit adds is per-item verdicts and the rationale for the NGs. OK items get a one-line acknowledgement, not a re-explanation. |
+| Blocking / note judged by the agent | The review must be able to end. When every NG stayed open, each round surfaced new findings and the review did not converge. The verdict now counts only blocking findings, and zero means the review may end. The test lives in the skill's self-review steps, read by both the agent and the main session |
 | Goal integrity: failure to read the document must not yield findings | If the document can't be read, the agent reports the failure explicitly rather than producing an "all clear" or fabricated findings. Same rule as the parent skill's "data fetch failure → report failure, not stale results". |
 
 ## Data Flow
@@ -50,12 +51,13 @@ docs-review agent (isolated context)
    ├── Phase A audit (A1–A3)         ── for each item: OK / NG / N/A
    ├── Phase B audit (V/T/S/W/C/B)   ── for each item: OK / NG / N/A
    │
-   └── Compose findings report
+   └── Compose findings report (each NG judged blocking / note)
             │
             ▼
    Return to main session:
-     - Summary line (overall verdict + NG count)
-     - NG findings: { check id, location, rationale, proposed direction }
+     - Verdict line (blocking / notes, may the review end) + checks line
+     - Blocking findings: { check id, location, rationale, how it blocks one-pass reading, proposed direction }
+     - Notes: { check id, location, rationale, proposed direction }
      - OK summary: list of check IDs that passed (no re-explanation)
 ```
 

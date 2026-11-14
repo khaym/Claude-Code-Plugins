@@ -146,11 +146,7 @@ Calibrate how prescriptive each step should be based on the nature of the task:
 
 - Use checklists to ensure quality
 - Build in feedback loops (execute → verify → correct)
-- **Stopping rule**: Every repeated procedure (a feedback loop, a re-review, a retry) states when it stops. Each round can surface something new, so a loop without a stopping rule runs until the user stops it. State four things:
-  - **Goal** — the state the loop serves
-  - **Viewpoint** — each round looks only for what blocks the goal; what does not block it (a borderline case, a wording preference) never extends the loop
-  - **Exit** — stop when nothing blocks the goal. Reaching the round limit is not an exit
-  - **No convergence** — set a round limit. When something still blocks the goal at the limit, stop the loop, report to the user what still blocks it and the count per round, and ask for a decision
+- **Stopping rule**: Every repeated procedure (a feedback loop, a re-review, a retry) states when it stops; otherwise each round surfaces something new and the loop runs until the user stops it. Each round looks only for what blocks the loop's goal — a borderline case or a wording preference never extends it. Stop when nothing blocks the goal. Set a round limit; when something still blocks the goal at the limit, stop and report to the user what remains and the count per round
 - Include error handling procedures
 - **Goal integrity**: Even when a step fails, the skill must not act contrary to its purpose. Example: If data retrieval fails, don't generate a report with stale data that gives a false "all clear" — explicitly report the failure instead
 - **Interface clarity**: Define boundary values (SubAgent parameters, script arguments, return values) unambiguously. Specify format and type explicitly — e.g., `YYYY-MM-DD` rather than "today".

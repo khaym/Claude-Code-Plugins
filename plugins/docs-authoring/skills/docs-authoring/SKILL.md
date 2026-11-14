@@ -34,13 +34,13 @@ Skip it on:
 
 - **Short output**: a one-line ticket subject, a comment, a fix of a few lines
 - A quick draft the user asked for, or output the user waived review for
-- A minor follow-up edit on a doc that was just reviewed
+- A minor edit that addresses notes once no blocking finding remains
 
 When unclear, ask the user one short question: *"Self-review this with docs-review?"*
 
 When you run it:
 
 1. Invoke `docs-review` on the document: its path if it was written to a file, otherwise its text in the prompt.
-2. Read the report's NG checks, each with a one-line rationale and a proposed direction.
-3. Apply the smallest edit that turns each NG into OK, where the report gives what the edit needs. Confirm a non-trivial change with the user before applying it.
-4. Ask the user about an NG that needs information only they can supply (e.g., A1 NG when the draft names no reader).
+2. Apply the smallest edit that clears each blocking finding — an NG whose report states in one sentence how it keeps the reader from understanding the document in one pass. Other NGs are notes: pass them to the user, who decides whether to fix them. Confirm a non-trivial change with the user before applying it. A blocking finding the user declines counts as a note in later rounds.
+3. Ask the user about a finding that needs information only they can supply (e.g., A1 NG when the draft names no reader).
+4. Re-run `docs-review` on the whole document until no blocking finding remains, at most three rounds with the first review included. If blocking findings remain after the third, stop and report them to the user with the count per round.
