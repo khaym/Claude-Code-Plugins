@@ -34,8 +34,8 @@ Run the `ticket-review` agent (when installed via plugin, subagent type `ticket-
 
 1. **Invoke `ticket-review`** with the draft (pasted content, file path, or tracker ID). Pass the project's value anchor — a purpose-doc path or summary — when you already hold it; otherwise the agent discovers one itself.
 2. **Read the findings report.** Each NG names what an outside reader could not read, plus a proposed direction. If the agent reports it could not obtain the ticket (missing tracker script, unresolvable ID), supply the body as pasted content and re-run — do not act on a partial audit.
-3. **Apply the smallest edit that turns each NG into OK.** If a fix needs information the requester has not given (whose value this serves, where the boundary lies), handle the gap per the filing principles in [guidelines.md](guidelines.md).
-4. **Re-run after substantial rewrites**; a wording tweak does not need a second pass.
+3. **Apply the smallest edit that clears each blocking finding** — an NG whose report states in one sentence how it lets the ticket's means take charge of its purpose. Other NGs are notes: pass them to the user, who decides whether to fix them. If a fix needs information the requester has not given (whose value this serves, where the boundary lies), handle the gap per the filing principles in [guidelines.md](guidelines.md).
+4. **Re-run `ticket-review` on the whole ticket until no blocking finding remains**, at most three rounds with the first review included. If blocking findings remain after the third, stop and report them to the user with the count per round.
 
 ## Notes
 

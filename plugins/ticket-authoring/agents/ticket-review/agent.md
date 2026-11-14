@@ -43,7 +43,7 @@ When the input is ambiguous (multiple candidate tickets in one message, an ID wi
 
 5. **Restate the ticket's value in one line** of your own words, as the outside reader. If you cannot, that inability is itself the headline finding.
 
-6. **For each NG, draft a one-line rationale and a one-line proposed *direction*** — the move, not the rewritten text (e.g., "lead the purpose with the player-visible behavior, demote the convention gap to sentence two", "move the dependency into blocked-by metadata").
+6. **Judge each NG blocking or a note and propose.** The test is in the preloaded ticket-authoring SKILL.md (Premise audit pass before filing); for each blocking finding, write its one sentence. For every NG, draft a one-line rationale and a one-line proposed *direction* — the move, not the rewritten text (e.g., "lead the purpose with the player-visible behavior, demote the convention gap to sentence two", "move the dependency into blocked-by metadata").
 
 7. **Compose the report in the Output shape below and return it.** Stop. The main session decides what to act on.
 
@@ -56,13 +56,16 @@ Return a single report in this shape:
 
 **Target**: <tracker ID, path, or "pasted draft">
 **Value anchor**: <caller-provided | CLAUDE.md purpose section | README | none found — generic standard applied>
-**Verdict**: <NG count> NG / <OK count> OK / <N/A count> N/A across T1–T5
+**Verdict**: <blocking count> blocking / <note count> notes — <"no blocking finding; the audit may end" | "blocking findings remain; the audit continues — after the third round, stop and report to the user">
+**Checks**: <NG count> NG / <OK count> OK / <N/A count> N/A across T1–T5
 
-### NG findings
+### Blocking findings
+
+- **<check id> @ <location>** — <what the outside reader could not read> · *Blocks*: <one sentence: how it lets the ticket's means take charge of its purpose> · *Proposed*: <one-line direction>
+
+### Notes
 
 - **<check id> @ <location>** — <what the outside reader could not read> · *Proposed*: <one-line direction>
-
-(repeat per NG)
 
 ### OK summary
 

@@ -11,6 +11,7 @@ A drafting session judges its own tickets too kindly: it knows the internals, so
 | Custom SubAgent, read-only toolset (Read, Grep, Glob, Bash) | The audit's value is the cold context; editing rights would blur reviewer and writer. Bash exists solely to run the tracker's `show` command |
 | Preloads `ticket-authoring` via `skills:`, criteria read at runtime | checklist.md / guidelines.md stay the single source of truth; the agent verifies the preload at startup and refuses to audit without it |
 | Premise checks only (T1–T5), no readability scoring | Keeps a crisp boundary with docs-review; one finding class per agent keeps reports actionable |
+| Blocking / note judged by the agent (#40, 2026-11-14) | The audit must be able to end. When every NG stayed open, each round surfaced new findings and the audit did not converge. The verdict counts only blocking findings, and zero means the audit may end. The test lives in the skill's premise audit pass, read by both the agent and the main session |
 | Value restatement as a mandatory report section | The one-line restatement is the discrimination test made visible — failure to restate is the strongest possible finding, so it cannot be omitted |
 | Strict judgment stance stated in the prompt | The writer is another session; without an explicit stance the agent drifts toward benefit-of-the-doubt scoring |
 | `maxTurns: 15` as a runaway guard | Anchor discovery may take a few Glob/Read turns but the audit is bounded |
@@ -18,7 +19,7 @@ A drafting session judges its own tickets too kindly: it knows the internals, so
 
 ## Data Flow
 
-Ticket (pasted draft / file path / tracker ID) → resolve ticket body → resolve value anchor (caller-provided → CLAUDE.md → README → generic standard) → score T1–T5 against checklist.md → findings report (verdicts, rationales, directions, value restatement) → main session.
+Ticket (pasted draft / file path / tracker ID) → resolve ticket body → resolve value anchor (caller-provided → CLAUDE.md → README → generic standard) → score T1–T5 against checklist.md → judge each NG blocking or a note → findings report (verdict on whether the audit may end, blocking findings with how each lets the means take charge of the purpose, notes, directions, value restatement) → main session.
 
 ## Constraints & Tradeoffs
 
