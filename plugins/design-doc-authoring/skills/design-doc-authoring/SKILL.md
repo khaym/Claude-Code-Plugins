@@ -46,11 +46,23 @@ Then write the six stages in order. Each stage ends with the requester's judgmen
 | 3 Records | What records pass between components, what keys join them, what is each one's lifetime? | Design Doc: Records (for an existing system, each record marked), Keys; one Data Dictionary entry per record (with project supplements, their entries for the affected flow copied in, each marked) | A record's writer, location, or lifetime cannot be derived from the purpose |
 | 4 Rules | For each purpose, what state must each record satisfy, what order must the system keep? | Design Doc: Essentials (purpose → intent → states); Business Rules (full text, one identifier each; with project supplements, their rules binding the affected flow copied in with their grounds, each marked) | A rule's intent cannot be traced to a purpose, or two candidate rules serve it equally |
 | 5 Decisions | For each undecided item raised so far, which two options are there, which is recommended, and why? Which items are waiting on an observation? | Design Doc: Indexes (each undecided line completed with its options; observation-waiting items moved to provisional); Decisions (adopted, reason, rejected) for what the requester settles here | — |
-| 6 Walkthrough | Does one representative case pass through the flow on the Design Doc alone? | Design Doc: Walkthrough | A step needs a supplement to proceed (an essential is missing), or two essentials fight |
+| 6 Walkthrough | Does each use case that reaches a step marked changed or new (in a new system, any step) run through the flow on the Design Doc alone? | Design Doc: Walkthrough (one table row per use case) | A step needs a supplement to proceed (an essential is missing), two essentials fight, or the Design Doc does not say what holds when a record the use case touches is abnormal |
 
 The undecided index exists from stage 1: each item is added at the stage where it appears, with that stage noted. Stage 5 completes the lines with options and a recommendation. An item raised in stage 6 gets its options the same way, as part of closing.
 
 Within stage 3, decide in this order: which records exist and what role each plays, then the keys that join them, then each record's fields. For each new record, ask which of the project's rules also bind it, and carry those rules into stage 4. What is copied in and how it is marked is in [guidelines.md](guidelines.md#designing-against-what-exists). Within stage 4, write the essentials in the Design Doc first and the full rules second; a rule with no essential behind it is a signal that the Design Doc is missing one.
+
+Within stage 6, the walkthrough takes the form of the table in [guidelines.md](guidelines.md#the-walkthrough-table): its columns, the steps that need a row, the two kinds of abnormal case, and where findings live are defined there. Fill it in by these steps:
+
+1. Enumerate the use cases that reach the steps that need a row, from four viewpoints of what the user can do:
+   - per entrance: the user comes in through each entrance, one-shot subcommands included
+   - during another operation: the user operates while another operation runs
+   - repeat or reverse: the user repeats, undoes, or contradicts an earlier operation
+   - before its records exist: the user operates before a record the operation relies on has been written
+2. Check that each step that needs a row appears in the Steps reached column of some row.
+3. Run each row through the flow on the Design Doc alone, and ask what holds when a record the use case touches is abnormal.
+4. File each finding as the guidelines describe, with only its pointer in the row.
+5. Present the list of use cases to the requester, who judges from it whether the walkthrough covers enough.
 
 At every stage:
 

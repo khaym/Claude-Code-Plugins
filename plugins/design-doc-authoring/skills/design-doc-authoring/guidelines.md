@@ -53,7 +53,7 @@ The stages run from the outside in, then by strength of constraint — three ord
 
 ### Contradictions show in a walkthrough, not in a list
 
-The walkthrough — one representative case passed through the flow, using the Design Doc alone — finds contradictions before implementation. A list of rules cannot: two rules that each read right can fight when one concrete case passes through both. A walkthrough that needs the Data Dictionary or Business Rules to proceed shows a missing essential — a rule's intent at the level the walkthrough needs ([Design Doc items](#design-doc-items)).
+The walkthrough finds contradictions before implementation: each use case in the [walkthrough table](#the-walkthrough-table) is run through the flow using the Design Doc alone. A list of rules cannot do this: two rules that each read right can fight when one concrete case passes through both. A walkthrough that needs the Data Dictionary or Business Rules to proceed shows a missing essential — a rule's intent at the level the walkthrough needs ([Design Doc items](#design-doc-items)).
 
 ## The one question
 
@@ -112,9 +112,33 @@ The ten items, in the order they appear as headings in the document. The stage t
 | Keys | Which fields join which records |
 | Essentials | For each purpose: purpose → intent → the states records must satisfy, in present tense. The intent is what the requester approves or rejects; the walkthrough runs on these |
 | Decisions | Numbered: the adopted option, its reason, the rejected options and their reasons. Kept separate from the essentials — a decision records why, an essential states what holds. Holds no history |
-| Walkthrough | One representative case passed through the flow using the essentials alone: the steps, the undecided items and contradictions found, and what they changed |
+| Walkthrough | The use cases that reach the Flow steps marked changed or new (in a new system, any step), each run through the flow using the essentials alone, one table row each ([The walkthrough table](#the-walkthrough-table)) |
 | Boundary | What this system does not do; the line to neighboring systems; if the work is cut into several stories, which stories and which decisions each implements |
 | Indexes | The undecided and provisional indexes ([Two indexes](#two-indexes)), followed by the supplement list ([Three documents](#three-documents)) |
+
+### The walkthrough table
+
+The walkthrough is a table with one row per use case and no procedure prose. A use case is one operation the user makes in one state of the records it touches; the same operation in two record states is two rows.
+
+| Column | Holds |
+|---|---|
+| Use case | The user's operation |
+| Entrance | The entrance the operation comes through; a one-shot subcommand is an entrance of its own |
+| Record state | The state of the records the operation touches — e.g. the item already has a rating, or no rating record exists yet |
+| Steps reached | The Flow steps the use case reaches, by their names in Flow |
+| Essentials that hold | The essentials whose states hold as the use case runs through those steps |
+| Findings | Pointers to the Design Doc items that hold what the row found |
+
+Every Flow step marked changed or new appears in the Steps reached column of at least one row. In a new system no step is marked, so every step counts as new. A step marked retired needs no row.
+
+The walkthrough meets two kinds of abnormal case, told apart by whether a user operation can produce it:
+
+- An abnormal operation is one the user can make in the ordinary course, such as acting before a record it relies on has been written. It is a use case, so it is a row.
+- An abnormal record is one lost or corrupted by a system failure or a hand edit — a schema violation, or records that contradict each other. No user operation produces it, so it is not a row.
+
+Instead, each row is asked what holds when a record it touches is abnormal. The answer is a rule, and the design decides it, not the code.
+
+A finding lives in the Design Doc item it belongs to — Decisions, Essentials, the provisional index, a mark in Flow or Records. The row holds only the pointer, which keeps the table at one line per use case. A finding that changes an earlier stage's answer, or needs the requester's choice, is first an undecided line; once decided it moves to its item and the pointer follows.
 
 ## Data Dictionary entry
 
